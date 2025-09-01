@@ -4,37 +4,56 @@
 
 
 module alu (
-    input clock,
-    input reset,
-    input enable,
-    input [2:0] opcode,
+    input logic clock_in,
+    input logic reset_in,
+    input logic enable_in,
+    input logic [2:0] opcode_in,
     input logic signed [7:0] alu_input1,
     input logic signed [7:0] alu_input2,
-    output wire signed [7:0] alu_output
+    output logic signed [7:0] alu_output
 );
-    localparam ADD = 2'b00, SUBTRACT = 2'b01, MULTIPLY = 2'b10;
+    localparam ADD = 3'b000, SUBTRACT = 3'b001, MULTIPLY = 3'b010, 
+        EQUALS = 3'b011, GREATER_THAN = 3'b100;
 
-    logic signed [7:0] alu_output_logic;
-    assign alu_output = alu_output_logic;
-
-    always @(posedge clock) begin 
-        if (reset) begin 
-            alu_out_reg <= 8'b0;
+    always @(posedge clock_in) begin 
+        if (reset_in) begin 
+            alu_output <= 8'b0;
         end 
         
-        else if (enable) begin
-            case (opcode)
+        else if (enable_in) begin
+            case (opcode_in)
                 ADD: begin 
-                    alu_output_logic <= alu_input1 + alu_input2;
+                    alu_output <= alu_input1 + alu_input2;
                 end
 
                 SUBTRACT: begin 
-                    alu_output_logic <= alu_input1 - alu_input2;
+                    alu_output <= alu_input1 - alu_input2;
                 end
 
                 MULTIPLY: begin 
-                    alu_output_logic <= alu_input1 * alu_input2;
+                    alu_output <= alu_input1 * alu_input2;
                 end
+
+                EQUALS: begin
+                    if (alu_input1 == alu_input2) begin
+                        alu_output <= 1;
+                    end
+
+                    else begin
+                        alu_output <= 0;
+                    end
+                end
+
+                GREATER_THAN: begin
+                    if (alu_input1 == alu_input2) begin
+                        alu_output <= 1;
+                    end
+
+                    else begin
+                        alu_output <= 0;
+                    end
+                end
+
             endcase
         end
     end

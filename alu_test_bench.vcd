@@ -1,0 +1,108 @@
+$date
+	Mon Sep  1 13:42:40 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module alu_test_bench $end
+$var wire 8 ! c_out [7:0] $end
+$var reg 8 " a_in [7:0] $end
+$var reg 8 # b_in [7:0] $end
+$var reg 1 $ clock $end
+$var reg 3 % opcode [2:0] $end
+$var reg 1 & reset $end
+$scope module main_alu $end
+$var wire 8 ' alu_input1 [7:0] $end
+$var wire 8 ( alu_input2 [7:0] $end
+$var wire 1 $ clock_in $end
+$var wire 1 ) enable_in $end
+$var wire 3 * opcode_in [2:0] $end
+$var wire 1 & reset_in $end
+$var parameter 3 + ADD $end
+$var parameter 3 , EQUALS $end
+$var parameter 3 - GREATER_THAN $end
+$var parameter 3 . MULTIPLY $end
+$var parameter 3 / SUBTRACT $end
+$var reg 8 0 alu_output [7:0] $end
+$upscope $end
+$scope begin $ivl_for_loop0 $end
+$var integer 32 1 i [31:0] $end
+$scope begin $ivl_for_loop1 $end
+$var integer 32 2 j [31:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b1 /
+b10 .
+b100 -
+b11 ,
+b0 +
+$end
+#0
+$dumpvars
+bx 2
+bx 1
+bx 0
+bx *
+z)
+b0 (
+b0 '
+0&
+bx %
+0$
+b0 #
+b0 "
+bx !
+$end
+#5000
+1$
+#10000
+0$
+1&
+#15000
+b0 !
+b0 0
+1$
+#20000
+0$
+b0 %
+b0 *
+b0 2
+b0 1
+0&
+#25000
+1$
+#30000
+0$
+b1 #
+b1 (
+b1 2
+#35000
+1$
+#40000
+0$
+b0 #
+b0 (
+b1 "
+b1 '
+b1 1
+b0 2
+#45000
+1$
+#50000
+0$
+b1 #
+b1 (
+b1 2
+#55000
+1$
+#60000
+0$
+b10 1
+b10 2
