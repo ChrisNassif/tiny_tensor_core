@@ -1,0 +1,29 @@
+$date
+	Mon Sep  1 15:01:28 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module alu_test_bench $end
+$var reg 1 ! clock $end
+$var reg 1441 " machine_code [1440:0] $end
+$var integer 32 # file_descriptor [31:0] $end
+$scope module main_cpu $end
+$var wire 1 ! clock_in $end
+$var wire 1 $ machine_code $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+z$
+b10000000000000000000000000000011 #
+b1010 "
+0!
+$end
