@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 `default_nettype wire
 
-module alu_test_bench();
+module cpu_test_bench();
 
     logic clock;   
 
@@ -50,7 +50,7 @@ module alu_test_bench();
 
     initial begin
         $dumpfile("build/cpu_test_bench.vcd"); //file to store value change dump (vcd)
-        $dumpvars(0, alu_test_bench); //store everything at the current level and below
+        $dumpvars(0, cpu_test_bench); //store everything at the current level and below
 
         clock = 0;
 
