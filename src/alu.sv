@@ -22,34 +22,34 @@ module alu (
         else if (enable_in) begin
             case (opcode_in)
                 ADD: begin 
-                    alu_output <= alu_input1 + alu_input2;
+                    alu_output = alu_input1 + alu_input2;
                 end
 
                 SUBTRACT: begin 
-                    alu_output <= alu_input1 - alu_input2;
+                    alu_output = alu_input1 - alu_input2;
                 end
 
                 MULTIPLY: begin 
-                    alu_output <= alu_input1 * alu_input2;
+                    alu_output = alu_input1 * alu_input2;
                 end
 
                 EQUALS: begin
                     if (alu_input1 == alu_input2) begin
-                        alu_output <= 1;
+                        alu_output = 1;
                     end
 
                     else begin
-                        alu_output <= 0;
+                        alu_output = 0;
                     end
                 end
 
                 GREATER_THAN: begin
                     if (alu_input1 > alu_input2) begin
-                        alu_output <= 1;
+                        alu_output = 1;
                     end
 
                     else begin
-                        alu_output <= 0;
+                        alu_output = 0;
                     end
                 end
 

@@ -5,24 +5,42 @@ module alu_test_bench();
 
     logic clock;   
 
-    // read machine code from file
-    reg [32*45:0] machine_code;
-    integer file_descriptor;
+    localparam MAX_MACHINE_CODE_LENGTH = 1;
 
+    logic [31:0] machine_code [MAX_MACHINE_CODE_LENGTH-1:0];
+    logic [31:0] current_instruction;
+    logic [7:0] cpu_output;
+
+    // int file_descriptor;
+    // reg [256*8:1] line;
+    // int file_line_index;
+
+
+    // read machine code from file ()
     initial begin
-    file_descriptor = $fopen("machine_code.gpu", "r");
+        // file_descriptor = $fopen("machine_code.gpu", "rb");
+        
+        // if (file_descriptor == 0) begin
+        //     $fatal(1, "Failed to open machine_code.gpu");
+        // end
+        
+        // file_line_index = 0;
+        // while (!$feof(file_descriptor) && file_line_index < MAX_MACHINE_CODE_LENGTH) begin
+        //     void'($fgets(line, file_descriptor));
+        //     if (line[8:1] != 0) begin
+        //         $sscanf(line, "%b", machine_code[file_line_index]); // parse line into a 32-bit binary word
+        //         $display("Instruction[%0d] = %b", file_line_index, machine_code[file_line_index]);
+        //         file_line_index++;
+        //     end
+        // end
 
-        while (! $feof(file_descriptor)) begin
 
-        $fgets(machine_code, file_descriptor);
-
-        $display("%0s", machine_code);
-        end
-        $fclose(file_descriptor);
+        // $fclose(file_descriptor);
+        $readmemh("machine_code.gpu", machine_code);
     end
 
 
-    cpu main_cpu(.clock_in(clock));
+    cpu main_cpu(.clock_in(clock), .current_instruction(current_instruction), .cpu_output(cpu_output));
 
     always begin
         #5 clock = !clock;
@@ -34,9 +52,18 @@ module alu_test_bench();
         $dumpfile("build/cpu_test_bench.vcd"); //file to store value change dump (vcd)
         $dumpvars(0, alu_test_bench); //store everything at the current level and below
 
-
         clock = 0;
-    
+
+        for (integer i = 0; i < 45; i++) begin
+            // integer machine_code_lower_index = i * 32;
+            // integer machine_code_higher_index = (i+1) * 32 - 1;
+            // current_machine_code_instruction = machine_code[i:i+32];
+            // #30;
+        end
+
+        current_instruction = machine_code[0];
+
+
         $display("Finishing Sim"); //print nice message at end
         $finish;
     end

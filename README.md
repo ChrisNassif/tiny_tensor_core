@@ -7,3 +7,6 @@ subtract
 multiply
 is_equal_to
 is_greater_than
+
+
+32 bit instructions

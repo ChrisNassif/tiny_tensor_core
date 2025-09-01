@@ -10,7 +10,7 @@ alu_transistor_count:
 
 
 test_cpu:
-	iverilog -g2012 -o build/cpu_test_bench.out src/cpu_test_bench.sv src/cpu.sv
+	iverilog -g2012 -o build/cpu_test_bench.out src/cpu_test_bench.sv src/cpu.sv src/alu.sv
 	vvp build/cpu_test_bench.out
 	gtkwave build/cpu_test_bench.vcd
 
