@@ -45,7 +45,7 @@ module alu (
                 end
 
                 GREATER_THAN: begin
-                    if (alu_input1 == alu_input2) begin
+                    if (alu_input1 > alu_input2) begin
                         alu_output <= 1;
                     end
 
