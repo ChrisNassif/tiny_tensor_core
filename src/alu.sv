@@ -1,3 +1,7 @@
+`timescale 1ns / 1ps
+`default_nettype wire
+
+
 module alu (
     input logic clock_in,
     input logic reset_in,
@@ -10,7 +14,7 @@ module alu (
     localparam ADD = 3'b000, SUBTRACT = 3'b001, MULTIPLY = 3'b010, 
         EQUALS = 3'b011, GREATER_THAN = 3'b100;
 
-    always @(posedge clock_in) begin 
+    always @(*) begin 
         if (reset_in) begin 
             alu_output <= 8'b0;
         end 

@@ -28,4 +28,13 @@ module register_file #(
     assign read_data1_out = registers[read_register_address1_in];
     assign read_data2_out = registers[read_register_address2_in];
 
+
+    genvar i;
+    generate
+        for (i = 0; i < NUMBER_OF_REGISTERS; i++) begin : expose_regs
+            wire [7:0] reg_wire = registers[i];
+        end
+    endgenerate
+
+
 endmodule

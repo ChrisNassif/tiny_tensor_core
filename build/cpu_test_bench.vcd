@@ -1,5 +1,5 @@
 $date
-	Mon Sep  1 20:12:14 2025
+	Mon Sep  1 21:09:58 2025
 $end
 $version
 	Icarus Verilog
@@ -51,18 +51,1298 @@ $var wire 8 A write_data_in [7:0] $end
 $var wire 1 ( write_enable_in $end
 $var wire 8 B write_register_address_in [7:0] $end
 $var parameter 32 C NUMBER_OF_REGISTERS $end
+$scope begin expose_regs[0] $end
+$var wire 8 D reg_wire [7:0] $end
+$var parameter 2 E i $end
+$upscope $end
+$scope begin expose_regs[1] $end
+$var wire 8 F reg_wire [7:0] $end
+$var parameter 2 G i $end
+$upscope $end
+$scope begin expose_regs[2] $end
+$var wire 8 H reg_wire [7:0] $end
+$var parameter 3 I i $end
+$upscope $end
+$scope begin expose_regs[3] $end
+$var wire 8 J reg_wire [7:0] $end
+$var parameter 3 K i $end
+$upscope $end
+$scope begin expose_regs[4] $end
+$var wire 8 L reg_wire [7:0] $end
+$var parameter 4 M i $end
+$upscope $end
+$scope begin expose_regs[5] $end
+$var wire 8 N reg_wire [7:0] $end
+$var parameter 4 O i $end
+$upscope $end
+$scope begin expose_regs[6] $end
+$var wire 8 P reg_wire [7:0] $end
+$var parameter 4 Q i $end
+$upscope $end
+$scope begin expose_regs[7] $end
+$var wire 8 R reg_wire [7:0] $end
+$var parameter 4 S i $end
+$upscope $end
+$scope begin expose_regs[8] $end
+$var wire 8 T reg_wire [7:0] $end
+$var parameter 5 U i $end
+$upscope $end
+$scope begin expose_regs[9] $end
+$var wire 8 V reg_wire [7:0] $end
+$var parameter 5 W i $end
+$upscope $end
+$scope begin expose_regs[10] $end
+$var wire 8 X reg_wire [7:0] $end
+$var parameter 5 Y i $end
+$upscope $end
+$scope begin expose_regs[11] $end
+$var wire 8 Z reg_wire [7:0] $end
+$var parameter 5 [ i $end
+$upscope $end
+$scope begin expose_regs[12] $end
+$var wire 8 \ reg_wire [7:0] $end
+$var parameter 5 ] i $end
+$upscope $end
+$scope begin expose_regs[13] $end
+$var wire 8 ^ reg_wire [7:0] $end
+$var parameter 5 _ i $end
+$upscope $end
+$scope begin expose_regs[14] $end
+$var wire 8 ` reg_wire [7:0] $end
+$var parameter 5 a i $end
+$upscope $end
+$scope begin expose_regs[15] $end
+$var wire 8 b reg_wire [7:0] $end
+$var parameter 5 c i $end
+$upscope $end
+$scope begin expose_regs[16] $end
+$var wire 8 d reg_wire [7:0] $end
+$var parameter 6 e i $end
+$upscope $end
+$scope begin expose_regs[17] $end
+$var wire 8 f reg_wire [7:0] $end
+$var parameter 6 g i $end
+$upscope $end
+$scope begin expose_regs[18] $end
+$var wire 8 h reg_wire [7:0] $end
+$var parameter 6 i i $end
+$upscope $end
+$scope begin expose_regs[19] $end
+$var wire 8 j reg_wire [7:0] $end
+$var parameter 6 k i $end
+$upscope $end
+$scope begin expose_regs[20] $end
+$var wire 8 l reg_wire [7:0] $end
+$var parameter 6 m i $end
+$upscope $end
+$scope begin expose_regs[21] $end
+$var wire 8 n reg_wire [7:0] $end
+$var parameter 6 o i $end
+$upscope $end
+$scope begin expose_regs[22] $end
+$var wire 8 p reg_wire [7:0] $end
+$var parameter 6 q i $end
+$upscope $end
+$scope begin expose_regs[23] $end
+$var wire 8 r reg_wire [7:0] $end
+$var parameter 6 s i $end
+$upscope $end
+$scope begin expose_regs[24] $end
+$var wire 8 t reg_wire [7:0] $end
+$var parameter 6 u i $end
+$upscope $end
+$scope begin expose_regs[25] $end
+$var wire 8 v reg_wire [7:0] $end
+$var parameter 6 w i $end
+$upscope $end
+$scope begin expose_regs[26] $end
+$var wire 8 x reg_wire [7:0] $end
+$var parameter 6 y i $end
+$upscope $end
+$scope begin expose_regs[27] $end
+$var wire 8 z reg_wire [7:0] $end
+$var parameter 6 { i $end
+$upscope $end
+$scope begin expose_regs[28] $end
+$var wire 8 | reg_wire [7:0] $end
+$var parameter 6 } i $end
+$upscope $end
+$scope begin expose_regs[29] $end
+$var wire 8 ~ reg_wire [7:0] $end
+$var parameter 6 !" i $end
+$upscope $end
+$scope begin expose_regs[30] $end
+$var wire 8 "" reg_wire [7:0] $end
+$var parameter 6 #" i $end
+$upscope $end
+$scope begin expose_regs[31] $end
+$var wire 8 $" reg_wire [7:0] $end
+$var parameter 6 %" i $end
+$upscope $end
+$scope begin expose_regs[32] $end
+$var wire 8 &" reg_wire [7:0] $end
+$var parameter 7 '" i $end
+$upscope $end
+$scope begin expose_regs[33] $end
+$var wire 8 (" reg_wire [7:0] $end
+$var parameter 7 )" i $end
+$upscope $end
+$scope begin expose_regs[34] $end
+$var wire 8 *" reg_wire [7:0] $end
+$var parameter 7 +" i $end
+$upscope $end
+$scope begin expose_regs[35] $end
+$var wire 8 ," reg_wire [7:0] $end
+$var parameter 7 -" i $end
+$upscope $end
+$scope begin expose_regs[36] $end
+$var wire 8 ." reg_wire [7:0] $end
+$var parameter 7 /" i $end
+$upscope $end
+$scope begin expose_regs[37] $end
+$var wire 8 0" reg_wire [7:0] $end
+$var parameter 7 1" i $end
+$upscope $end
+$scope begin expose_regs[38] $end
+$var wire 8 2" reg_wire [7:0] $end
+$var parameter 7 3" i $end
+$upscope $end
+$scope begin expose_regs[39] $end
+$var wire 8 4" reg_wire [7:0] $end
+$var parameter 7 5" i $end
+$upscope $end
+$scope begin expose_regs[40] $end
+$var wire 8 6" reg_wire [7:0] $end
+$var parameter 7 7" i $end
+$upscope $end
+$scope begin expose_regs[41] $end
+$var wire 8 8" reg_wire [7:0] $end
+$var parameter 7 9" i $end
+$upscope $end
+$scope begin expose_regs[42] $end
+$var wire 8 :" reg_wire [7:0] $end
+$var parameter 7 ;" i $end
+$upscope $end
+$scope begin expose_regs[43] $end
+$var wire 8 <" reg_wire [7:0] $end
+$var parameter 7 =" i $end
+$upscope $end
+$scope begin expose_regs[44] $end
+$var wire 8 >" reg_wire [7:0] $end
+$var parameter 7 ?" i $end
+$upscope $end
+$scope begin expose_regs[45] $end
+$var wire 8 @" reg_wire [7:0] $end
+$var parameter 7 A" i $end
+$upscope $end
+$scope begin expose_regs[46] $end
+$var wire 8 B" reg_wire [7:0] $end
+$var parameter 7 C" i $end
+$upscope $end
+$scope begin expose_regs[47] $end
+$var wire 8 D" reg_wire [7:0] $end
+$var parameter 7 E" i $end
+$upscope $end
+$scope begin expose_regs[48] $end
+$var wire 8 F" reg_wire [7:0] $end
+$var parameter 7 G" i $end
+$upscope $end
+$scope begin expose_regs[49] $end
+$var wire 8 H" reg_wire [7:0] $end
+$var parameter 7 I" i $end
+$upscope $end
+$scope begin expose_regs[50] $end
+$var wire 8 J" reg_wire [7:0] $end
+$var parameter 7 K" i $end
+$upscope $end
+$scope begin expose_regs[51] $end
+$var wire 8 L" reg_wire [7:0] $end
+$var parameter 7 M" i $end
+$upscope $end
+$scope begin expose_regs[52] $end
+$var wire 8 N" reg_wire [7:0] $end
+$var parameter 7 O" i $end
+$upscope $end
+$scope begin expose_regs[53] $end
+$var wire 8 P" reg_wire [7:0] $end
+$var parameter 7 Q" i $end
+$upscope $end
+$scope begin expose_regs[54] $end
+$var wire 8 R" reg_wire [7:0] $end
+$var parameter 7 S" i $end
+$upscope $end
+$scope begin expose_regs[55] $end
+$var wire 8 T" reg_wire [7:0] $end
+$var parameter 7 U" i $end
+$upscope $end
+$scope begin expose_regs[56] $end
+$var wire 8 V" reg_wire [7:0] $end
+$var parameter 7 W" i $end
+$upscope $end
+$scope begin expose_regs[57] $end
+$var wire 8 X" reg_wire [7:0] $end
+$var parameter 7 Y" i $end
+$upscope $end
+$scope begin expose_regs[58] $end
+$var wire 8 Z" reg_wire [7:0] $end
+$var parameter 7 [" i $end
+$upscope $end
+$scope begin expose_regs[59] $end
+$var wire 8 \" reg_wire [7:0] $end
+$var parameter 7 ]" i $end
+$upscope $end
+$scope begin expose_regs[60] $end
+$var wire 8 ^" reg_wire [7:0] $end
+$var parameter 7 _" i $end
+$upscope $end
+$scope begin expose_regs[61] $end
+$var wire 8 `" reg_wire [7:0] $end
+$var parameter 7 a" i $end
+$upscope $end
+$scope begin expose_regs[62] $end
+$var wire 8 b" reg_wire [7:0] $end
+$var parameter 7 c" i $end
+$upscope $end
+$scope begin expose_regs[63] $end
+$var wire 8 d" reg_wire [7:0] $end
+$var parameter 7 e" i $end
+$upscope $end
+$scope begin expose_regs[64] $end
+$var wire 8 f" reg_wire [7:0] $end
+$var parameter 8 g" i $end
+$upscope $end
+$scope begin expose_regs[65] $end
+$var wire 8 h" reg_wire [7:0] $end
+$var parameter 8 i" i $end
+$upscope $end
+$scope begin expose_regs[66] $end
+$var wire 8 j" reg_wire [7:0] $end
+$var parameter 8 k" i $end
+$upscope $end
+$scope begin expose_regs[67] $end
+$var wire 8 l" reg_wire [7:0] $end
+$var parameter 8 m" i $end
+$upscope $end
+$scope begin expose_regs[68] $end
+$var wire 8 n" reg_wire [7:0] $end
+$var parameter 8 o" i $end
+$upscope $end
+$scope begin expose_regs[69] $end
+$var wire 8 p" reg_wire [7:0] $end
+$var parameter 8 q" i $end
+$upscope $end
+$scope begin expose_regs[70] $end
+$var wire 8 r" reg_wire [7:0] $end
+$var parameter 8 s" i $end
+$upscope $end
+$scope begin expose_regs[71] $end
+$var wire 8 t" reg_wire [7:0] $end
+$var parameter 8 u" i $end
+$upscope $end
+$scope begin expose_regs[72] $end
+$var wire 8 v" reg_wire [7:0] $end
+$var parameter 8 w" i $end
+$upscope $end
+$scope begin expose_regs[73] $end
+$var wire 8 x" reg_wire [7:0] $end
+$var parameter 8 y" i $end
+$upscope $end
+$scope begin expose_regs[74] $end
+$var wire 8 z" reg_wire [7:0] $end
+$var parameter 8 {" i $end
+$upscope $end
+$scope begin expose_regs[75] $end
+$var wire 8 |" reg_wire [7:0] $end
+$var parameter 8 }" i $end
+$upscope $end
+$scope begin expose_regs[76] $end
+$var wire 8 ~" reg_wire [7:0] $end
+$var parameter 8 !# i $end
+$upscope $end
+$scope begin expose_regs[77] $end
+$var wire 8 "# reg_wire [7:0] $end
+$var parameter 8 ## i $end
+$upscope $end
+$scope begin expose_regs[78] $end
+$var wire 8 $# reg_wire [7:0] $end
+$var parameter 8 %# i $end
+$upscope $end
+$scope begin expose_regs[79] $end
+$var wire 8 &# reg_wire [7:0] $end
+$var parameter 8 '# i $end
+$upscope $end
+$scope begin expose_regs[80] $end
+$var wire 8 (# reg_wire [7:0] $end
+$var parameter 8 )# i $end
+$upscope $end
+$scope begin expose_regs[81] $end
+$var wire 8 *# reg_wire [7:0] $end
+$var parameter 8 +# i $end
+$upscope $end
+$scope begin expose_regs[82] $end
+$var wire 8 ,# reg_wire [7:0] $end
+$var parameter 8 -# i $end
+$upscope $end
+$scope begin expose_regs[83] $end
+$var wire 8 .# reg_wire [7:0] $end
+$var parameter 8 /# i $end
+$upscope $end
+$scope begin expose_regs[84] $end
+$var wire 8 0# reg_wire [7:0] $end
+$var parameter 8 1# i $end
+$upscope $end
+$scope begin expose_regs[85] $end
+$var wire 8 2# reg_wire [7:0] $end
+$var parameter 8 3# i $end
+$upscope $end
+$scope begin expose_regs[86] $end
+$var wire 8 4# reg_wire [7:0] $end
+$var parameter 8 5# i $end
+$upscope $end
+$scope begin expose_regs[87] $end
+$var wire 8 6# reg_wire [7:0] $end
+$var parameter 8 7# i $end
+$upscope $end
+$scope begin expose_regs[88] $end
+$var wire 8 8# reg_wire [7:0] $end
+$var parameter 8 9# i $end
+$upscope $end
+$scope begin expose_regs[89] $end
+$var wire 8 :# reg_wire [7:0] $end
+$var parameter 8 ;# i $end
+$upscope $end
+$scope begin expose_regs[90] $end
+$var wire 8 <# reg_wire [7:0] $end
+$var parameter 8 =# i $end
+$upscope $end
+$scope begin expose_regs[91] $end
+$var wire 8 ># reg_wire [7:0] $end
+$var parameter 8 ?# i $end
+$upscope $end
+$scope begin expose_regs[92] $end
+$var wire 8 @# reg_wire [7:0] $end
+$var parameter 8 A# i $end
+$upscope $end
+$scope begin expose_regs[93] $end
+$var wire 8 B# reg_wire [7:0] $end
+$var parameter 8 C# i $end
+$upscope $end
+$scope begin expose_regs[94] $end
+$var wire 8 D# reg_wire [7:0] $end
+$var parameter 8 E# i $end
+$upscope $end
+$scope begin expose_regs[95] $end
+$var wire 8 F# reg_wire [7:0] $end
+$var parameter 8 G# i $end
+$upscope $end
+$scope begin expose_regs[96] $end
+$var wire 8 H# reg_wire [7:0] $end
+$var parameter 8 I# i $end
+$upscope $end
+$scope begin expose_regs[97] $end
+$var wire 8 J# reg_wire [7:0] $end
+$var parameter 8 K# i $end
+$upscope $end
+$scope begin expose_regs[98] $end
+$var wire 8 L# reg_wire [7:0] $end
+$var parameter 8 M# i $end
+$upscope $end
+$scope begin expose_regs[99] $end
+$var wire 8 N# reg_wire [7:0] $end
+$var parameter 8 O# i $end
+$upscope $end
+$scope begin expose_regs[100] $end
+$var wire 8 P# reg_wire [7:0] $end
+$var parameter 8 Q# i $end
+$upscope $end
+$scope begin expose_regs[101] $end
+$var wire 8 R# reg_wire [7:0] $end
+$var parameter 8 S# i $end
+$upscope $end
+$scope begin expose_regs[102] $end
+$var wire 8 T# reg_wire [7:0] $end
+$var parameter 8 U# i $end
+$upscope $end
+$scope begin expose_regs[103] $end
+$var wire 8 V# reg_wire [7:0] $end
+$var parameter 8 W# i $end
+$upscope $end
+$scope begin expose_regs[104] $end
+$var wire 8 X# reg_wire [7:0] $end
+$var parameter 8 Y# i $end
+$upscope $end
+$scope begin expose_regs[105] $end
+$var wire 8 Z# reg_wire [7:0] $end
+$var parameter 8 [# i $end
+$upscope $end
+$scope begin expose_regs[106] $end
+$var wire 8 \# reg_wire [7:0] $end
+$var parameter 8 ]# i $end
+$upscope $end
+$scope begin expose_regs[107] $end
+$var wire 8 ^# reg_wire [7:0] $end
+$var parameter 8 _# i $end
+$upscope $end
+$scope begin expose_regs[108] $end
+$var wire 8 `# reg_wire [7:0] $end
+$var parameter 8 a# i $end
+$upscope $end
+$scope begin expose_regs[109] $end
+$var wire 8 b# reg_wire [7:0] $end
+$var parameter 8 c# i $end
+$upscope $end
+$scope begin expose_regs[110] $end
+$var wire 8 d# reg_wire [7:0] $end
+$var parameter 8 e# i $end
+$upscope $end
+$scope begin expose_regs[111] $end
+$var wire 8 f# reg_wire [7:0] $end
+$var parameter 8 g# i $end
+$upscope $end
+$scope begin expose_regs[112] $end
+$var wire 8 h# reg_wire [7:0] $end
+$var parameter 8 i# i $end
+$upscope $end
+$scope begin expose_regs[113] $end
+$var wire 8 j# reg_wire [7:0] $end
+$var parameter 8 k# i $end
+$upscope $end
+$scope begin expose_regs[114] $end
+$var wire 8 l# reg_wire [7:0] $end
+$var parameter 8 m# i $end
+$upscope $end
+$scope begin expose_regs[115] $end
+$var wire 8 n# reg_wire [7:0] $end
+$var parameter 8 o# i $end
+$upscope $end
+$scope begin expose_regs[116] $end
+$var wire 8 p# reg_wire [7:0] $end
+$var parameter 8 q# i $end
+$upscope $end
+$scope begin expose_regs[117] $end
+$var wire 8 r# reg_wire [7:0] $end
+$var parameter 8 s# i $end
+$upscope $end
+$scope begin expose_regs[118] $end
+$var wire 8 t# reg_wire [7:0] $end
+$var parameter 8 u# i $end
+$upscope $end
+$scope begin expose_regs[119] $end
+$var wire 8 v# reg_wire [7:0] $end
+$var parameter 8 w# i $end
+$upscope $end
+$scope begin expose_regs[120] $end
+$var wire 8 x# reg_wire [7:0] $end
+$var parameter 8 y# i $end
+$upscope $end
+$scope begin expose_regs[121] $end
+$var wire 8 z# reg_wire [7:0] $end
+$var parameter 8 {# i $end
+$upscope $end
+$scope begin expose_regs[122] $end
+$var wire 8 |# reg_wire [7:0] $end
+$var parameter 8 }# i $end
+$upscope $end
+$scope begin expose_regs[123] $end
+$var wire 8 ~# reg_wire [7:0] $end
+$var parameter 8 !$ i $end
+$upscope $end
+$scope begin expose_regs[124] $end
+$var wire 8 "$ reg_wire [7:0] $end
+$var parameter 8 #$ i $end
+$upscope $end
+$scope begin expose_regs[125] $end
+$var wire 8 $$ reg_wire [7:0] $end
+$var parameter 8 %$ i $end
+$upscope $end
+$scope begin expose_regs[126] $end
+$var wire 8 &$ reg_wire [7:0] $end
+$var parameter 8 '$ i $end
+$upscope $end
+$scope begin expose_regs[127] $end
+$var wire 8 ($ reg_wire [7:0] $end
+$var parameter 8 )$ i $end
+$upscope $end
+$scope begin expose_regs[128] $end
+$var wire 8 *$ reg_wire [7:0] $end
+$var parameter 9 +$ i $end
+$upscope $end
+$scope begin expose_regs[129] $end
+$var wire 8 ,$ reg_wire [7:0] $end
+$var parameter 9 -$ i $end
+$upscope $end
+$scope begin expose_regs[130] $end
+$var wire 8 .$ reg_wire [7:0] $end
+$var parameter 9 /$ i $end
+$upscope $end
+$scope begin expose_regs[131] $end
+$var wire 8 0$ reg_wire [7:0] $end
+$var parameter 9 1$ i $end
+$upscope $end
+$scope begin expose_regs[132] $end
+$var wire 8 2$ reg_wire [7:0] $end
+$var parameter 9 3$ i $end
+$upscope $end
+$scope begin expose_regs[133] $end
+$var wire 8 4$ reg_wire [7:0] $end
+$var parameter 9 5$ i $end
+$upscope $end
+$scope begin expose_regs[134] $end
+$var wire 8 6$ reg_wire [7:0] $end
+$var parameter 9 7$ i $end
+$upscope $end
+$scope begin expose_regs[135] $end
+$var wire 8 8$ reg_wire [7:0] $end
+$var parameter 9 9$ i $end
+$upscope $end
+$scope begin expose_regs[136] $end
+$var wire 8 :$ reg_wire [7:0] $end
+$var parameter 9 ;$ i $end
+$upscope $end
+$scope begin expose_regs[137] $end
+$var wire 8 <$ reg_wire [7:0] $end
+$var parameter 9 =$ i $end
+$upscope $end
+$scope begin expose_regs[138] $end
+$var wire 8 >$ reg_wire [7:0] $end
+$var parameter 9 ?$ i $end
+$upscope $end
+$scope begin expose_regs[139] $end
+$var wire 8 @$ reg_wire [7:0] $end
+$var parameter 9 A$ i $end
+$upscope $end
+$scope begin expose_regs[140] $end
+$var wire 8 B$ reg_wire [7:0] $end
+$var parameter 9 C$ i $end
+$upscope $end
+$scope begin expose_regs[141] $end
+$var wire 8 D$ reg_wire [7:0] $end
+$var parameter 9 E$ i $end
+$upscope $end
+$scope begin expose_regs[142] $end
+$var wire 8 F$ reg_wire [7:0] $end
+$var parameter 9 G$ i $end
+$upscope $end
+$scope begin expose_regs[143] $end
+$var wire 8 H$ reg_wire [7:0] $end
+$var parameter 9 I$ i $end
+$upscope $end
+$scope begin expose_regs[144] $end
+$var wire 8 J$ reg_wire [7:0] $end
+$var parameter 9 K$ i $end
+$upscope $end
+$scope begin expose_regs[145] $end
+$var wire 8 L$ reg_wire [7:0] $end
+$var parameter 9 M$ i $end
+$upscope $end
+$scope begin expose_regs[146] $end
+$var wire 8 N$ reg_wire [7:0] $end
+$var parameter 9 O$ i $end
+$upscope $end
+$scope begin expose_regs[147] $end
+$var wire 8 P$ reg_wire [7:0] $end
+$var parameter 9 Q$ i $end
+$upscope $end
+$scope begin expose_regs[148] $end
+$var wire 8 R$ reg_wire [7:0] $end
+$var parameter 9 S$ i $end
+$upscope $end
+$scope begin expose_regs[149] $end
+$var wire 8 T$ reg_wire [7:0] $end
+$var parameter 9 U$ i $end
+$upscope $end
+$scope begin expose_regs[150] $end
+$var wire 8 V$ reg_wire [7:0] $end
+$var parameter 9 W$ i $end
+$upscope $end
+$scope begin expose_regs[151] $end
+$var wire 8 X$ reg_wire [7:0] $end
+$var parameter 9 Y$ i $end
+$upscope $end
+$scope begin expose_regs[152] $end
+$var wire 8 Z$ reg_wire [7:0] $end
+$var parameter 9 [$ i $end
+$upscope $end
+$scope begin expose_regs[153] $end
+$var wire 8 \$ reg_wire [7:0] $end
+$var parameter 9 ]$ i $end
+$upscope $end
+$scope begin expose_regs[154] $end
+$var wire 8 ^$ reg_wire [7:0] $end
+$var parameter 9 _$ i $end
+$upscope $end
+$scope begin expose_regs[155] $end
+$var wire 8 `$ reg_wire [7:0] $end
+$var parameter 9 a$ i $end
+$upscope $end
+$scope begin expose_regs[156] $end
+$var wire 8 b$ reg_wire [7:0] $end
+$var parameter 9 c$ i $end
+$upscope $end
+$scope begin expose_regs[157] $end
+$var wire 8 d$ reg_wire [7:0] $end
+$var parameter 9 e$ i $end
+$upscope $end
+$scope begin expose_regs[158] $end
+$var wire 8 f$ reg_wire [7:0] $end
+$var parameter 9 g$ i $end
+$upscope $end
+$scope begin expose_regs[159] $end
+$var wire 8 h$ reg_wire [7:0] $end
+$var parameter 9 i$ i $end
+$upscope $end
+$scope begin expose_regs[160] $end
+$var wire 8 j$ reg_wire [7:0] $end
+$var parameter 9 k$ i $end
+$upscope $end
+$scope begin expose_regs[161] $end
+$var wire 8 l$ reg_wire [7:0] $end
+$var parameter 9 m$ i $end
+$upscope $end
+$scope begin expose_regs[162] $end
+$var wire 8 n$ reg_wire [7:0] $end
+$var parameter 9 o$ i $end
+$upscope $end
+$scope begin expose_regs[163] $end
+$var wire 8 p$ reg_wire [7:0] $end
+$var parameter 9 q$ i $end
+$upscope $end
+$scope begin expose_regs[164] $end
+$var wire 8 r$ reg_wire [7:0] $end
+$var parameter 9 s$ i $end
+$upscope $end
+$scope begin expose_regs[165] $end
+$var wire 8 t$ reg_wire [7:0] $end
+$var parameter 9 u$ i $end
+$upscope $end
+$scope begin expose_regs[166] $end
+$var wire 8 v$ reg_wire [7:0] $end
+$var parameter 9 w$ i $end
+$upscope $end
+$scope begin expose_regs[167] $end
+$var wire 8 x$ reg_wire [7:0] $end
+$var parameter 9 y$ i $end
+$upscope $end
+$scope begin expose_regs[168] $end
+$var wire 8 z$ reg_wire [7:0] $end
+$var parameter 9 {$ i $end
+$upscope $end
+$scope begin expose_regs[169] $end
+$var wire 8 |$ reg_wire [7:0] $end
+$var parameter 9 }$ i $end
+$upscope $end
+$scope begin expose_regs[170] $end
+$var wire 8 ~$ reg_wire [7:0] $end
+$var parameter 9 !% i $end
+$upscope $end
+$scope begin expose_regs[171] $end
+$var wire 8 "% reg_wire [7:0] $end
+$var parameter 9 #% i $end
+$upscope $end
+$scope begin expose_regs[172] $end
+$var wire 8 $% reg_wire [7:0] $end
+$var parameter 9 %% i $end
+$upscope $end
+$scope begin expose_regs[173] $end
+$var wire 8 &% reg_wire [7:0] $end
+$var parameter 9 '% i $end
+$upscope $end
+$scope begin expose_regs[174] $end
+$var wire 8 (% reg_wire [7:0] $end
+$var parameter 9 )% i $end
+$upscope $end
+$scope begin expose_regs[175] $end
+$var wire 8 *% reg_wire [7:0] $end
+$var parameter 9 +% i $end
+$upscope $end
+$scope begin expose_regs[176] $end
+$var wire 8 ,% reg_wire [7:0] $end
+$var parameter 9 -% i $end
+$upscope $end
+$scope begin expose_regs[177] $end
+$var wire 8 .% reg_wire [7:0] $end
+$var parameter 9 /% i $end
+$upscope $end
+$scope begin expose_regs[178] $end
+$var wire 8 0% reg_wire [7:0] $end
+$var parameter 9 1% i $end
+$upscope $end
+$scope begin expose_regs[179] $end
+$var wire 8 2% reg_wire [7:0] $end
+$var parameter 9 3% i $end
+$upscope $end
+$scope begin expose_regs[180] $end
+$var wire 8 4% reg_wire [7:0] $end
+$var parameter 9 5% i $end
+$upscope $end
+$scope begin expose_regs[181] $end
+$var wire 8 6% reg_wire [7:0] $end
+$var parameter 9 7% i $end
+$upscope $end
+$scope begin expose_regs[182] $end
+$var wire 8 8% reg_wire [7:0] $end
+$var parameter 9 9% i $end
+$upscope $end
+$scope begin expose_regs[183] $end
+$var wire 8 :% reg_wire [7:0] $end
+$var parameter 9 ;% i $end
+$upscope $end
+$scope begin expose_regs[184] $end
+$var wire 8 <% reg_wire [7:0] $end
+$var parameter 9 =% i $end
+$upscope $end
+$scope begin expose_regs[185] $end
+$var wire 8 >% reg_wire [7:0] $end
+$var parameter 9 ?% i $end
+$upscope $end
+$scope begin expose_regs[186] $end
+$var wire 8 @% reg_wire [7:0] $end
+$var parameter 9 A% i $end
+$upscope $end
+$scope begin expose_regs[187] $end
+$var wire 8 B% reg_wire [7:0] $end
+$var parameter 9 C% i $end
+$upscope $end
+$scope begin expose_regs[188] $end
+$var wire 8 D% reg_wire [7:0] $end
+$var parameter 9 E% i $end
+$upscope $end
+$scope begin expose_regs[189] $end
+$var wire 8 F% reg_wire [7:0] $end
+$var parameter 9 G% i $end
+$upscope $end
+$scope begin expose_regs[190] $end
+$var wire 8 H% reg_wire [7:0] $end
+$var parameter 9 I% i $end
+$upscope $end
+$scope begin expose_regs[191] $end
+$var wire 8 J% reg_wire [7:0] $end
+$var parameter 9 K% i $end
+$upscope $end
+$scope begin expose_regs[192] $end
+$var wire 8 L% reg_wire [7:0] $end
+$var parameter 9 M% i $end
+$upscope $end
+$scope begin expose_regs[193] $end
+$var wire 8 N% reg_wire [7:0] $end
+$var parameter 9 O% i $end
+$upscope $end
+$scope begin expose_regs[194] $end
+$var wire 8 P% reg_wire [7:0] $end
+$var parameter 9 Q% i $end
+$upscope $end
+$scope begin expose_regs[195] $end
+$var wire 8 R% reg_wire [7:0] $end
+$var parameter 9 S% i $end
+$upscope $end
+$scope begin expose_regs[196] $end
+$var wire 8 T% reg_wire [7:0] $end
+$var parameter 9 U% i $end
+$upscope $end
+$scope begin expose_regs[197] $end
+$var wire 8 V% reg_wire [7:0] $end
+$var parameter 9 W% i $end
+$upscope $end
+$scope begin expose_regs[198] $end
+$var wire 8 X% reg_wire [7:0] $end
+$var parameter 9 Y% i $end
+$upscope $end
+$scope begin expose_regs[199] $end
+$var wire 8 Z% reg_wire [7:0] $end
+$var parameter 9 [% i $end
+$upscope $end
+$scope begin expose_regs[200] $end
+$var wire 8 \% reg_wire [7:0] $end
+$var parameter 9 ]% i $end
+$upscope $end
+$scope begin expose_regs[201] $end
+$var wire 8 ^% reg_wire [7:0] $end
+$var parameter 9 _% i $end
+$upscope $end
+$scope begin expose_regs[202] $end
+$var wire 8 `% reg_wire [7:0] $end
+$var parameter 9 a% i $end
+$upscope $end
+$scope begin expose_regs[203] $end
+$var wire 8 b% reg_wire [7:0] $end
+$var parameter 9 c% i $end
+$upscope $end
+$scope begin expose_regs[204] $end
+$var wire 8 d% reg_wire [7:0] $end
+$var parameter 9 e% i $end
+$upscope $end
+$scope begin expose_regs[205] $end
+$var wire 8 f% reg_wire [7:0] $end
+$var parameter 9 g% i $end
+$upscope $end
+$scope begin expose_regs[206] $end
+$var wire 8 h% reg_wire [7:0] $end
+$var parameter 9 i% i $end
+$upscope $end
+$scope begin expose_regs[207] $end
+$var wire 8 j% reg_wire [7:0] $end
+$var parameter 9 k% i $end
+$upscope $end
+$scope begin expose_regs[208] $end
+$var wire 8 l% reg_wire [7:0] $end
+$var parameter 9 m% i $end
+$upscope $end
+$scope begin expose_regs[209] $end
+$var wire 8 n% reg_wire [7:0] $end
+$var parameter 9 o% i $end
+$upscope $end
+$scope begin expose_regs[210] $end
+$var wire 8 p% reg_wire [7:0] $end
+$var parameter 9 q% i $end
+$upscope $end
+$scope begin expose_regs[211] $end
+$var wire 8 r% reg_wire [7:0] $end
+$var parameter 9 s% i $end
+$upscope $end
+$scope begin expose_regs[212] $end
+$var wire 8 t% reg_wire [7:0] $end
+$var parameter 9 u% i $end
+$upscope $end
+$scope begin expose_regs[213] $end
+$var wire 8 v% reg_wire [7:0] $end
+$var parameter 9 w% i $end
+$upscope $end
+$scope begin expose_regs[214] $end
+$var wire 8 x% reg_wire [7:0] $end
+$var parameter 9 y% i $end
+$upscope $end
+$scope begin expose_regs[215] $end
+$var wire 8 z% reg_wire [7:0] $end
+$var parameter 9 {% i $end
+$upscope $end
+$scope begin expose_regs[216] $end
+$var wire 8 |% reg_wire [7:0] $end
+$var parameter 9 }% i $end
+$upscope $end
+$scope begin expose_regs[217] $end
+$var wire 8 ~% reg_wire [7:0] $end
+$var parameter 9 !& i $end
+$upscope $end
+$scope begin expose_regs[218] $end
+$var wire 8 "& reg_wire [7:0] $end
+$var parameter 9 #& i $end
+$upscope $end
+$scope begin expose_regs[219] $end
+$var wire 8 $& reg_wire [7:0] $end
+$var parameter 9 %& i $end
+$upscope $end
+$scope begin expose_regs[220] $end
+$var wire 8 && reg_wire [7:0] $end
+$var parameter 9 '& i $end
+$upscope $end
+$scope begin expose_regs[221] $end
+$var wire 8 (& reg_wire [7:0] $end
+$var parameter 9 )& i $end
+$upscope $end
+$scope begin expose_regs[222] $end
+$var wire 8 *& reg_wire [7:0] $end
+$var parameter 9 +& i $end
+$upscope $end
+$scope begin expose_regs[223] $end
+$var wire 8 ,& reg_wire [7:0] $end
+$var parameter 9 -& i $end
+$upscope $end
+$scope begin expose_regs[224] $end
+$var wire 8 .& reg_wire [7:0] $end
+$var parameter 9 /& i $end
+$upscope $end
+$scope begin expose_regs[225] $end
+$var wire 8 0& reg_wire [7:0] $end
+$var parameter 9 1& i $end
+$upscope $end
+$scope begin expose_regs[226] $end
+$var wire 8 2& reg_wire [7:0] $end
+$var parameter 9 3& i $end
+$upscope $end
+$scope begin expose_regs[227] $end
+$var wire 8 4& reg_wire [7:0] $end
+$var parameter 9 5& i $end
+$upscope $end
+$scope begin expose_regs[228] $end
+$var wire 8 6& reg_wire [7:0] $end
+$var parameter 9 7& i $end
+$upscope $end
+$scope begin expose_regs[229] $end
+$var wire 8 8& reg_wire [7:0] $end
+$var parameter 9 9& i $end
+$upscope $end
+$scope begin expose_regs[230] $end
+$var wire 8 :& reg_wire [7:0] $end
+$var parameter 9 ;& i $end
+$upscope $end
+$scope begin expose_regs[231] $end
+$var wire 8 <& reg_wire [7:0] $end
+$var parameter 9 =& i $end
+$upscope $end
+$scope begin expose_regs[232] $end
+$var wire 8 >& reg_wire [7:0] $end
+$var parameter 9 ?& i $end
+$upscope $end
+$scope begin expose_regs[233] $end
+$var wire 8 @& reg_wire [7:0] $end
+$var parameter 9 A& i $end
+$upscope $end
+$scope begin expose_regs[234] $end
+$var wire 8 B& reg_wire [7:0] $end
+$var parameter 9 C& i $end
+$upscope $end
+$scope begin expose_regs[235] $end
+$var wire 8 D& reg_wire [7:0] $end
+$var parameter 9 E& i $end
+$upscope $end
+$scope begin expose_regs[236] $end
+$var wire 8 F& reg_wire [7:0] $end
+$var parameter 9 G& i $end
+$upscope $end
+$scope begin expose_regs[237] $end
+$var wire 8 H& reg_wire [7:0] $end
+$var parameter 9 I& i $end
+$upscope $end
+$scope begin expose_regs[238] $end
+$var wire 8 J& reg_wire [7:0] $end
+$var parameter 9 K& i $end
+$upscope $end
+$scope begin expose_regs[239] $end
+$var wire 8 L& reg_wire [7:0] $end
+$var parameter 9 M& i $end
+$upscope $end
+$scope begin expose_regs[240] $end
+$var wire 8 N& reg_wire [7:0] $end
+$var parameter 9 O& i $end
+$upscope $end
+$scope begin expose_regs[241] $end
+$var wire 8 P& reg_wire [7:0] $end
+$var parameter 9 Q& i $end
+$upscope $end
+$scope begin expose_regs[242] $end
+$var wire 8 R& reg_wire [7:0] $end
+$var parameter 9 S& i $end
+$upscope $end
+$scope begin expose_regs[243] $end
+$var wire 8 T& reg_wire [7:0] $end
+$var parameter 9 U& i $end
+$upscope $end
+$scope begin expose_regs[244] $end
+$var wire 8 V& reg_wire [7:0] $end
+$var parameter 9 W& i $end
+$upscope $end
+$scope begin expose_regs[245] $end
+$var wire 8 X& reg_wire [7:0] $end
+$var parameter 9 Y& i $end
+$upscope $end
+$scope begin expose_regs[246] $end
+$var wire 8 Z& reg_wire [7:0] $end
+$var parameter 9 [& i $end
+$upscope $end
+$scope begin expose_regs[247] $end
+$var wire 8 \& reg_wire [7:0] $end
+$var parameter 9 ]& i $end
+$upscope $end
+$scope begin expose_regs[248] $end
+$var wire 8 ^& reg_wire [7:0] $end
+$var parameter 9 _& i $end
+$upscope $end
+$scope begin expose_regs[249] $end
+$var wire 8 `& reg_wire [7:0] $end
+$var parameter 9 a& i $end
+$upscope $end
+$scope begin expose_regs[250] $end
+$var wire 8 b& reg_wire [7:0] $end
+$var parameter 9 c& i $end
+$upscope $end
+$scope begin expose_regs[251] $end
+$var wire 8 d& reg_wire [7:0] $end
+$var parameter 9 e& i $end
+$upscope $end
+$scope begin expose_regs[252] $end
+$var wire 8 f& reg_wire [7:0] $end
+$var parameter 9 g& i $end
+$upscope $end
+$scope begin expose_regs[253] $end
+$var wire 8 h& reg_wire [7:0] $end
+$var parameter 9 i& i $end
+$upscope $end
+$scope begin expose_regs[254] $end
+$var wire 8 j& reg_wire [7:0] $end
+$var parameter 9 k& i $end
+$upscope $end
+$scope begin expose_regs[255] $end
+$var wire 8 l& reg_wire [7:0] $end
+$var parameter 9 m& i $end
+$upscope $end
 $scope begin $ivl_for_loop1 $end
-$var integer 32 D i [31:0] $end
+$var integer 32 n& i [31:0] $end
 $upscope $end
 $upscope $end
 $upscope $end
 $scope begin $ivl_for_loop0 $end
-$var integer 32 E i [31:0] $end
+$var integer 32 o& i [31:0] $end
 $upscope $end
 $upscope $end
 $enddefinitions $end
 $comment Show the parameter values. $end
 $dumpall
+b11111111 m&
+b11111110 k&
+b11111101 i&
+b11111100 g&
+b11111011 e&
+b11111010 c&
+b11111001 a&
+b11111000 _&
+b11110111 ]&
+b11110110 [&
+b11110101 Y&
+b11110100 W&
+b11110011 U&
+b11110010 S&
+b11110001 Q&
+b11110000 O&
+b11101111 M&
+b11101110 K&
+b11101101 I&
+b11101100 G&
+b11101011 E&
+b11101010 C&
+b11101001 A&
+b11101000 ?&
+b11100111 =&
+b11100110 ;&
+b11100101 9&
+b11100100 7&
+b11100011 5&
+b11100010 3&
+b11100001 1&
+b11100000 /&
+b11011111 -&
+b11011110 +&
+b11011101 )&
+b11011100 '&
+b11011011 %&
+b11011010 #&
+b11011001 !&
+b11011000 }%
+b11010111 {%
+b11010110 y%
+b11010101 w%
+b11010100 u%
+b11010011 s%
+b11010010 q%
+b11010001 o%
+b11010000 m%
+b11001111 k%
+b11001110 i%
+b11001101 g%
+b11001100 e%
+b11001011 c%
+b11001010 a%
+b11001001 _%
+b11001000 ]%
+b11000111 [%
+b11000110 Y%
+b11000101 W%
+b11000100 U%
+b11000011 S%
+b11000010 Q%
+b11000001 O%
+b11000000 M%
+b10111111 K%
+b10111110 I%
+b10111101 G%
+b10111100 E%
+b10111011 C%
+b10111010 A%
+b10111001 ?%
+b10111000 =%
+b10110111 ;%
+b10110110 9%
+b10110101 7%
+b10110100 5%
+b10110011 3%
+b10110010 1%
+b10110001 /%
+b10110000 -%
+b10101111 +%
+b10101110 )%
+b10101101 '%
+b10101100 %%
+b10101011 #%
+b10101010 !%
+b10101001 }$
+b10101000 {$
+b10100111 y$
+b10100110 w$
+b10100101 u$
+b10100100 s$
+b10100011 q$
+b10100010 o$
+b10100001 m$
+b10100000 k$
+b10011111 i$
+b10011110 g$
+b10011101 e$
+b10011100 c$
+b10011011 a$
+b10011010 _$
+b10011001 ]$
+b10011000 [$
+b10010111 Y$
+b10010110 W$
+b10010101 U$
+b10010100 S$
+b10010011 Q$
+b10010010 O$
+b10010001 M$
+b10010000 K$
+b10001111 I$
+b10001110 G$
+b10001101 E$
+b10001100 C$
+b10001011 A$
+b10001010 ?$
+b10001001 =$
+b10001000 ;$
+b10000111 9$
+b10000110 7$
+b10000101 5$
+b10000100 3$
+b10000011 1$
+b10000010 /$
+b10000001 -$
+b10000000 +$
+b1111111 )$
+b1111110 '$
+b1111101 %$
+b1111100 #$
+b1111011 !$
+b1111010 }#
+b1111001 {#
+b1111000 y#
+b1110111 w#
+b1110110 u#
+b1110101 s#
+b1110100 q#
+b1110011 o#
+b1110010 m#
+b1110001 k#
+b1110000 i#
+b1101111 g#
+b1101110 e#
+b1101101 c#
+b1101100 a#
+b1101011 _#
+b1101010 ]#
+b1101001 [#
+b1101000 Y#
+b1100111 W#
+b1100110 U#
+b1100101 S#
+b1100100 Q#
+b1100011 O#
+b1100010 M#
+b1100001 K#
+b1100000 I#
+b1011111 G#
+b1011110 E#
+b1011101 C#
+b1011100 A#
+b1011011 ?#
+b1011010 =#
+b1011001 ;#
+b1011000 9#
+b1010111 7#
+b1010110 5#
+b1010101 3#
+b1010100 1#
+b1010011 /#
+b1010010 -#
+b1010001 +#
+b1010000 )#
+b1001111 '#
+b1001110 %#
+b1001101 ##
+b1001100 !#
+b1001011 }"
+b1001010 {"
+b1001001 y"
+b1001000 w"
+b1000111 u"
+b1000110 s"
+b1000101 q"
+b1000100 o"
+b1000011 m"
+b1000010 k"
+b1000001 i"
+b1000000 g"
+b111111 e"
+b111110 c"
+b111101 a"
+b111100 _"
+b111011 ]"
+b111010 ["
+b111001 Y"
+b111000 W"
+b110111 U"
+b110110 S"
+b110101 Q"
+b110100 O"
+b110011 M"
+b110010 K"
+b110001 I"
+b110000 G"
+b101111 E"
+b101110 C"
+b101101 A"
+b101100 ?"
+b101011 ="
+b101010 ;"
+b101001 9"
+b101000 7"
+b100111 5"
+b100110 3"
+b100101 1"
+b100100 /"
+b100011 -"
+b100010 +"
+b100001 )"
+b100000 '"
+b11111 %"
+b11110 #"
+b11101 !"
+b11100 }
+b11011 {
+b11010 y
+b11001 w
+b11000 u
+b10111 s
+b10110 q
+b10101 o
+b10100 m
+b10011 k
+b10010 i
+b10001 g
+b10000 e
+b1111 c
+b1110 a
+b1101 _
+b1100 ]
+b1011 [
+b1010 Y
+b1001 W
+b1000 U
+b111 S
+b110 Q
+b101 O
+b100 M
+b11 K
+b10 I
+b1 G
+b0 E
 b100000000 C
 b1 ;
 b10 :
@@ -73,81 +1353,363 @@ b1000000 "
 $end
 #0
 $dumpvars
-b0 E
-b100000000 D
-b0 B
+bx o&
+b100000000 n&
+b0 l&
+b0 j&
+b0 h&
+b0 f&
+b0 d&
+b0 b&
+b0 `&
+b0 ^&
+b0 \&
+b0 Z&
+b0 X&
+b0 V&
+b0 T&
+b0 R&
+b0 P&
+b0 N&
+b0 L&
+b0 J&
+b0 H&
+b0 F&
+b0 D&
+b0 B&
+b0 @&
+b0 >&
+b0 <&
+b0 :&
+b0 8&
+b0 6&
+b0 4&
+b0 2&
+b0 0&
+b0 .&
+b0 ,&
+b0 *&
+b0 (&
+b0 &&
+b0 $&
+b0 "&
+b0 ~%
+b0 |%
+b0 z%
+b0 x%
+b0 v%
+b0 t%
+b0 r%
+b0 p%
+b0 n%
+b0 l%
+b0 j%
+b0 h%
+b0 f%
+b0 d%
+b0 b%
+b0 `%
+b0 ^%
+b0 \%
+b0 Z%
+b0 X%
+b0 V%
+b0 T%
+b0 R%
+b0 P%
+b0 N%
+b0 L%
+b0 J%
+b0 H%
+b0 F%
+b0 D%
+b0 B%
+b0 @%
+b0 >%
+b0 <%
+b0 :%
+b0 8%
+b0 6%
+b0 4%
+b0 2%
+b0 0%
+b0 .%
+b0 ,%
+b0 *%
+b0 (%
+b0 &%
+b0 $%
+b0 "%
+b0 ~$
+b0 |$
+b0 z$
+b0 x$
+b0 v$
+b0 t$
+b0 r$
+b0 p$
+b0 n$
+b0 l$
+b0 j$
+b0 h$
+b0 f$
+b0 d$
+b0 b$
+b0 `$
+b0 ^$
+b0 \$
+b0 Z$
+b0 X$
+b0 V$
+b0 T$
+b0 R$
+b0 P$
+b0 N$
+b0 L$
+b0 J$
+b0 H$
+b0 F$
+b0 D$
+b0 B$
+b0 @$
+b0 >$
+b0 <$
+b0 :$
+b0 8$
+b0 6$
+b0 4$
+b0 2$
+b0 0$
+b0 .$
+b0 ,$
+b0 *$
+b0 ($
+b0 &$
+b0 $$
+b0 "$
+b0 ~#
+b0 |#
+b0 z#
+b0 x#
+b0 v#
+b0 t#
+b0 r#
+b0 p#
+b0 n#
+b0 l#
+b0 j#
+b0 h#
+b0 f#
+b0 d#
+b0 b#
+b0 `#
+b0 ^#
+b0 \#
+b0 Z#
+b0 X#
+b0 V#
+b0 T#
+b0 R#
+b0 P#
+b0 N#
+b0 L#
+b0 J#
+b0 H#
+b0 F#
+b0 D#
+b0 B#
+b0 @#
+b0 >#
+b0 <#
+b0 :#
+b0 8#
+b0 6#
+b0 4#
+b0 2#
+b0 0#
+b0 .#
+b0 ,#
+b0 *#
+b0 (#
+b0 &#
+b0 $#
+b0 "#
+b0 ~"
+b0 |"
+b0 z"
+b0 x"
+b0 v"
+b0 t"
+b0 r"
+b0 p"
+b0 n"
+b0 l"
+b0 j"
+b0 h"
+b0 f"
+b0 d"
+b0 b"
+b0 `"
+b0 ^"
+b0 \"
+b0 Z"
+b0 X"
+b0 V"
+b0 T"
+b0 R"
+b0 P"
+b0 N"
+b0 L"
+b0 J"
+b0 H"
+b0 F"
+b0 D"
+b0 B"
+b0 @"
+b0 >"
+b0 <"
+b0 :"
+b0 8"
+b0 6"
+b0 4"
+b0 2"
+b0 0"
+b0 ."
+b0 ,"
+b0 *"
+b0 ("
+b0 &"
+b0 $"
+b0 ""
+b0 ~
+b0 |
+b0 z
+b0 x
+b0 v
+b0 t
+b0 r
+b0 p
+b0 n
+b0 l
+b0 j
+b0 h
+b0 f
+b0 d
+b0 b
+b0 `
+b0 ^
+b0 \
+b0 Z
+b0 X
+b0 V
+b0 T
+b0 R
+b0 P
+b0 N
+b0 L
+b0 J
+b0 H
+b0 F
+b0 D
+bx B
 bx A
-b10 @
-b11 ?
-b0 >
-b0 =
+bx @
+bx ?
+bx >
+bx =
 bx <
 06
-b0 5
+bx 5
 14
-b0 3
-b11 2
+bx 3
+bx 2
 bx 1
-b11 0
-b0 /
+bx 0
+bx /
 bx .
-b0 -
-b0 ,
-b11 +
-b10 *
-b0 )
+bx -
+bx ,
+bx +
+bx *
+bx )
 1(
 bx '
-b110000001000000000 &
-b0 %
-b110000001000000000 $
+bx &
+bx %
+bx $
 0#
 bx !
 $end
 #5000
+1#
+#6000
 b11 '
 b11 A
 b11 .
 b11 <
-1#
+b0 )
+b0 B
+b0 -
+b0 =
+b11 +
+b11 ?
+b0 %
+b0 3
+b0 ,
+b0 >
+b0 *
+b0 @
+b0 /
+b0 5
+b11 0
+b11 2
+b110000000000000000 $
+b110000000000000000 &
+b0 o&
 #10000
 0#
 #15000
-1#
-#20000
-0#
-#25000
-1#
-#30000
-b1 )
-b1 B
+b110 '
+b110 A
+b110 .
+b110 <
 b11 %
 b11 3
 b11 ,
 b11 >
-b0 *
-b0 @
-b10 /
-b10 5
+b11 D
+1#
+#16000
+b1 o&
+#20000
 0#
-b1000000110000000000000010 $
-b1000000110000000000000010 &
-b1 E
-#35000
+#25000
 b1001 '
 b1001 A
 b1001 .
 b1001 <
+b110 %
+b110 3
+b110 ,
+b110 >
+b110 D
 1#
-#40000
+#26000
+b10 o&
+#30000
 0#
-#45000
+#35000
+b1100 '
+b1100 A
+b1100 .
+b1100 <
+b1001 %
+b1001 3
+b1001 ,
+b1001 >
+b1001 D
 1#
-#50000
-0#
-#55000
-1#
-#60000
+#36000
 bx )
 bx B
 bx -
@@ -164,813 +1726,372 @@ bx /
 bx 5
 bx 0
 bx 2
-0#
 bx $
 bx &
-b10 E
+b11 o&
+#40000
+0#
+#45000
+1#
+#46000
+b100 o&
+#50000
+0#
+#55000
+1#
+#56000
+b101 o&
+#60000
+0#
 #65000
 1#
+#66000
+b110 o&
 #70000
 0#
 #75000
 1#
+#76000
+b111 o&
 #80000
 0#
 #85000
 1#
+#86000
+b1000 o&
 #90000
 0#
-b11 E
 #95000
 1#
+#96000
+b1001 o&
 #100000
 0#
 #105000
 1#
+#106000
+b1010 o&
 #110000
 0#
 #115000
 1#
+#116000
+b1011 o&
 #120000
 0#
-b100 E
 #125000
 1#
+#126000
+b1100 o&
 #130000
 0#
 #135000
 1#
+#136000
+b1101 o&
 #140000
 0#
 #145000
 1#
+#146000
+b1110 o&
 #150000
 0#
-b101 E
 #155000
 1#
+#156000
+b1111 o&
 #160000
 0#
 #165000
 1#
+#166000
+b10000 o&
 #170000
 0#
 #175000
 1#
+#176000
+b10001 o&
 #180000
 0#
-b110 E
 #185000
 1#
+#186000
+b10010 o&
 #190000
 0#
 #195000
 1#
+#196000
+b10011 o&
 #200000
 0#
 #205000
 1#
+#206000
+b10100 o&
 #210000
 0#
-b111 E
 #215000
 1#
+#216000
+b10101 o&
 #220000
 0#
 #225000
 1#
+#226000
+b10110 o&
 #230000
 0#
 #235000
 1#
+#236000
+b10111 o&
 #240000
 0#
-b1000 E
 #245000
 1#
+#246000
+b11000 o&
 #250000
 0#
 #255000
 1#
+#256000
+b11001 o&
 #260000
 0#
 #265000
 1#
+#266000
+b11010 o&
 #270000
 0#
-b1001 E
 #275000
 1#
+#276000
+b11011 o&
 #280000
 0#
 #285000
 1#
+#286000
+b11100 o&
 #290000
 0#
 #295000
 1#
+#296000
+b11101 o&
 #300000
 0#
-b1010 E
 #305000
 1#
+#306000
+b11110 o&
 #310000
 0#
 #315000
 1#
+#316000
+b11111 o&
 #320000
 0#
 #325000
 1#
+#326000
+b100000 o&
 #330000
 0#
-b1011 E
 #335000
 1#
+#336000
+b100001 o&
 #340000
 0#
 #345000
 1#
+#346000
+b100010 o&
 #350000
 0#
 #355000
 1#
+#356000
+b100011 o&
 #360000
 0#
-b1100 E
 #365000
 1#
+#366000
+b100100 o&
 #370000
 0#
 #375000
 1#
+#376000
+b100101 o&
 #380000
 0#
 #385000
 1#
+#386000
+b100110 o&
 #390000
 0#
-b1101 E
 #395000
 1#
+#396000
+b100111 o&
 #400000
 0#
 #405000
 1#
+#406000
+b101000 o&
 #410000
 0#
 #415000
 1#
+#416000
+b101001 o&
 #420000
 0#
-b1110 E
 #425000
 1#
+#426000
+b101010 o&
 #430000
 0#
 #435000
 1#
+#436000
+b101011 o&
 #440000
 0#
 #445000
 1#
+#446000
+b101100 o&
 #450000
 0#
-b1111 E
 #455000
 1#
+#456000
+b101101 o&
 #460000
 0#
 #465000
 1#
+#466000
+b101110 o&
 #470000
 0#
 #475000
 1#
+#476000
+b101111 o&
 #480000
 0#
-b10000 E
 #485000
 1#
+#486000
+b110000 o&
 #490000
 0#
 #495000
 1#
+#496000
+b110001 o&
 #500000
 0#
 #505000
 1#
+#506000
+b110010 o&
 #510000
 0#
-b10001 E
 #515000
 1#
+#516000
+b110011 o&
 #520000
 0#
 #525000
 1#
+#526000
+b110100 o&
 #530000
 0#
 #535000
 1#
+#536000
+b110101 o&
 #540000
 0#
-b10010 E
 #545000
 1#
+#546000
+b110110 o&
 #550000
 0#
 #555000
 1#
+#556000
+b110111 o&
 #560000
 0#
 #565000
 1#
+#566000
+b111000 o&
 #570000
 0#
-b10011 E
 #575000
 1#
+#576000
+b111001 o&
 #580000
 0#
 #585000
 1#
+#586000
+b111010 o&
 #590000
 0#
 #595000
 1#
+#596000
+b111011 o&
 #600000
 0#
-b10100 E
 #605000
 1#
+#606000
+b111100 o&
 #610000
 0#
 #615000
 1#
+#616000
+b111101 o&
 #620000
 0#
 #625000
 1#
+#626000
+b111110 o&
 #630000
 0#
-b10101 E
 #635000
 1#
+#636000
+b111111 o&
 #640000
 0#
 #645000
 1#
-#650000
-0#
-#655000
-1#
-#660000
-0#
-b10110 E
-#665000
-1#
-#670000
-0#
-#675000
-1#
-#680000
-0#
-#685000
-1#
-#690000
-0#
-b10111 E
-#695000
-1#
-#700000
-0#
-#705000
-1#
-#710000
-0#
-#715000
-1#
-#720000
-0#
-b11000 E
-#725000
-1#
-#730000
-0#
-#735000
-1#
-#740000
-0#
-#745000
-1#
-#750000
-0#
-b11001 E
-#755000
-1#
-#760000
-0#
-#765000
-1#
-#770000
-0#
-#775000
-1#
-#780000
-0#
-b11010 E
-#785000
-1#
-#790000
-0#
-#795000
-1#
-#800000
-0#
-#805000
-1#
-#810000
-0#
-b11011 E
-#815000
-1#
-#820000
-0#
-#825000
-1#
-#830000
-0#
-#835000
-1#
-#840000
-0#
-b11100 E
-#845000
-1#
-#850000
-0#
-#855000
-1#
-#860000
-0#
-#865000
-1#
-#870000
-0#
-b11101 E
-#875000
-1#
-#880000
-0#
-#885000
-1#
-#890000
-0#
-#895000
-1#
-#900000
-0#
-b11110 E
-#905000
-1#
-#910000
-0#
-#915000
-1#
-#920000
-0#
-#925000
-1#
-#930000
-0#
-b11111 E
-#935000
-1#
-#940000
-0#
-#945000
-1#
-#950000
-0#
-#955000
-1#
-#960000
-0#
-b100000 E
-#965000
-1#
-#970000
-0#
-#975000
-1#
-#980000
-0#
-#985000
-1#
-#990000
-0#
-b100001 E
-#995000
-1#
-#1000000
-0#
-#1005000
-1#
-#1010000
-0#
-#1015000
-1#
-#1020000
-0#
-b100010 E
-#1025000
-1#
-#1030000
-0#
-#1035000
-1#
-#1040000
-0#
-#1045000
-1#
-#1050000
-0#
-b100011 E
-#1055000
-1#
-#1060000
-0#
-#1065000
-1#
-#1070000
-0#
-#1075000
-1#
-#1080000
-0#
-b100100 E
-#1085000
-1#
-#1090000
-0#
-#1095000
-1#
-#1100000
-0#
-#1105000
-1#
-#1110000
-0#
-b100101 E
-#1115000
-1#
-#1120000
-0#
-#1125000
-1#
-#1130000
-0#
-#1135000
-1#
-#1140000
-0#
-b100110 E
-#1145000
-1#
-#1150000
-0#
-#1155000
-1#
-#1160000
-0#
-#1165000
-1#
-#1170000
-0#
-b100111 E
-#1175000
-1#
-#1180000
-0#
-#1185000
-1#
-#1190000
-0#
-#1195000
-1#
-#1200000
-0#
-b101000 E
-#1205000
-1#
-#1210000
-0#
-#1215000
-1#
-#1220000
-0#
-#1225000
-1#
-#1230000
-0#
-b101001 E
-#1235000
-1#
-#1240000
-0#
-#1245000
-1#
-#1250000
-0#
-#1255000
-1#
-#1260000
-0#
-b101010 E
-#1265000
-1#
-#1270000
-0#
-#1275000
-1#
-#1280000
-0#
-#1285000
-1#
-#1290000
-0#
-b101011 E
-#1295000
-1#
-#1300000
-0#
-#1305000
-1#
-#1310000
-0#
-#1315000
-1#
-#1320000
-0#
-b101100 E
-#1325000
-1#
-#1330000
-0#
-#1335000
-1#
-#1340000
-0#
-#1345000
-1#
-#1350000
-0#
-b101101 E
-#1355000
-1#
-#1360000
-0#
-#1365000
-1#
-#1370000
-0#
-#1375000
-1#
-#1380000
-0#
-b101110 E
-#1385000
-1#
-#1390000
-0#
-#1395000
-1#
-#1400000
-0#
-#1405000
-1#
-#1410000
-0#
-b101111 E
-#1415000
-1#
-#1420000
-0#
-#1425000
-1#
-#1430000
-0#
-#1435000
-1#
-#1440000
-0#
-b110000 E
-#1445000
-1#
-#1450000
-0#
-#1455000
-1#
-#1460000
-0#
-#1465000
-1#
-#1470000
-0#
-b110001 E
-#1475000
-1#
-#1480000
-0#
-#1485000
-1#
-#1490000
-0#
-#1495000
-1#
-#1500000
-0#
-b110010 E
-#1505000
-1#
-#1510000
-0#
-#1515000
-1#
-#1520000
-0#
-#1525000
-1#
-#1530000
-0#
-b110011 E
-#1535000
-1#
-#1540000
-0#
-#1545000
-1#
-#1550000
-0#
-#1555000
-1#
-#1560000
-0#
-b110100 E
-#1565000
-1#
-#1570000
-0#
-#1575000
-1#
-#1580000
-0#
-#1585000
-1#
-#1590000
-0#
-b110101 E
-#1595000
-1#
-#1600000
-0#
-#1605000
-1#
-#1610000
-0#
-#1615000
-1#
-#1620000
-0#
-b110110 E
-#1625000
-1#
-#1630000
-0#
-#1635000
-1#
-#1640000
-0#
-#1645000
-1#
-#1650000
-0#
-b110111 E
-#1655000
-1#
-#1660000
-0#
-#1665000
-1#
-#1670000
-0#
-#1675000
-1#
-#1680000
-0#
-b111000 E
-#1685000
-1#
-#1690000
-0#
-#1695000
-1#
-#1700000
-0#
-#1705000
-1#
-#1710000
-0#
-b111001 E
-#1715000
-1#
-#1720000
-0#
-#1725000
-1#
-#1730000
-0#
-#1735000
-1#
-#1740000
-0#
-b111010 E
-#1745000
-1#
-#1750000
-0#
-#1755000
-1#
-#1760000
-0#
-#1765000
-1#
-#1770000
-0#
-b111011 E
-#1775000
-1#
-#1780000
-0#
-#1785000
-1#
-#1790000
-0#
-#1795000
-1#
-#1800000
-0#
-b111100 E
-#1805000
-1#
-#1810000
-0#
-#1815000
-1#
-#1820000
-0#
-#1825000
-1#
-#1830000
-0#
-b111101 E
-#1835000
-1#
-#1840000
-0#
-#1845000
-1#
-#1850000
-0#
-#1855000
-1#
-#1860000
-0#
-b111110 E
-#1865000
-1#
-#1870000
-0#
-#1875000
-1#
-#1880000
-0#
-#1885000
-1#
-#1890000
-0#
-b111111 E
-#1895000
-1#
-#1900000
-0#
-#1905000
-1#
-#1910000
-0#
-#1915000
-1#
-#1920000
-0#
-b1000000 E
+#646000
+b1000000 o&

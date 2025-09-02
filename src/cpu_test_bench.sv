@@ -54,9 +54,10 @@ module cpu_test_bench();
 
         clock = 0;
 
+        #6;
         for (integer i = 0; i < MAX_MACHINE_CODE_LENGTH; i++) begin
             current_instruction = machine_code[i];
-            #30;
+            #10;
         end
 
 
