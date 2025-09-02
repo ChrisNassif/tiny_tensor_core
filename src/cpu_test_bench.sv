@@ -5,7 +5,7 @@ module cpu_test_bench();
 
     logic clock;   
 
-    localparam MAX_MACHINE_CODE_LENGTH = 1;
+    localparam MAX_MACHINE_CODE_LENGTH = 64;
 
     logic [31:0] machine_code [MAX_MACHINE_CODE_LENGTH-1:0];
     logic [31:0] current_instruction;
@@ -54,14 +54,10 @@ module cpu_test_bench();
 
         clock = 0;
 
-        for (integer i = 0; i < 45; i++) begin
-            // integer machine_code_lower_index = i * 32;
-            // integer machine_code_higher_index = (i+1) * 32 - 1;
-            // current_machine_code_instruction = machine_code[i:i+32];
-            // #30;
+        for (integer i = 0; i < MAX_MACHINE_CODE_LENGTH; i++) begin
+            current_instruction = machine_code[i];
+            #30;
         end
-
-        current_instruction = machine_code[0];
 
 
         $display("Finishing Sim"); //print nice message at end

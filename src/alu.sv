@@ -1,7 +1,3 @@
-`timescale 1ns / 1ps
-`default_nettype wire
-
-
 module alu (
     input logic clock_in,
     input logic reset_in,

@@ -1,6 +1,3 @@
-`timescale 1ns / 1ps
-`default_nettype wire
-
 module cpu (input logic clock_in, input logic [31:0] current_instruction, output logic [7:0] cpu_output);
 
     // TODO add code to support immediate instructions
@@ -31,13 +28,13 @@ module cpu (input logic clock_in, input logic [31:0] current_instruction, output
     );
     
 
-    assign register_file_write_register_address = current_instruction[31:25];
-    assign register_file_read_register_address1 = current_instruction[24:18];
-    assign register_file_read_register_address2 = current_instruction[17:11];
+    assign register_file_write_register_address = current_instruction[31:24];
+    assign register_file_read_register_address1 = current_instruction[23:16];
+    assign register_file_read_register_address2 = current_instruction[15:8];
     assign alu_opcode = current_instruction[2:0];
 
-    assign register_file_write_enable = 1`b1;
-    assign alu_input1 = current_instruction[31:25];     // TODO CHANGE THIS BACK TO register_file_read_data1 ONCE ADD IMMEDIATE IS ADDED
+    assign register_file_write_enable = 1'b1;
+    assign alu_input1 = current_instruction[23:16];     // TODO CHANGE THIS BACK TO register_file_read_data1 ONCE ADD IMMEDIATE IS ADDED
     assign alu_input2 = register_file_read_data2;
     assign register_file_write_data = alu_output;
 

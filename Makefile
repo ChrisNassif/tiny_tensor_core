@@ -15,4 +15,4 @@ test_cpu:
 	gtkwave build/cpu_test_bench.vcd
 
 cpu_transistor_count:
-	yosys -p "read_verilog -sv src/cpu.sv; synth; stat -tech cmos"
+	yosys -p "read_verilog -sv src/cpu.sv src/alu.sv src/register_file.sv; synth; stat -tech cmos"

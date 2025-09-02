@@ -1,8 +1,3 @@
-`timescale 1ns / 1ps
-`default_nettype none
-`default_nettype wire
-
-
 module register_file #(
     parameter NUMBER_OF_REGISTERS = 256
 )(
@@ -18,13 +13,19 @@ module register_file #(
 
     reg [7:0] registers [NUMBER_OF_REGISTERS];
 
+    initial begin
+        for (int i = 0; i < NUMBER_OF_REGISTERS; i++) begin
+            registers[i] <= 8'b0;
+        end
+    end
+
     always_ff @(posedge clock_in) begin
         if (write_enable_in) begin
             registers[write_register_address_in] <= write_data_in;
         end
     end
 
-    assign read_data1_out = registers[read_register_address2_in];
-    assign read_data2_out = register[read_register_address2_in];
+    assign read_data1_out = registers[read_register_address1_in];
+    assign read_data2_out = registers[read_register_address2_in];
 
 endmodule
