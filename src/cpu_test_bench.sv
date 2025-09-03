@@ -11,31 +11,7 @@ module cpu_test_bench();
     logic [31:0] current_instruction;
     logic [7:0] cpu_output;
 
-    // int file_descriptor;
-    // reg [256*8:1] line;
-    // int file_line_index;
-
-
-    // read machine code from file ()
     initial begin
-        // file_descriptor = $fopen("machine_code.gpu", "rb");
-        
-        // if (file_descriptor == 0) begin
-        //     $fatal(1, "Failed to open machine_code.gpu");
-        // end
-        
-        // file_line_index = 0;
-        // while (!$feof(file_descriptor) && file_line_index < MAX_MACHINE_CODE_LENGTH) begin
-        //     void'($fgets(line, file_descriptor));
-        //     if (line[8:1] != 0) begin
-        //         $sscanf(line, "%b", machine_code[file_line_index]); // parse line into a 32-bit binary word
-        //         $display("Instruction[%0d] = %b", file_line_index, machine_code[file_line_index]);
-        //         file_line_index++;
-        //     end
-        // end
-
-
-        // $fclose(file_descriptor);
         $readmemh("machine_code", machine_code);
     end
 
