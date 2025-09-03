@@ -18,7 +18,6 @@ module cpu (
     logic cpu_register_file_write_enable;
 
 
-
     logic tensor_core_register_file_non_bulk_write_enable;
     logic [7:0] tensor_core_register_file_non_bulk_write_data;
     logic [4:0] tensor_core_register_file_non_bulk_write_register_address;
@@ -86,10 +85,22 @@ module cpu (
     // for the opcode of operating on the contents in the tensor core register file
     assign tensor_core_register_file_bulk_write_enable = (alu_opcode == 8'b101) ? 1'b1: 1'b0;
 
-    // for the opcode of load immediate to the tensor core register file     
-    assign tensor_core_register_file_non_bulk_write_enable = (alu_opcode == 8'b110) ?  1'b1: 1'b0;
-    assign tensor_core_register_file_non_bulk_write_register_address = (alu_opcode == 8'b110) ? current_instruction[28:24]: 5'b0;
-    assign tensor_core_register_file_non_bulk_write_data = (alu_opcode == 8'b110) ? current_instruction[23:16]: 8'b0;
+    // for the opcode of load immediate and move from cpu registers to the tensor core register file   
+    assign tensor_core_register_file_non_bulk_write_enable = (
+        (alu_opcode == 8'b110) ? 1'b1:
+        (alu_opcode == 8'b111) ? 1'b1: 
+        1'b0
+    );
+    assign tensor_core_register_file_non_bulk_write_register_address = (
+        (alu_opcode == 8'b110) ? current_instruction[28:24]: 
+        (alu_opcode == 8'b111) ? current_instruction[28:24]:
+        5'b0
+    );
+    assign tensor_core_register_file_non_bulk_write_data = (
+        (alu_opcode == 8'b110) ? current_instruction[23:16]: 
+        (alu_opcode == 8'b111) ? cpu_register_file_read_data1: 
+        8'b0
+    );
 
 
     // wire up the tensor_core_register_file_bulk_write_data and tensor core inputs correctly

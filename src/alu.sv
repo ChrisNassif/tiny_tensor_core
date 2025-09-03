@@ -3,9 +3,9 @@ module alu (
     input logic reset_in,
     input logic enable_in,
     input logic [7:0] opcode_in,
-    input logic signed [7:0] alu_input1,
-    input logic signed [7:0] alu_input2,
-    output logic signed [7:0] alu_output
+    input logic [7:0] alu_input1,
+    input logic [7:0] alu_input2,
+    output logic [7:0] alu_output
 );
     localparam ADD = 8'b0, SUBTRACT = 8'b1, MULTIPLY = 8'b10, 
         EQUALS = 8'b11, GREATER_THAN = 8'b100;

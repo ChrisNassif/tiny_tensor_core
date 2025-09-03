@@ -36,6 +36,8 @@ def main():
                 current_machine_code_line += "101"
             case "tensor_core_load":
                 current_machine_code_line += "110"
+            case "cpu_to_tensor_core":
+                current_machine_code_line += "111"
             case _:
                 raise Exception("Operation not found") 
         

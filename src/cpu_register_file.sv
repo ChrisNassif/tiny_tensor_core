@@ -23,7 +23,7 @@ module cpu_register_file #(
     end
 
     always_ff @(posedge clock_in) begin
-        if (write_enable_in) begin
+        if (write_enable_in && write_register_address_in != 8'b0) begin
             registers[write_register_address_in] <= write_data_in;
         end
     end
