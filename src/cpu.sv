@@ -97,7 +97,7 @@ module cpu (
     end
 
 
-    better_tensor_core_register_file main_tensor_core_register_file (
+    tensor_core_register_file main_tensor_core_register_file (
         .clock_in(clock_in), .non_bulk_write_enable_in(tensor_core_register_file_non_bulk_write_enable),
         .non_bulk_write_register_address_in(tensor_core_register_file_non_bulk_write_register_address),
         .non_bulk_write_data_in(tensor_core_register_file_non_bulk_write_data),
