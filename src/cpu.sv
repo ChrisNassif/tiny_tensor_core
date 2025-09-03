@@ -1,12 +1,13 @@
 module cpu (
     input logic clock_in, 
     input logic [31:0] current_instruction, 
-    output logic [7:0] cpu_output
+    output logic [7:0] cpu_output,
+    output logic [7:0] tensor_core_result [4] [4]
 );
 
     // TODO add code to support immediate instructions
 
-
+    // DECLARATIONS
     logic [7:0] alu_input1, alu_input2, alu_output;
     logic [7:0] alu_opcode;
 
@@ -61,7 +62,26 @@ module cpu (
 
 
 
+
+
     // ALL OF THE STUFF FOR A TENSOR CORE ARE FOUND BELOW:
+
+    tensor_core_register_file main_tensor_core_register_file (
+        .clock_in(clock_in), .non_bulk_write_enable_in(tensor_core_register_file_non_bulk_write_enable),
+        .non_bulk_write_register_address_in(tensor_core_register_file_non_bulk_write_register_address),
+        .non_bulk_write_data_in(tensor_core_register_file_non_bulk_write_data),
+
+        .bulk_write_enable_in(tensor_core_register_file_bulk_write_enable), .bulk_write_data_in(tensor_core_register_file_bulk_write_data),
+        .read_data_out(tensor_core_register_file_read_data)
+    );
+
+
+    tensor_core main_tensor_core (
+        .tensor_core_input1(tensor_core_input1), 
+        .tensor_core_input2(tensor_core_input2),
+        .tensor_core_output(tensor_core_output)
+    );
+
 
     // for the opcode of operating on the contents in the tensor core register file
     assign tensor_core_register_file_bulk_write_enable = (alu_opcode == 8'b101) ? 1'b1: 1'b0;
@@ -97,21 +117,12 @@ module cpu (
     end
 
 
-    tensor_core_register_file main_tensor_core_register_file (
-        .clock_in(clock_in), .non_bulk_write_enable_in(tensor_core_register_file_non_bulk_write_enable),
-        .non_bulk_write_register_address_in(tensor_core_register_file_non_bulk_write_register_address),
-        .non_bulk_write_data_in(tensor_core_register_file_non_bulk_write_data),
-
-        .bulk_write_enable_in(tensor_core_register_file_bulk_write_enable), .bulk_write_data_in(tensor_core_register_file_bulk_write_data),
-        .read_data_out(tensor_core_register_file_read_data)
-    );
 
 
-    tensor_core main_tensor_core (
-        .tensor_core_input1(tensor_core_input1), 
-        .tensor_core_input2(tensor_core_input2),
-        .tensor_core_output(tensor_core_output)
-    );
+
+
+
+
 
 
 
