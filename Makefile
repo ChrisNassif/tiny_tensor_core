@@ -21,5 +21,8 @@ show_cpu_synthesis:
 	yosys -p "read_verilog -sv src/cpu.sv src/alu.sv src/cpu_register_file.sv src/tensor_core.sv src/tensor_core_register_file.sv; synth -top cpu; stat -tech cmos; show cpu"
 
 
-# test_tensor_core:
-	
+transistor_count_cpu_v:
+	yosys -p "read_verilog src_v/cpu.v src_v/alu.v src_v/cpu_register_file.v src_v/tensor_core.v src_v/tensor_core_register_file.v; synth; stat -tech cmos"
+
+show_cpu_synthesis_v:
+	yosys -p "read_verilog src_v/cpu.v src_v/alu.v src_v/cpu_register_file.v src_v/tensor_core.v src_v/tensor_core_register_file.v; synth -top cpu; stat -tech cmos; show cpu"
