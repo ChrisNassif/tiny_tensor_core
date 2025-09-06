@@ -13,6 +13,8 @@ module cpu (
 	wire [7:0] alu_input2;
 	wire [7:0] alu_output;
 	wire [7:0] alu_opcode;
+	wire is_add_immediate;
+	wire is_sub_immediate;
 	wire [7:0] cpu_register_file_read_register_address1;
 	wire [7:0] cpu_register_file_read_register_address2;
 	wire [7:0] cpu_register_file_read_data1;
@@ -30,6 +32,12 @@ module cpu (
 	wire is_tensor_core_done_with_calculation;
 	reg [127:0] tensor_core_input1;
 	reg [127:0] tensor_core_input2;
+	wire alu_overflow_flag;
+	wire alu_carry_flag;
+	wire alu_zero_flag;
+	wire alu_sign_flag;
+	wire alu_parity_flag;
+	reg [7:0] status_register;
 	alu main_alu(
 		.clock_in(clock_in),
 		.reset_in(1'b0),
@@ -37,7 +45,12 @@ module cpu (
 		.opcode_in(alu_opcode),
 		.alu_input1(alu_input1),
 		.alu_input2(alu_input2),
-		.alu_output(alu_output)
+		.alu_output(alu_output),
+		.overflow_flag(alu_overflow_flag),
+		.carry_flag(alu_carry_flag),
+		.zero_flag(alu_zero_flag),
+		.sign_flag(alu_sign_flag),
+		.parity_flag(alu_parity_flag)
 	);
 	cpu_register_file main_cpu_register_file(
 		.clock_in(clock_in),
@@ -53,11 +66,21 @@ module cpu (
 	assign cpu_register_file_read_register_address1 = current_instruction[23:16];
 	assign cpu_register_file_read_register_address2 = current_instruction[15:8];
 	assign alu_opcode = current_instruction[7:0];
-	assign cpu_register_file_write_enable = 1'b1;
-	assign alu_input1 = current_instruction[23:16];
-	assign alu_input2 = cpu_register_file_read_data2;
+	assign is_add_immediate = alu_opcode == 8'b00001001;
+	assign is_sub_immediate = alu_opcode == 8'b00001010;
+	assign cpu_register_file_write_enable = (((((((alu_opcode == 8'b00000000) || (alu_opcode == 8'b00000001)) || (alu_opcode == 8'b00000010)) || (alu_opcode == 8'b00000011)) || (alu_opcode == 8'b00000100)) || (alu_opcode == 8'b00001001)) || (alu_opcode == 8'b00001010) ? 1'b1 : 1'b0);
+	assign alu_input1 = cpu_register_file_read_data1;
+	assign alu_input2 = (is_add_immediate | is_sub_immediate ? current_instruction[15:8] : cpu_register_file_read_data2);
 	assign cpu_register_file_write_data = alu_output;
 	assign cpu_output = alu_output;
+	always @(posedge clock_in)
+		if (cpu_register_file_write_enable) begin
+			status_register[4] <= alu_parity_flag;
+			status_register[3] <= alu_overflow_flag;
+			status_register[2] <= alu_carry_flag;
+			status_register[1] <= alu_zero_flag;
+			status_register[0] <= alu_sign_flag;
+		end
 	tensor_core_register_file main_tensor_core_register_file(
 		.clock_in(clock_in),
 		.non_bulk_write_enable_in(tensor_core_register_file_non_bulk_write_enable),

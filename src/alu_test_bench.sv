@@ -1,16 +1,17 @@
 `timescale 1ns / 1ps
 `default_nettype wire
+`define BUS_WIDTH 7
 
 module alu_test_bench();
 
     logic clock;
     logic reset;
-    logic [2:0] alu_opcode;
-    logic [7:0] alu_input1, alu_input2, alu_output, alu_expected_output;
+    logic [`BUS_WIDTH:0] alu_opcode;
+    logic [`BUS_WIDTH:0] alu_input1, alu_input2, alu_output, alu_expected_output;
     
     
     alu main_alu(
-        .clock_in(clock), .reset_in(reset), .enable_in(1'b1), 
+        .reset_in(reset), .enable_in(1'b1), 
         .opcode_in(alu_opcode), .alu_input1(alu_input1), .alu_input2(alu_input2), 
         .alu_output(alu_output)
     );

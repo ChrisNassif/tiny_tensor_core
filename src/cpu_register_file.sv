@@ -1,3 +1,5 @@
+`define BUS_WIDTH 7
+
 module cpu_register_file #(
     parameter NUMBER_OF_REGISTERS = 256
 )(
@@ -6,12 +8,12 @@ module cpu_register_file #(
     input logic [$clog2(NUMBER_OF_REGISTERS)-1:0] read_register_address1_in,
     input logic [$clog2(NUMBER_OF_REGISTERS)-1:0] read_register_address2_in,
     input logic [$clog2(NUMBER_OF_REGISTERS)-1:0] write_register_address_in,
-    input logic [7:0] write_data_in,
-    output logic [7:0] read_data1_out,
-    output logic [7:0] read_data2_out
+    input logic [`BUS_WIDTH:0] write_data_in,
+    output logic [`BUS_WIDTH:0] read_data1_out,
+    output logic [`BUS_WIDTH:0] read_data2_out
 );
 
-    reg [7:0] registers [NUMBER_OF_REGISTERS];
+    reg [`BUS_WIDTH:0] registers [NUMBER_OF_REGISTERS];
     assign read_data1_out = registers[read_register_address1_in];
     assign read_data2_out = registers[read_register_address2_in];
 

@@ -42,7 +42,7 @@ def main():
             case "add_imm":
                 current_machine_code_line += "00001001" 
             case "sub_imm":
-                current_machine_code_line += "00001010"  
+                current_machine_code_line += "00001010" 
             case _:
                 raise Exception("Operation not found") 
         

@@ -5,14 +5,11 @@ sub 4 2 1
 add_imm 5 4 50
 sub_imm 9 5 25
 sub_imm 10 2 3
-mul 6 5 3
 eql 7 3 3
-grt 8 6 2
 add_imm 20 0 127
 add_imm 21 20 1
 add_imm 22 0 127
 add 23 22 22
-mul 24 20 20
 sub_imm 25 0 1
 add_imm 26 0 0
 add_imm 27 0 127

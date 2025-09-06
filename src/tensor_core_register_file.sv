@@ -1,3 +1,5 @@
+`define BUS_WIDTH 7
+
 // A register file meant to supply values to a tensor core.
 // This register file exposes all of the wires to each register, so a tensor core can take each of the values inside the registers in a single clock cycle 
 module tensor_core_register_file #(
@@ -6,11 +8,11 @@ module tensor_core_register_file #(
     input logic clock_in,
     input logic non_bulk_write_enable_in,
     input logic [$clog2(NUMBER_OF_REGISTERS)-1:0] non_bulk_write_register_address_in,
-    input logic [7:0] non_bulk_write_data_in,
+    input logic [`BUS_WIDTH:0] non_bulk_write_data_in,
 
     input logic bulk_write_enable_in,
-    input logic [7:0] bulk_write_data_in [(NUMBER_OF_REGISTERS-1)/16 + 1] [4] [4],
-    output logic [7:0] read_data_out [(NUMBER_OF_REGISTERS-1)/16 + 1] [4] [4]
+    input logic [`BUS_WIDTH:0] bulk_write_data_in [(NUMBER_OF_REGISTERS-1)/16 + 1] [4] [4],
+    output logic [`BUS_WIDTH:0] read_data_out [(NUMBER_OF_REGISTERS-1)/16 + 1] [4] [4]
 );
 
     reg [7:0] registers [(NUMBER_OF_REGISTERS-1)/16 + 1] [4] [4];
@@ -54,7 +56,6 @@ module tensor_core_register_file #(
 
 
     // make the registers visible to gtkwave
-    // TODO: there are a couple of bugs to this rn maybe?
     genvar i, j, k;
     generate
         for (i = 0; i < (NUMBER_OF_REGISTERS-1)/16 + 1; i++) begin : expose_regs1
