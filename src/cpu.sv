@@ -68,7 +68,7 @@ module cpu (
 
 
     alu main_alu(
-        .reset_in(1'b0), .enable_in(1'b1), 
+        .reset_in(alu_opcode == `RESET_OPCODE), .enable_in(1'b1), 
         .opcode_in(alu_opcode), .alu_input1(alu_input1), .alu_input2(alu_input2), 
         .alu_output(alu_output), 
         .overflow_flag(alu_overflow_flag),   

@@ -21,7 +21,7 @@ module alu (
     logic [15:0] mult_result;     // 16-bit for multiplication
 
 
-    // Default flag values
+    // Default flag values and temp logic values
     initial begin 
         overflow_flag = 0;
         carry_flag = 0;
@@ -36,58 +36,30 @@ module alu (
     always_comb begin 
 
         if (reset_in) begin 
-            alu_output = 8'b0;
-            zero_flag = 1'b1;
+            alu_output = 0;
+            zero_flag = 1;
         end 
         
         else if (enable_in) begin
             case (opcode_in)
                 ADD: begin 
                     extended_result = {1'b0, alu_input1} + {1'b0, alu_input2};
-                    alu_output = extended_result[7:0];
-                    
-                    // Carry flag (unsigned overflow)
-                    carry_flag = extended_result[8];
-                    
-                    // Signed overflow detection for addition
-                    overflow_flag = (~alu_input1[7] & ~alu_input2[7] & alu_output[7]) | (alu_input1[7] & alu_input2[7] & ~alu_output[7]);
-                    
-                    zero_flag = (alu_output == 8'b0);
-                    sign_flag = alu_output[7];
-                    parity_flag = ^alu_output;
+                    alu_output = extended_result[`BUS_WIDTH:0];
                 end
 
                 ADD_IMMEDIATE: begin 
                     extended_result = {1'b0, alu_input1} + {1'b0, alu_input2};
-                    alu_output = extended_result[7:0];
-                    
-                    carry_flag = extended_result[8];
-                    overflow_flag = (~alu_input1[7] & ~alu_input2[7] & alu_output[7]) | (alu_input1[7] & alu_input2[7] & ~alu_output[7]);
-                    zero_flag = (alu_output == 8'b0);
-                    sign_flag = alu_output[7];
-                    parity_flag = ^alu_output;
+                    alu_output = extended_result[`BUS_WIDTH:0];
                 end
 
                 SUBTRACT: begin 
                     extended_result = {1'b0, alu_input1} - {1'b0, alu_input2};
-                    alu_output = extended_result[7:0];
-                    
-                    carry_flag = extended_result[8];
-                    overflow_flag = (~alu_input1[7] & alu_input2[7] & alu_output[7]) | (alu_input1[7] & ~alu_input2[7] & ~alu_output[7]);
-                    zero_flag = (alu_output == 8'b0);
-                    sign_flag = alu_output[7];
-                    parity_flag = ^alu_output;
+                    alu_output = extended_result[`BUS_WIDTH:0];
                 end
 
                 SUBTRACT_IMMEDIATE: begin 
                     extended_result = {1'b0, alu_input1} - {1'b0, alu_input2};
-                    alu_output = extended_result[7:0];
-                    
-                    carry_flag = extended_result[8];
-                    overflow_flag = (~alu_input1[7] & alu_input2[7] & alu_output[7]) | (alu_input1[7] & ~alu_input2[7] & ~alu_output[7]);
-                    zero_flag = (alu_output == 8'b0);
-                    sign_flag = alu_output[7];
-                    parity_flag = ^alu_output;
+                    alu_output = extended_result[`BUS_WIDTH:0];
                 end
 
                 // MULTIPLY: begin 
@@ -106,14 +78,11 @@ module alu (
                 EQUALS: begin
                     if (alu_input1 == alu_input2) begin
                         alu_output = 1;
-                        
                     end
 
                     else begin
                         alu_output = 0;
                     end
-                    zero_flag = (alu_output == 8'b0);
-                    sign_flag = alu_output[7];
                 end
 
                 GREATER_THAN: begin
@@ -124,8 +93,6 @@ module alu (
                     else begin
                         alu_output = 0;
                     end
-                    zero_flag = (alu_output == 8'b0);
-                    sign_flag = alu_output[7];
                 end
 
                 MOV: begin
@@ -143,5 +110,34 @@ module alu (
         else begin
             alu_output = 0;
         end
+
+
+
+
+        // handle flags
+        if (opcode_in == ADD || opcode_in == ADD_IMMEDIATE) begin
+            
+            carry_flag = extended_result[`BUS_WIDTH+1];
+
+            // Signed overflow detection for addition
+            overflow_flag = (
+                (~alu_input1[`BUS_WIDTH] & ~alu_input2[`BUS_WIDTH] &  alu_output[`BUS_WIDTH]) | 
+                ( alu_input1[`BUS_WIDTH] &  alu_input2[`BUS_WIDTH] & ~alu_output[`BUS_WIDTH])
+            );
+        end
+
+        if (opcode_in == SUBTRACT || opcode_in == SUBTRACT_IMMEDIATE) begin
+            overflow_flag = (
+                (~alu_input1[`BUS_WIDTH] &  alu_input2[`BUS_WIDTH] &  alu_output[`BUS_WIDTH]) |
+                ( alu_input1[`BUS_WIDTH] & ~alu_input2[`BUS_WIDTH] & ~alu_output[`BUS_WIDTH])
+            );
+        end
+
+
+        zero_flag = (alu_output == 0);
+        sign_flag = alu_output[`BUS_WIDTH];
+        parity_flag = ^alu_output;
+
+
     end
 endmodule

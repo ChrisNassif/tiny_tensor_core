@@ -8,7 +8,7 @@ sub_imm 10 2 3
 eql 7 3 3
 add_imm 20 0 127
 add_imm 21 20 1
-add_imm 22 0 127
+add_imm 22 0 100
 add 23 22 22
 sub_imm 25 0 1
 add_imm 26 0 0

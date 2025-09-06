@@ -79,12 +79,10 @@ module cpu_test_bench();
             
             test_count++;
             if (actual_value == expected_value && alu_overflow == expected_overflow) begin
-                $display("PASS: %s - reg%0d=%0d (exp %0d), overflow=%b", 
-                         test_name, reg_num, actual_value, expected_value, alu_overflow);
+                $display("PASS: %s - reg%0d=%0d (exp %0d), overflow=%b", test_name, reg_num, actual_value, expected_value, alu_overflow);
                 pass_count++;
             end else begin
-                $display("FAIL: %s - reg%0d=%0d (exp %0d), overflow=%b (exp %b)", 
-                         test_name, reg_num, actual_value, expected_value, alu_overflow, expected_overflow);
+                $display("FAIL: %s - reg%0d=%0d (exp %0d), overflow=%b (exp %b)", test_name, reg_num, actual_value, expected_value, alu_overflow, expected_overflow);
                 fail_count++;
             end
         end
