@@ -7,7 +7,7 @@
 `define TENSOR_CORE_OPERATE_OPCODE 8'b00000101
 `define TENSOR_CORE_LOAD_OPCODE 8'b00000110
 `define CPU_TO_TENSOR_CORE_OPCODE 8'b00000111
-`define TENSOR_CORE_TO_CPU_OPCODE 8'b00001101
+`define TENSOR_CORE_TO_CPU_OPCODE 8'b00001110
 `define NOP_OPCODE 8'b00001000
 
 `define ADD_IMM_OPCODE 8'b00001001
@@ -119,7 +119,7 @@ module cpu (
 
 
     assign cpu_register_file_write_data = (
-        (alu_opcode == `TENSOR_CORE_TO_CPU_OPCODE) ? cpu_register_file_read_data1: 
+        (alu_opcode == `TENSOR_CORE_TO_CPU_OPCODE) ? tensor_core_register_file_non_bulk_read_data: 
         alu_output
     );
     // assign cpu_register_file_write_data = alu_output;
