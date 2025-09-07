@@ -72,6 +72,9 @@ module cpu (
     // Status register to store flags  
     logic [4:0] status_register;  // [4] parity [3] overflow, [2] carry, [1] zero, [0] sign
 
+    
+    // Check if this is an immediate instruction
+    assign is_immediate_instruction = (alu_opcode == `ADD_IMM_OPCODE) || (alu_opcode == `SUB_IMM_OPCODE);
 
 
 
@@ -99,10 +102,6 @@ module cpu (
     assign cpu_register_file_read_register_address1 = current_instruction[23:16];
     assign cpu_register_file_read_register_address2 = current_instruction[15:8];
     assign alu_opcode = current_instruction[7:0];
-
-
-    // Check if this is an add immediate instruction (opcode 9)
-    assign is_immediate_instruction = (alu_opcode == `ADD_IMM_OPCODE) || (alu_opcode == `SUB_IMM_OPCODE);
 
     // Write enable logic - only write for CPU instructions, not tensor core operations
     assign cpu_register_file_write_enable = (
@@ -179,7 +178,6 @@ module cpu (
     assign tensor_core_register_file_bulk_write_enable = 1'b0;
 
     assign tensor_core_register_file_non_bulk_read_register_address = current_instruction[20:16];
-
 
 
     // for the opcode of load immediate and move from cpu registers to the tensor core register file   

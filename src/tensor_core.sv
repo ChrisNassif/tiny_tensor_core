@@ -51,6 +51,12 @@ module small_tensor_core (
     end
 
 
+
+
+
+    
+
+
     // Expose the internals of this module to gtkwave
     genvar i, j;
     generate
