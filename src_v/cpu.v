@@ -71,8 +71,8 @@ module cpu (
 	assign cpu_register_file_read_register_address2 = current_instruction[15:8];
 	assign alu_opcode = current_instruction[7:0];
 	assign is_immediate_instruction = (alu_opcode == 8'b00001001) || (alu_opcode == 8'b00001010);
-	assign cpu_register_file_write_enable = (((((((((alu_opcode == 8'b00000000) || (alu_opcode == 8'b00000001)) || (alu_opcode == 8'b00000010)) || (alu_opcode == 8'b00000011)) || (alu_opcode == 8'b00000100)) || (alu_opcode == 8'b00001001)) || (alu_opcode == 8'b00001010)) || (alu_opcode == 8'b00001011)) || (alu_opcode == 8'b00001101) ? 1'b1 : 1'b0);
-	assign cpu_register_file_write_data = (alu_opcode == 8'b00001101 ? cpu_register_file_read_data1 : alu_output);
+	assign cpu_register_file_write_enable = (((((((((alu_opcode == 8'b00000000) || (alu_opcode == 8'b00000001)) || (alu_opcode == 8'b00000010)) || (alu_opcode == 8'b00000011)) || (alu_opcode == 8'b00000100)) || (alu_opcode == 8'b00001001)) || (alu_opcode == 8'b00001010)) || (alu_opcode == 8'b00001011)) || (alu_opcode == 8'b00001110) ? 1'b1 : 1'b0);
+	assign cpu_register_file_write_data = (alu_opcode == 8'b00001110 ? tensor_core_register_file_non_bulk_read_data : alu_output);
 	assign alu_input1 = cpu_register_file_read_data1;
 	assign alu_input2 = (is_immediate_instruction ? current_instruction[15:8] : cpu_register_file_read_data2);
 	assign cpu_output = (alu_opcode == 8'b00001111 ? cpu_register_file_read_data1 : (alu_opcode == 8'b00010000 ? tensor_core_register_file_non_bulk_read_data : alu_output));
@@ -109,7 +109,7 @@ module cpu (
 	assign tensor_core_register_file_non_bulk_read_register_address = current_instruction[20:16];
 	assign tensor_core_register_file_non_bulk_write_enable = (alu_opcode == 8'b00000110 ? 1 : (alu_opcode == 8'b00000111 ? 1 : (alu_opcode == 8'b00001100 ? 1 : 0)));
 	assign tensor_core_register_file_non_bulk_write_register_address = (alu_opcode == 8'b00000110 ? current_instruction[28:24] : (alu_opcode == 8'b00000111 ? current_instruction[28:24] : (alu_opcode == 8'b00001100 ? current_instruction[28:24] : 0)));
-	assign tensor_core_register_file_non_bulk_write_data = (alu_opcode == 8'b00000110 ? current_instruction[23:16] : (alu_opcode == 8'b00000111 ? cpu_register_file_read_data1 : (alu_opcode == 8'b00001100 ? tensor_core_register_file_non_bulk_read_data[tensor_core_register_file_non_bulk_read_register_address] : 0)));
+	assign tensor_core_register_file_non_bulk_write_data = (alu_opcode == 8'b00000110 ? current_instruction[23:16] : (alu_opcode == 8'b00000111 ? cpu_register_file_read_data1 : (alu_opcode == 8'b00001100 ? tensor_core_register_file_non_bulk_read_data : 0)));
 	initial begin : sv2v_autoblock_1
 		reg signed [31:0] i;
 		for (i = 0; i < 4; i = i + 1)
