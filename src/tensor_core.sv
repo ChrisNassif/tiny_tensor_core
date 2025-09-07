@@ -1,4 +1,4 @@
-`define BUS_WIDTH 7
+`define BUS_WIDTH 3
 
 module small_tensor_core (
     input logic clock_in,

@@ -1,7 +1,7 @@
-`define BUS_WIDTH 7
+`define BUS_WIDTH 3
 
 module cpu_register_file #(
-    parameter NUMBER_OF_REGISTERS = 256
+    parameter NUMBER_OF_REGISTERS = 8
 )(
     input logic clock_in,
     input logic reset_in,
@@ -21,18 +21,18 @@ module cpu_register_file #(
 
     initial begin
         for (int i = 0; i < NUMBER_OF_REGISTERS; i++) begin
-            registers[i] <= 8'b0;
+            registers[i] <= 0;
         end
     end
 
     always_ff @(posedge clock_in) begin
-        if (write_enable_in && write_register_address_in != 8'b0 && reset_in == 0) begin
+        if (write_enable_in && write_register_address_in != 0 && reset_in == 0) begin
             registers[write_register_address_in] <= write_data_in;
         end
 
         else if (reset_in == 1) begin
             for (int i = 0; i < NUMBER_OF_REGISTERS; i++) begin
-                registers[i] <= 8'b0;
+                registers[i] <= 0;
             end
         end 
     end

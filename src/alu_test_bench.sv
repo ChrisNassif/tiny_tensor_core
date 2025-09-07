@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype wire
-`define BUS_WIDTH 7
+`define BUS_WIDTH 3
 
 module alu_test_bench();
 

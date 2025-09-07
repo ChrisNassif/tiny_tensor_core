@@ -1,4 +1,4 @@
-`define BUS_WIDTH 7
+`define BUS_WIDTH 3
 
 module alu (
     input logic reset_in,

@@ -46,68 +46,51 @@ module alu (
 		if (_sv2v_0)
 			;
 		if (reset_in) begin
-			alu_output = 8'b00000000;
-			zero_flag = 1'b1;
+			alu_output = 0;
+			zero_flag = 1;
 		end
 		else if (enable_in)
 			case (opcode_in)
 				ADD: begin
 					extended_result = {1'b0, alu_input1} + {1'b0, alu_input2};
-					alu_output = extended_result[7:0];
-					carry_flag = extended_result[8];
-					overflow_flag = ((~alu_input1[7] & ~alu_input2[7]) & alu_output[7]) | ((alu_input1[7] & alu_input2[7]) & ~alu_output[7]);
-					zero_flag = alu_output == 8'b00000000;
-					sign_flag = alu_output[7];
-					parity_flag = ^alu_output;
+					alu_output = extended_result[3:0];
 				end
 				ADD_IMMEDIATE: begin
 					extended_result = {1'b0, alu_input1} + {1'b0, alu_input2};
-					alu_output = extended_result[7:0];
-					carry_flag = extended_result[8];
-					overflow_flag = ((~alu_input1[7] & ~alu_input2[7]) & alu_output[7]) | ((alu_input1[7] & alu_input2[7]) & ~alu_output[7]);
-					zero_flag = alu_output == 8'b00000000;
-					sign_flag = alu_output[7];
-					parity_flag = ^alu_output;
+					alu_output = extended_result[3:0];
 				end
 				SUBTRACT: begin
 					extended_result = {1'b0, alu_input1} - {1'b0, alu_input2};
-					alu_output = extended_result[7:0];
-					carry_flag = extended_result[8];
-					overflow_flag = ((~alu_input1[7] & alu_input2[7]) & alu_output[7]) | ((alu_input1[7] & ~alu_input2[7]) & ~alu_output[7]);
-					zero_flag = alu_output == 8'b00000000;
-					sign_flag = alu_output[7];
-					parity_flag = ^alu_output;
+					alu_output = extended_result[3:0];
 				end
 				SUBTRACT_IMMEDIATE: begin
 					extended_result = {1'b0, alu_input1} - {1'b0, alu_input2};
-					alu_output = extended_result[7:0];
-					carry_flag = extended_result[8];
-					overflow_flag = ((~alu_input1[7] & alu_input2[7]) & alu_output[7]) | ((alu_input1[7] & ~alu_input2[7]) & ~alu_output[7]);
-					zero_flag = alu_output == 8'b00000000;
-					sign_flag = alu_output[7];
-					parity_flag = ^alu_output;
+					alu_output = extended_result[3:0];
 				end
-				EQUALS: begin
+				EQUALS:
 					if (alu_input1 == alu_input2)
 						alu_output = 1;
 					else
 						alu_output = 0;
-					zero_flag = alu_output == 8'b00000000;
-					sign_flag = alu_output[7];
-				end
-				GREATER_THAN: begin
+				GREATER_THAN:
 					if (alu_input1 > alu_input2)
 						alu_output = 1;
 					else
 						alu_output = 0;
-					zero_flag = alu_output == 8'b00000000;
-					sign_flag = alu_output[7];
-				end
 				MOV: alu_output = alu_input1;
 				default: alu_output = 0;
 			endcase
 		else
 			alu_output = 0;
+		if ((opcode_in == ADD) || (opcode_in == ADD_IMMEDIATE)) begin
+			carry_flag = extended_result[4];
+			overflow_flag = ((~alu_input1[3] & ~alu_input2[3]) & alu_output[3]) | ((alu_input1[3] & alu_input2[3]) & ~alu_output[3]);
+		end
+		if ((opcode_in == SUBTRACT) || (opcode_in == SUBTRACT_IMMEDIATE))
+			overflow_flag = ((~alu_input1[3] & alu_input2[3]) & alu_output[3]) | ((alu_input1[3] & ~alu_input2[3]) & ~alu_output[3]);
+		zero_flag = alu_output == 0;
+		sign_flag = alu_output[3];
+		parity_flag = ^alu_output;
 	end
 	initial _sv2v_0 = 0;
 endmodule

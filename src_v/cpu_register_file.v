@@ -9,7 +9,7 @@ module cpu_register_file (
 	read_data1_out,
 	read_data2_out
 );
-	parameter NUMBER_OF_REGISTERS = 256;
+	parameter NUMBER_OF_REGISTERS = 8;
 	input wire clock_in;
 	input wire reset_in;
 	input wire write_enable_in;
@@ -25,15 +25,15 @@ module cpu_register_file (
 	initial begin : sv2v_autoblock_1
 		reg signed [31:0] i;
 		for (i = 0; i < NUMBER_OF_REGISTERS; i = i + 1)
-			registers[i] <= 8'b00000000;
+			registers[i] <= 0;
 	end
 	always @(posedge clock_in)
-		if ((write_enable_in && (write_register_address_in != 8'b00000000)) && (reset_in == 0))
+		if ((write_enable_in && (write_register_address_in != 0)) && (reset_in == 0))
 			registers[write_register_address_in] <= write_data_in;
 		else if (reset_in == 1) begin : sv2v_autoblock_2
 			reg signed [31:0] i;
 			for (i = 0; i < NUMBER_OF_REGISTERS; i = i + 1)
-				registers[i] <= 8'b00000000;
+				registers[i] <= 0;
 		end
 	genvar _gv_i_1;
 	generate

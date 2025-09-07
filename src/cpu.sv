@@ -13,10 +13,16 @@
 `define ADD_IMM_OPCODE 8'b00001001
 `define SUB_IMM_OPCODE 8'b00001010
 
-`define MOV_OPCODE 8'b00001011
-`define RESET_OPCODE 8'b00001100
+`define MOVE_CPU_OPCODE 8'b00001011
+`define MOVE_TENSOR_CORE_OPCODE 8'b00001100
+`define RESET_OPCODE 8'b00001101
 
-`define BUS_WIDTH 7
+`define READ_CPU_OPCODE 8'b00001111
+`define READ_TENSOR_CORE_OPCODE 8'b00010000
+
+
+
+`define BUS_WIDTH 3
 
 
 
@@ -33,12 +39,11 @@ module cpu (
     // DECLARATIONS
     logic signed [`BUS_WIDTH:0] alu_input1, alu_input2, alu_output;
     logic [7:0] alu_opcode;
-    logic is_add_immediate;
-    logic is_sub_immediate; 
+    logic is_immediate_instruction;
 
-    logic [7:0] cpu_register_file_read_register_address1, cpu_register_file_read_register_address2;
+    logic [2:0] cpu_register_file_read_register_address1, cpu_register_file_read_register_address2;
     logic signed [`BUS_WIDTH:0] cpu_register_file_read_data1, cpu_register_file_read_data2;
-    logic [7:0] cpu_register_file_write_register_address;
+    logic [2:0] cpu_register_file_write_register_address;
     logic signed [`BUS_WIDTH:0] cpu_register_file_write_data;
     logic cpu_register_file_write_enable;
 
@@ -50,7 +55,10 @@ module cpu (
 
     logic tensor_core_register_file_bulk_write_enable;
     logic signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_write_data [2] [4] [4];
-    wire signed [`BUS_WIDTH:0] tensor_core_register_file_read_data [2] [4] [4];
+    wire signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data [2] [4] [4];
+
+    logic [4:0] tensor_core_register_file_non_bulk_read_register_address;
+    wire signed [`BUS_WIDTH:0] tensor_core_register_file_non_bulk_read_data;
     wire signed [`BUS_WIDTH:0] tensor_core_output [4] [4];
     wire is_tensor_core_done_with_calculation;
     
@@ -62,7 +70,7 @@ module cpu (
     
     
     // Status register to store flags  
-    logic [3:0] status_register;  // [3] overflow, [2] carry, [1] zero, [0] sign
+    logic [4:0] status_register;  // [4] parity [3] overflow, [2] carry, [1] zero, [0] sign
 
 
 
@@ -94,30 +102,36 @@ module cpu (
 
 
     // Check if this is an add immediate instruction (opcode 9)
-    assign is_add_immediate = (alu_opcode == `ADD_IMM_OPCODE);
-    assign is_sub_immediate = (alu_opcode == `SUB_IMM_OPCODE);
-    
+    assign is_immediate_instruction = (alu_opcode == `ADD_IMM_OPCODE) || (alu_opcode == `SUB_IMM_OPCODE);
+
     // Write enable logic - only write for CPU instructions, not tensor core operations
     assign cpu_register_file_write_enable = (
-        (alu_opcode == `ADD_OPCODE) ||             // add
-        (alu_opcode == `SUB_OPCODE) ||             // sub  
-        (alu_opcode == `MUL_OPCODE) ||             // mul
-        (alu_opcode == `EQL_OPCODE) ||             // eql
-        (alu_opcode == `GRT_OPCODE) ||             // grt
-        (alu_opcode == `ADD_IMM_OPCODE) ||         // add_imm
-        (alu_opcode == `SUB_IMM_OPCODE) ||         // sub_imm
-        (alu_opcode == `MOV_OPCODE) ||             // mov
-        (alu_opcode == `TENSOR_CORE_TO_CPU_OPCODE) // tensor_core_to_cpu
+        (alu_opcode == `ADD_OPCODE) ||                   // add
+        (alu_opcode == `SUB_OPCODE) ||                   // sub  
+        (alu_opcode == `MUL_OPCODE) ||                   // mul
+        (alu_opcode == `EQL_OPCODE) ||                   // eql
+        (alu_opcode == `GRT_OPCODE) ||                   // grt
+        (alu_opcode == `ADD_IMM_OPCODE) ||               // add_imm
+        (alu_opcode == `SUB_IMM_OPCODE) ||               // sub_imm
+        (alu_opcode == `MOVE_CPU_OPCODE)  ||             // mov
+        (alu_opcode == `TENSOR_CORE_TO_CPU_OPCODE)       // tensor_core_to_cpu
     ) ? 1'b1 : 1'b0;
 
 
-    // assign cpu_register_file_write_data = (alu_opcode == `TENSOR_CORE_TO_CPU_OPCODE) ? : alu_output;
-    assign cpu_register_file_write_data = alu_output;
+    assign cpu_register_file_write_data = (
+        (alu_opcode == `TENSOR_CORE_TO_CPU_OPCODE) ? cpu_register_file_read_data1: 
+        alu_output
+    );
+    // assign cpu_register_file_write_data = alu_output;
 
     
-    assign alu_input1 = cpu_register_file_read_data1;      // TODO CHANGE THIS BACK TO register_file_read_data1 ONCE ADD IMMEDIATE IS ADDED
-    assign alu_input2 = (is_add_immediate | is_sub_immediate) ? current_instruction[15:8] : cpu_register_file_read_data2;
-    assign cpu_output = alu_output;
+    assign alu_input1 = cpu_register_file_read_data1;
+    assign alu_input2 = is_immediate_instruction ? current_instruction[15:8] : cpu_register_file_read_data2;
+    assign cpu_output = (
+        (alu_opcode == `READ_CPU_OPCODE) ? cpu_register_file_read_data1:
+        (alu_opcode == `READ_TENSOR_CORE_OPCODE) ? tensor_core_register_file_non_bulk_read_data:
+        alu_output
+    );
 
     always_ff @(posedge clock_in) begin
         if (cpu_register_file_write_enable) begin
@@ -142,8 +156,12 @@ module cpu (
         .non_bulk_write_register_address_in(tensor_core_register_file_non_bulk_write_register_address),
         .non_bulk_write_data_in(tensor_core_register_file_non_bulk_write_data),
 
-        .bulk_write_enable_in(tensor_core_register_file_bulk_write_enable | is_tensor_core_done_with_calculation), .bulk_write_data_in(tensor_core_register_file_bulk_write_data),
-        .read_data_out(tensor_core_register_file_read_data)
+        .bulk_write_enable_in(tensor_core_register_file_bulk_write_enable | is_tensor_core_done_with_calculation), 
+        .bulk_write_data_in(tensor_core_register_file_bulk_write_data),
+
+        .non_bulk_read_register_address_in(tensor_core_register_file_non_bulk_read_register_address),
+        .non_bulk_read_data_out(tensor_core_register_file_non_bulk_read_data),
+        .bulk_read_data_out(tensor_core_register_file_bulk_read_data)
     );
 
 
@@ -160,37 +178,43 @@ module cpu (
     // For the opcode of operating on the contents in the tensor core register file
     assign tensor_core_register_file_bulk_write_enable = 1'b0;
 
+    assign tensor_core_register_file_non_bulk_read_register_address = current_instruction[20:16];
+
 
 
     // for the opcode of load immediate and move from cpu registers to the tensor core register file   
     assign tensor_core_register_file_non_bulk_write_enable = (
-        (alu_opcode == `TENSOR_CORE_LOAD_OPCODE) ? 1'b1: // tensor core load immediate
-        (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? 1'b1: // move from cpu to tensor core
-        1'b0
+        (alu_opcode == `TENSOR_CORE_LOAD_OPCODE) ? 1: // tensor core load immediate
+        (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? 1: // move from cpu to tensor core
+        (alu_opcode == `MOVE_TENSOR_CORE_OPCODE) ? 1: // move from tensor core to another tensor core register
+        0
     );
 
     assign tensor_core_register_file_non_bulk_write_register_address = (
-        (alu_opcode == `TENSOR_CORE_LOAD_OPCODE) ? current_instruction[28:24]: // tensor core load immediate
-        (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? current_instruction[28:24]: // move from cpu to tensor core
-        5'b0
+        (alu_opcode == `TENSOR_CORE_LOAD_OPCODE) ? current_instruction[28:24]:    // tensor core load immediate
+        (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? current_instruction[28:24]:  // move from cpu to tensor core
+        (alu_opcode == `MOVE_TENSOR_CORE_OPCODE) ? current_instruction[28:24]:    // move from tensor core to another tensor core register
+        0
     );
 
     assign tensor_core_register_file_non_bulk_write_data = (
-        (alu_opcode == `TENSOR_CORE_LOAD_OPCODE) ? current_instruction[23:16]: // tensor core load immediate
+        (alu_opcode == `TENSOR_CORE_LOAD_OPCODE) ? current_instruction[23:16]:     // tensor core load immediate
         (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? cpu_register_file_read_data1: // move from cpu to tensor core
-        8'b0
+        (alu_opcode == `MOVE_TENSOR_CORE_OPCODE) ? tensor_core_register_file_non_bulk_read_data: // move from tensor core to another tensor core register
+        0
     );
+
 
 
     // wire up the tensor_core_register_file_bulk_write_data and tensor core inputs correctly
     initial begin
         for (int i = 0; i < 4; i++) begin
             for (int j = 0; j < 4; j++) begin
-                tensor_core_register_file_bulk_write_data[0][i][j] = 8'b0;
-                tensor_core_register_file_bulk_write_data[1][i][j] = 8'b0;
+                tensor_core_register_file_bulk_write_data[0][i][j] = 0;
+                tensor_core_register_file_bulk_write_data[1][i][j] = 0;
 
-                tensor_core_input1[i][j] = 8'b0;
-                tensor_core_input2[i][j] = 8'b0;
+                tensor_core_input1[i][j] = 0;
+                tensor_core_input2[i][j] = 0;
             end
         end
     end
@@ -198,10 +222,10 @@ module cpu (
         for (int i = 0; i < 4; i++) begin
             for (int j = 0; j < 4; j++) begin
                 tensor_core_register_file_bulk_write_data[0][i][j] = tensor_core_output[i][j];
-                tensor_core_register_file_bulk_write_data[1][i][j] = tensor_core_register_file_read_data[1][i][j];
+                tensor_core_register_file_bulk_write_data[1][i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
 
-                tensor_core_input1[i][j] = tensor_core_register_file_read_data[0][i][j];
-                tensor_core_input2[i][j] = tensor_core_register_file_read_data[1][i][j];
+                tensor_core_input1[i][j] = tensor_core_register_file_bulk_read_data[0][i][j];
+                tensor_core_input2[i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
             end
         end
     
@@ -225,7 +249,7 @@ module cpu (
         for (n = 0; n < 2; n++) begin: hi
             for (i = 0; i < 4; i++) begin : expose_tensor_core
                 for (j = 0; j < 4; j++) begin: expose_tensor_core2
-                    wire [7:0] tensor_core_register_file_read_data_ = tensor_core_register_file_read_data[n][i][j];
+                    wire [7:0] tensor_core_register_file_bulk_read_data_ = tensor_core_register_file_bulk_read_data[n][i][j];
                     wire [7:0] tensor_core_output_ = tensor_core_output[i][j];
                 end
             end

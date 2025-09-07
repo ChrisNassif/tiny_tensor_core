@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype wire
-`define BUS_WIDTH 7
+`define BUS_WIDTH 3
 
 
 module cpu_test_bench();
@@ -10,7 +10,7 @@ module cpu_test_bench();
     logic [31:0] machine_code [0:MAX_MACHINE_CODE_LENGTH-1];
     logic [31:0] current_instruction;
     logic signed [`BUS_WIDTH:0] cpu_output;
-    logic signed [`BUS_WIDTH:0] cpu_registers [256];
+    logic signed [`BUS_WIDTH:0] cpu_registers [8];
     
 
     // Monitor register values for testing
@@ -143,51 +143,51 @@ module cpu_test_bench();
 
 
     // Instruction monitoring with flag display including parity
-    always @(posedge clock) begin
-        if (current_instruction != 32'h0) begin
-            case (current_instruction[7:0])
-                8'h00: begin
-                    $display("Time %0t: ADD reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
-                    if (main_cpu.cpu_register_file_write_enable)
-                        $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
-                end
-                8'h01: begin
-                    $display("Time %0t: SUB reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
-                    if (main_cpu.cpu_register_file_write_enable)
-                        $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
-                end
-                // 8'h02: begin
-                //     $display("Time %0t: MUL reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
-                //     if (main_cpu.cpu_register_file_write_enable)
-                //         $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
-                // end
-                8'h03: begin
-                    $display("Time %0t: EQL reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
-                    if (main_cpu.cpu_register_file_write_enable)
-                        $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
-                end
-                8'h04: begin
-                    $display("Time %0t: GRT reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
-                    if (main_cpu.cpu_register_file_write_enable)
-                        $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
-                end
-                8'h08: $display("Time %0t: NOP", $time);
-                8'h09: begin
-                    $display("Time %0t: ADD_IMM reg%0d, reg%0d, %0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
-                    if (main_cpu.cpu_register_file_write_enable)
-                        $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
-                end
-                8'h0A: begin
-                    $display("Time %0t: SUB_IMM reg%0d, reg%0d, %0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
-                    if (main_cpu.cpu_register_file_write_enable)
-                        $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
-                end
-                8'h06: $display("Time %0t: TENSOR_CORE_LOAD reg%0d, %0d, %0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
-                8'h05: $display("Time %0t: TENSOR_CORE_OPERATE", $time);
-                default: $display("Time %0t: UNKNOWN OPCODE 0x%02X", $time, current_instruction[7:0]);
-            endcase
-        end
-    end
+    // always @(posedge clock) begin
+    //     if (current_instruction != 32'h0) begin
+    //         case (current_instruction[7:0])
+    //             8'h00: begin
+    //                 $display("Time %0t: ADD reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
+    //                 if (main_cpu.cpu_register_file_write_enable)
+    //                     $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
+    //             end
+    //             8'h01: begin
+    //                 $display("Time %0t: SUB reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
+    //                 if (main_cpu.cpu_register_file_write_enable)
+    //                     $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
+    //             end
+    //             // 8'h02: begin
+    //             //     $display("Time %0t: MUL reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
+    //             //     if (main_cpu.cpu_register_file_write_enable)
+    //             //         $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
+    //             // end
+    //             8'h03: begin
+    //                 $display("Time %0t: EQL reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
+    //                 if (main_cpu.cpu_register_file_write_enable)
+    //                     $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
+    //             end
+    //             8'h04: begin
+    //                 $display("Time %0t: GRT reg%0d, reg%0d, reg%0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
+    //                 if (main_cpu.cpu_register_file_write_enable)
+    //                     $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
+    //             end
+    //             8'h08: $display("Time %0t: NOP", $time);
+    //             8'h09: begin
+    //                 $display("Time %0t: ADD_IMM reg%0d, reg%0d, %0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
+    //                 if (main_cpu.cpu_register_file_write_enable)
+    //                     $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
+    //             end
+    //             8'h0A: begin
+    //                 $display("Time %0t: SUB_IMM reg%0d, reg%0d, %0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
+    //                 if (main_cpu.cpu_register_file_write_enable)
+    //                     $display("    Flags: O=%b C=%b Z=%b S=%b P=%b", alu_overflow, alu_carry, alu_zero, alu_sign, alu_parity);
+    //             end
+    //             8'h06: $display("Time %0t: TENSOR_CORE_LOAD reg%0d, %0d, %0d", $time, current_instruction[31:24], current_instruction[23:16], current_instruction[15:8]);
+    //             8'h05: $display("Time %0t: TENSOR_CORE_OPERATE", $time);
+    //             default: $display("Time %0t: UNKNOWN OPCODE 0x%02X", $time, current_instruction[7:0]);
+    //         endcase
+    //     end
+    // end
 
     initial begin
         $dumpfile("build/cpu_test_bench.vcd");
@@ -296,11 +296,7 @@ module cpu_test_bench();
                     $display("=== CPU INSTRUCTION TESTING COMPLETE ===");
                     $display("Final CPU register state before tensor operations:");
                     $display("reg1=%0d, reg2=%0d, reg3=%0d, reg4=%0d, reg5=%0d", cpu_registers[1], cpu_registers[2], cpu_registers[3], cpu_registers[4], cpu_registers[5]);
-                    $display("reg6=%0d, reg7=%0d, reg8=%0d, reg9=%0d, reg10=%0d", cpu_registers[6], cpu_registers[7], cpu_registers[8], cpu_registers[9], cpu_registers[10]);
-                    $display("Overflow test cpu_registers:");
-                    $display("reg20=%0d, reg21=%0d, reg22=%0d, reg23=%0d, reg24=%0d, reg25=%0d", cpu_registers[20], cpu_registers[21], cpu_registers[22], cpu_registers[23], cpu_registers[24], cpu_registers[25]);
-                    $display("Parity test cpu_registers:");
-                    $display("reg29=%0d, reg30=%0d, reg31=%0d, reg32=%0d, reg33=%0d, reg34=%0d, reg35=%0d", cpu_registers[29], cpu_registers[30], cpu_registers[31], cpu_registers[32], cpu_registers[33], cpu_registers[34], cpu_registers[35]);
+                    $display("reg6=%0d, reg7=%0d", cpu_registers[6], cpu_registers[7]);
                     $display("Status register: 0x%02X (P=%b O=%b C=%b Z=%b S=%b)", status_reg, status_reg[4], status_reg[3], status_reg[2], status_reg[1], status_reg[0]);
                     $display("Starting tensor core operations...");
                 end
@@ -316,14 +312,7 @@ module cpu_test_bench();
         $display("=== FINAL REGISTER STATE ===");
         $display("CPU cpu_registers:");
         $display("reg0=%0d, reg1=%0d, reg2=%0d, reg3=%0d, reg4=%0d", cpu_registers[0], cpu_registers[1], cpu_registers[2], cpu_registers[3], cpu_registers[4]);
-        $display("reg5=%0d, reg6=%0d, reg7=%0d, reg8=%0d, reg9=%0d, reg10=%0d", cpu_registers[5], cpu_registers[6], cpu_registers[7], cpu_registers[8], cpu_registers[9], cpu_registers[10]);
-        
-        $display("Overflow test cpu_registers:");
-        $display("reg20=%0d, reg21=%0d, reg22=%0d, reg23=%0d, reg24=%0d, reg25=%0d", cpu_registers[20], cpu_registers[21], cpu_registers[22], cpu_registers[23], cpu_registers[24], cpu_registers[25]);
-        $display("reg26=%0d, reg27=%0d, reg28=%0d", cpu_registers[26], cpu_registers[27], cpu_registers[28]);
-        
-        $display("Parity test cpu_registers:");
-        $display("reg29=%0d, reg30=%0d, reg31=%0d, reg32=%0d, reg33=%0d, reg34=%0d, reg35=%0d", cpu_registers[29], cpu_registers[30], cpu_registers[31], cpu_registers[32], cpu_registers[33], cpu_registers[34], cpu_registers[35]);
+        $display("reg5=%0d, reg6=%0d, reg7=%0d", cpu_registers[5], cpu_registers[6], cpu_registers[7]);
         
         $display("Final status register: 0x%02X", status_reg);
         $display("Final flags: Parity=%b, Overflow=%b, Carry=%b, Zero=%b, Sign=%b", status_reg[4], status_reg[3], status_reg[2], status_reg[1], status_reg[0]);
@@ -332,6 +321,8 @@ module cpu_test_bench();
         $display("Total Tests: %0d", test_count);
         $display("Passed: %0d", pass_count);
         $display("Failed: %0d", fail_count);
+
+
         if (fail_count == 0) begin
             $display("ALL TESTS PASSED!");
         end else begin
