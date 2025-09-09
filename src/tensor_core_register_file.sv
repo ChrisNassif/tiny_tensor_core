@@ -21,6 +21,18 @@ module tensor_core_register_file #(
 
     reg [7:0] registers [(NUMBER_OF_REGISTERS-1)/16 + 1] [4] [4];
 
+    initial begin
+        for (int i = 0; i < (NUMBER_OF_REGISTERS-1)/16 + 1; i++) begin
+            for (int j = 0; j < 4; j++) begin
+                for (int k = 0; k < 4; k++) begin
+                    registers[i][j][k] = 0;
+                end
+            end
+        end
+    end
+
+
+
     assign non_bulk_read_data_out = registers[non_bulk_read_register_address_in/16][(non_bulk_read_register_address_in%16)/4][non_bulk_read_register_address_in%4];
 
 
@@ -33,18 +45,6 @@ module tensor_core_register_file #(
             end
         end
     end
-
-
-    initial begin
-        for (int i = 0; i < (NUMBER_OF_REGISTERS-1)/16 + 1; i++) begin
-            for (int j = 0; j < 4; j++) begin
-                for (int k = 0; k < 4; k++) begin
-                    registers[i][j][k] = 0;
-                end
-            end
-        end
-    end
-
 
     always_ff @(posedge clock_in) begin
         if (bulk_write_enable_in && reset_in == 0) begin
