@@ -26,7 +26,6 @@ module alu (
     always_comb begin 
 
         // Default flag values and temp logic values
-
         overflow_flag = 0;
         carry_flag = 0;
         zero_flag = 0;
@@ -34,7 +33,7 @@ module alu (
         extended_result = 0;
         mult_result = 0;
         parity_flag = 0;
-        
+
 
         if (reset_in) begin 
             alu_output = 0;

@@ -66,7 +66,7 @@ module tensor_core_register_file #(
             for (int i = 0; i < (NUMBER_OF_REGISTERS-1)/16 + 1; i++) begin
                 for (int j = 0; j < 4; j++) begin
                     for (int k = 0; k < 4; k++) begin
-                        registers[i][j][k] = 0;
+                        registers[i][j][k] <= 0;
                     end
                 end
             end
