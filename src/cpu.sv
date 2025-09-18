@@ -34,7 +34,7 @@ module cpu (
     input logic [31:0] current_instruction, 
     output logic signed [`BUS_WIDTH:0] cpu_output,
     output logic signed [`BUS_WIDTH:0] tensor_core_result [4] [4]
-)
+);
 
     
     // DECLARATIONS
