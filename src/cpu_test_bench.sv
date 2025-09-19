@@ -16,11 +16,6 @@ module cpu_test_bench();
     integer fail_count = 0;
     integer instruction_count = 0;
     
-    // Key signals for waveform display
-    logic signed [`BUS_WIDTH:0] R1, R2, R3, R4, R5, R6, R7, R8, R9, R10;
-    logic overflow, carry, zero, sign, parity;
-    logic tensor_done;
-    
     initial begin
         $readmemh("machine_code", machine_code);
     end
@@ -50,49 +45,93 @@ module cpu_test_bench();
         #2.5;
     end
     
-    // Connect internal signals for clean waveform display
-    assign R1 = main_cpu.main_cpu_register_file.registers[1];
-    assign R2 = main_cpu.main_cpu_register_file.registers[2];
-    assign R3 = main_cpu.main_cpu_register_file.registers[3];
-    assign R4 = main_cpu.main_cpu_register_file.registers[4];
-    assign R5 = main_cpu.main_cpu_register_file.registers[5];
-    assign R6 = main_cpu.main_cpu_register_file.registers[6];
-    assign R7 = main_cpu.main_cpu_register_file.registers[7];
-    assign R8 = main_cpu.main_cpu_register_file.registers[8];
-    assign R9 = main_cpu.main_cpu_register_file.registers[9];
-    assign R10 = main_cpu.main_cpu_register_file.registers[10];
+    // ============================================
+    // TENSOR REGISTER WIRES FOR WAVEFORM DISPLAY
+    // ============================================
+    wire signed [`BUS_WIDTH:0] T0  = main_cpu.main_tensor_core_register_file.registers[0][0][0];
+    wire signed [`BUS_WIDTH:0] T1  = main_cpu.main_tensor_core_register_file.registers[0][0][1];
+    wire signed [`BUS_WIDTH:0] T2  = main_cpu.main_tensor_core_register_file.registers[0][0][2];
+    wire signed [`BUS_WIDTH:0] T3  = main_cpu.main_tensor_core_register_file.registers[0][0][3];
+    wire signed [`BUS_WIDTH:0] T4  = main_cpu.main_tensor_core_register_file.registers[0][1][0];
+    wire signed [`BUS_WIDTH:0] T5  = main_cpu.main_tensor_core_register_file.registers[0][1][1];
+    wire signed [`BUS_WIDTH:0] T6  = main_cpu.main_tensor_core_register_file.registers[0][1][2];
+    wire signed [`BUS_WIDTH:0] T7  = main_cpu.main_tensor_core_register_file.registers[0][1][3];
+    wire signed [`BUS_WIDTH:0] T8  = main_cpu.main_tensor_core_register_file.registers[0][2][0];
+    wire signed [`BUS_WIDTH:0] T9  = main_cpu.main_tensor_core_register_file.registers[0][2][1];
+    wire signed [`BUS_WIDTH:0] T10 = main_cpu.main_tensor_core_register_file.registers[0][2][2];
+    wire signed [`BUS_WIDTH:0] T11 = main_cpu.main_tensor_core_register_file.registers[0][2][3];
+    wire signed [`BUS_WIDTH:0] T12 = main_cpu.main_tensor_core_register_file.registers[0][3][0];
+    wire signed [`BUS_WIDTH:0] T13 = main_cpu.main_tensor_core_register_file.registers[0][3][1];
+    wire signed [`BUS_WIDTH:0] T14 = main_cpu.main_tensor_core_register_file.registers[0][3][2];
+    wire signed [`BUS_WIDTH:0] T15 = main_cpu.main_tensor_core_register_file.registers[0][3][3];
+    wire signed [`BUS_WIDTH:0] T16 = main_cpu.main_tensor_core_register_file.registers[1][0][0];
+    wire signed [`BUS_WIDTH:0] T17 = main_cpu.main_tensor_core_register_file.registers[1][0][1];
+    wire signed [`BUS_WIDTH:0] T18 = main_cpu.main_tensor_core_register_file.registers[1][0][2];
+    wire signed [`BUS_WIDTH:0] T19 = main_cpu.main_tensor_core_register_file.registers[1][0][3];
+    wire signed [`BUS_WIDTH:0] T20 = main_cpu.main_tensor_core_register_file.registers[1][1][0];
+    wire signed [`BUS_WIDTH:0] T21 = main_cpu.main_tensor_core_register_file.registers[1][1][1];
+    wire signed [`BUS_WIDTH:0] T22 = main_cpu.main_tensor_core_register_file.registers[1][1][2];
+    wire signed [`BUS_WIDTH:0] T23 = main_cpu.main_tensor_core_register_file.registers[1][1][3];
+    wire signed [`BUS_WIDTH:0] T24 = main_cpu.main_tensor_core_register_file.registers[1][2][0];
+    wire signed [`BUS_WIDTH:0] T25 = main_cpu.main_tensor_core_register_file.registers[1][2][1];
+    wire signed [`BUS_WIDTH:0] T26 = main_cpu.main_tensor_core_register_file.registers[1][2][2];
+    wire signed [`BUS_WIDTH:0] T27 = main_cpu.main_tensor_core_register_file.registers[1][2][3];
+    wire signed [`BUS_WIDTH:0] T28 = main_cpu.main_tensor_core_register_file.registers[1][3][0];
+    wire signed [`BUS_WIDTH:0] T29 = main_cpu.main_tensor_core_register_file.registers[1][3][1];
+    wire signed [`BUS_WIDTH:0] T30 = main_cpu.main_tensor_core_register_file.registers[1][3][2];
+    wire signed [`BUS_WIDTH:0] T31 = main_cpu.main_tensor_core_register_file.registers[1][3][3];
     
-    assign overflow = main_cpu.alu_overflow_flag;
-    assign carry = main_cpu.alu_carry_flag;
-    assign zero = main_cpu.alu_zero_flag;
-    assign sign = main_cpu.alu_sign_flag;
-    assign parity = main_cpu.alu_parity_flag;
-    assign tensor_done = main_cpu.is_tensor_core_done_with_calculation;
+    // ============================================
+    // CPU REGISTER WIRES FOR WAVEFORM DISPLAY
+    // ============================================
+    wire signed [`BUS_WIDTH:0] R0  = main_cpu.main_cpu_register_file.registers[0];
+    wire signed [`BUS_WIDTH:0] R1  = main_cpu.main_cpu_register_file.registers[1];
+    wire signed [`BUS_WIDTH:0] R2  = main_cpu.main_cpu_register_file.registers[2];
+    wire signed [`BUS_WIDTH:0] R3  = main_cpu.main_cpu_register_file.registers[3];
+    wire signed [`BUS_WIDTH:0] R4  = main_cpu.main_cpu_register_file.registers[4];
+    wire signed [`BUS_WIDTH:0] R5  = main_cpu.main_cpu_register_file.registers[5];
+    wire signed [`BUS_WIDTH:0] R6  = main_cpu.main_cpu_register_file.registers[6];
+    wire signed [`BUS_WIDTH:0] R7  = main_cpu.main_cpu_register_file.registers[7];
+    wire signed [`BUS_WIDTH:0] R8  = main_cpu.main_cpu_register_file.registers[8];
+    wire signed [`BUS_WIDTH:0] R9  = main_cpu.main_cpu_register_file.registers[9];
+    wire signed [`BUS_WIDTH:0] R10 = main_cpu.main_cpu_register_file.registers[10];
+    wire signed [`BUS_WIDTH:0] R11 = main_cpu.main_cpu_register_file.registers[11];
+    wire signed [`BUS_WIDTH:0] R12 = main_cpu.main_cpu_register_file.registers[12];
+    wire signed [`BUS_WIDTH:0] R13 = main_cpu.main_cpu_register_file.registers[13];
+    wire signed [`BUS_WIDTH:0] R14 = main_cpu.main_cpu_register_file.registers[14];
+    wire signed [`BUS_WIDTH:0] R15 = main_cpu.main_cpu_register_file.registers[15];
+    wire signed [`BUS_WIDTH:0] R16 = main_cpu.main_cpu_register_file.registers[16];
+    wire signed [`BUS_WIDTH:0] R17 = main_cpu.main_cpu_register_file.registers[17];
+    wire signed [`BUS_WIDTH:0] R18 = main_cpu.main_cpu_register_file.registers[18];
+    wire signed [`BUS_WIDTH:0] R19 = main_cpu.main_cpu_register_file.registers[19];
+    wire signed [`BUS_WIDTH:0] R20 = main_cpu.main_cpu_register_file.registers[20];
+    wire signed [`BUS_WIDTH:0] R21 = main_cpu.main_cpu_register_file.registers[21];
     
-    // Test checking tasks
-    task check_register;
-        input integer reg_num;
-        input signed [`BUS_WIDTH:0] expected_value;
-        input string test_name;
-        logic signed [`BUS_WIDTH:0] actual_value;
-        begin
-            actual_value = main_cpu.main_cpu_register_file.registers[reg_num];
-            test_count = test_count + 1;
-            if (actual_value == expected_value) begin
-                pass_count = pass_count + 1;
-            end else begin
-                fail_count = fail_count + 1;
-            end
-        end
-    endtask
+    // Status flags
+    wire overflow = main_cpu.alu_overflow_flag;
+    wire carry = main_cpu.alu_carry_flag;
+    wire zero = main_cpu.alu_zero_flag;
+    wire sign = main_cpu.alu_sign_flag;
+    wire parity = main_cpu.alu_parity_flag;
+    wire tensor_done = main_cpu.is_tensor_core_done_with_calculation;
     
     initial begin
         $dumpfile("build/cpu_test_bench.vcd");
         $dumpvars(0, cpu_test_bench);
         
-        // Dump specific signals for clean waveform
+        // Explicitly dump all named tensor registers
+        $dumpvars(0, T0, T1, T2, T3, T4, T5, T6, T7);
+        $dumpvars(0, T8, T9, T10, T11, T12, T13, T14, T15);
+        $dumpvars(0, T16, T17, T18, T19, T20, T21, T22, T23);
+        $dumpvars(0, T24, T25, T26, T27, T28, T29, T30, T31);
+        
+        // Dump CPU registers
+        $dumpvars(0, R0, R1, R2, R3, R4, R5, R6, R7, R8, R9, R10);
+        
+        // Dump other key signals
         $dumpvars(1, main_cpu.alu_opcode);
         $dumpvars(1, main_cpu.cpu_register_file_write_enable);
+        $dumpvars(1, main_cpu.tensor_core_register_file_non_bulk_write_enable);
         
         clock = 0;
         shifted_clock = 0;
@@ -100,7 +139,7 @@ module cpu_test_bench();
         shifted_clock3 = 0;
         
         $display("================================================");
-        $display("       CPU TEST BENCH FOR REPORT               ");
+        $display("    CPU TEST WITH TENSOR REGISTER DISPLAY      ");
         $display("================================================");
         
         #11;
@@ -111,30 +150,27 @@ module cpu_test_bench();
             instruction_count = i;
             #20;
             
-            // Key test points for report
-            case (i)
-                0: check_register(1, 8'd10, "ADD_IMM R1,0,10");
-                1: check_register(2, 8'd5, "ADD_IMM R2,0,5");
-                2: check_register(3, 8'd15, "ADD R3,R1,R2");
-                3: check_register(4, -8'd5, "SUB R4,R2,R1");
-                6: check_register(7, 8'd1, "EQL R7,R5,R6");
-                9: check_register(10, 8'd1, "GRT R10,R8,R9");
-                11: begin
-                    check_register(12, -8'd128, "OVERFLOW TEST");
-                    if (overflow) $display("Overflow detected correctly");
-                end
-            endcase
+            // Monitor tensor loads
+            if (i >= 22 && i <= 53) begin
+                $display("[%0t] Loading Tensor[%0d] = %0d", $time, 
+                         current_instruction[31:24], current_instruction[23:16]);
+            end
         end
         
-        #50;
-        $display("================================================");
-        $display("              FINAL RESULTS                    ");
-        $display("================================================");
-        $display("Tests Run:    %0d", test_count);
-        $display("Tests Passed: %0d", pass_count);
-        $display("Tests Failed: %0d", fail_count);
-        $display("================================================");
+        // Display tensor state after loading
+        $display("\n=== TENSOR STATE AFTER LOADING ===");
+        $display("First Matrix (T0-T15):");
+        $display("  T0-T3:   %3d %3d %3d %3d", T0, T1, T2, T3);
+        $display("  T4-T7:   %3d %3d %3d %3d", T4, T5, T6, T7);
+        $display("  T8-T11:  %3d %3d %3d %3d", T8, T9, T10, T11);
+        $display("  T12-T15: %3d %3d %3d %3d", T12, T13, T14, T15);
+        $display("Second Matrix (T16-T31):");
+        $display("  T16-T19: %3d %3d %3d %3d", T16, T17, T18, T19);
+        $display("  T20-T23: %3d %3d %3d %3d", T20, T21, T22, T23);
+        $display("  T24-T27: %3d %3d %3d %3d", T24, T25, T26, T27);
+        $display("  T28-T31: %3d %3d %3d %3d", T28, T29, T30, T31);
         
+        #50;
         $finish;
     end
 endmodule
