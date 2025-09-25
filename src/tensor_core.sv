@@ -5,6 +5,7 @@ module small_tensor_core (
     input logic tensor_core_register_file_write_enable,
     input logic signed [`BUS_WIDTH:0] tensor_core_input1 [4][4], 
     input logic signed [`BUS_WIDTH:0] tensor_core_input2 [4][4],
+    input logic should_start_tensor_core,
     output logic signed [`BUS_WIDTH:0] tensor_core_output [4][4],
     output logic is_done_with_calculation
 );
@@ -28,7 +29,11 @@ module small_tensor_core (
             is_done_with_calculation = 0;
         end
 
-        if (is_done_with_calculation == 0 && tensor_core_register_file_write_enable == 0) begin
+        if (is_done_with_calculation == 0 && tensor_core_register_file_write_enable == 0 && counter != 0) begin
+            counter++;
+        end
+
+        if (should_start_tensor_core == 1 && counter == 0) begin
             counter++;
         end
 
@@ -38,15 +43,20 @@ module small_tensor_core (
     end
 
     always @(posedge clock_in) begin
+
         if (tensor_core_register_file_write_enable == 1) begin
             counter = 0;
             is_done_with_calculation = 0;
         end
 
-        if (is_done_with_calculation == 0 && tensor_core_register_file_write_enable == 0) begin
+        if (is_done_with_calculation == 0 && tensor_core_register_file_write_enable == 0 && counter != 0) begin
             counter++;
         end
 
+        if (should_start_tensor_core == 1 && counter == 0) begin
+            counter++;
+        end
+        
         if (counter == 5'b10000) begin
             is_done_with_calculation = 1;
         end
