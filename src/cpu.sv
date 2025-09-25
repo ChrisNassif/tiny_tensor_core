@@ -133,7 +133,17 @@ module cpu (
         alu_output
     );
 
+
     always_ff @(posedge clock_in) begin
+        if (cpu_register_file_write_enable) begin
+            status_register[4] <= alu_parity_flag;
+            status_register[3] <= alu_overflow_flag;
+            status_register[2] <= alu_carry_flag;
+            status_register[1] <= alu_zero_flag;
+            status_register[0] <= alu_sign_flag;
+        end
+    end
+    always_ff @(negedge clock_in) begin
         if (cpu_register_file_write_enable) begin
             status_register[4] <= alu_parity_flag;
             status_register[3] <= alu_overflow_flag;

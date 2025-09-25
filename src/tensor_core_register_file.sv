@@ -74,6 +74,35 @@ module tensor_core_register_file #(
     end
 
 
+    always_ff @(negedge clock_in) begin
+        if (bulk_write_enable_in && reset_in == 0) begin
+            for (int i = 0; i < (NUMBER_OF_REGISTERS-1)/16 + 1; i++) begin
+                for (int j = 0; j < 4; j++) begin
+                    for (int k = 0; k < 4; k++) begin
+                        registers[i][j][k] <= bulk_write_data_in[i][j][k];
+                    end
+                end
+            end
+        end
+
+
+        else if (non_bulk_write_enable_in && reset_in == 0) begin
+            registers[non_bulk_write_register_address_in/16][(non_bulk_write_register_address_in%16)/4][non_bulk_write_register_address_in%4] <= non_bulk_write_data_in;
+        end
+
+        else if (reset_in == 1) begin
+            for (int i = 0; i < (NUMBER_OF_REGISTERS-1)/16 + 1; i++) begin
+                for (int j = 0; j < 4; j++) begin
+                    for (int k = 0; k < 4; k++) begin
+                        registers[i][j][k] <= 0;
+                    end
+                end
+            end
+        end
+    end
+
+
+
     // make the registers visible to gtkwave
     genvar i, j, k;
     generate
