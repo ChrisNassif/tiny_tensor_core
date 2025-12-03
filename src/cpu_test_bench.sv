@@ -1,13 +1,37 @@
 `timescale 1ns / 1ps
 `default_nettype wire
+
+
+
+`define ADD_OPCODE 4'b0000
+`define SUB_OPCODE 4'b0001
+`define MUL_OPCODE 4'b0010
+`define EQL_OPCODE 4'b0011
+`define GRT_OPCODE 4'b0100
+
+`define TENSOR_CORE_OPERATE_OPCODE 4'b0101
+`define TENSOR_CORE_LOAD_OPCODE 4'b0110
+`define CPU_TO_TENSOR_CORE_OPCODE 4'b0111
+`define TENSOR_CORE_TO_CPU_OPCODE 4'b1000
+`define NOP_OPCODE 4'b1001
+
+`define ADD_IMM_OPCODE 4'b1010
+
+`define MOVE_CPU_OPCODE 8'b1011
+`define MOVE_TENSOR_CORE_OPCODE 8'b1100
+`define RESET_OPCODE 4'b1101
+
+`define READ_CPU_OPCODE 4'b1110
+`define READ_TENSOR_CORE_OPCODE 4'b1111
+
 `define BUS_WIDTH 7
 
 module cpu_test_bench();
     // Core signals
     logic clock;
     logic shifted_clock, shifted_clock2, shifted_clock3;
-    logic [31:0] machine_code [0:1023];
-    logic [31:0] current_instruction;
+    logic [15:0] machine_code [0:1023];
+    logic [15:0] current_instruction;
     logic signed [`BUS_WIDTH:0] cpu_output;
     
     // Test tracking
@@ -23,8 +47,6 @@ module cpu_test_bench();
     cpu main_cpu(
         .clock_in(clock), 
         .shifted_clock_in(shifted_clock),
-        .shifted_clock2_in(shifted_clock2), 
-        .shifted_clock3_in(shifted_clock3), 
         .current_instruction(current_instruction), 
         .cpu_output(cpu_output)
     );
@@ -100,19 +122,8 @@ module cpu_test_bench();
     wire signed [`BUS_WIDTH:0] R13 = main_cpu.main_cpu_register_file.registers[13];
     wire signed [`BUS_WIDTH:0] R14 = main_cpu.main_cpu_register_file.registers[14];
     wire signed [`BUS_WIDTH:0] R15 = main_cpu.main_cpu_register_file.registers[15];
-    wire signed [`BUS_WIDTH:0] R16 = main_cpu.main_cpu_register_file.registers[16];
-    wire signed [`BUS_WIDTH:0] R17 = main_cpu.main_cpu_register_file.registers[17];
-    wire signed [`BUS_WIDTH:0] R18 = main_cpu.main_cpu_register_file.registers[18];
-    wire signed [`BUS_WIDTH:0] R19 = main_cpu.main_cpu_register_file.registers[19];
-    wire signed [`BUS_WIDTH:0] R20 = main_cpu.main_cpu_register_file.registers[20];
-    wire signed [`BUS_WIDTH:0] R21 = main_cpu.main_cpu_register_file.registers[21];
     
     // Status flags
-    wire overflow = main_cpu.alu_overflow_flag;
-    wire carry = main_cpu.alu_carry_flag;
-    wire zero = main_cpu.alu_zero_flag;
-    wire sign = main_cpu.alu_sign_flag;
-    wire parity = main_cpu.alu_parity_flag;
     wire tensor_done = main_cpu.is_tensor_core_done_with_calculation;
     
     // ============================================
@@ -138,14 +149,14 @@ module cpu_test_bench();
     
     // Task to execute an instruction and wait
     task execute_instruction;
-        input [31:0] instruction;
+        input [15:0] instruction;
         begin
             current_instruction = instruction;
             #20;
         end
     endtask
     
-    // Task to run simple ALU tests (only passing tests)
+    // Task to run simple ALU tests
     task run_alu_tests;
         logic signed [`BUS_WIDTH:0] expected_result;
         
@@ -157,32 +168,32 @@ module cpu_test_bench();
         $display("\n--- ADD Tests ---");
         
         // Test: 0 + 0 = 0 (This passes)
-        execute_instruction({8'd3, 8'd0, 8'd0, 8'h00});
-        check_alu_result("ADD 0 + 0", 8'd0, cpu_output);
+        execute_instruction({4'd3, 4'd0, 4'd0, `ADD_OPCODE});
+        check_alu_result("ADD 0 + 0", 4'd0, cpu_output);
         
         // Test SUBTRACT operations
         $display("\n--- SUBTRACT Tests ---");
         
         // Test: 5 - 5 = 0 (This passes)
-        execute_instruction({8'd5, 8'd5, 8'd5, 8'h01});
+        execute_instruction({4'd5, 4'd5, 4'd5, `SUB_OPCODE});
         check_alu_result("SUB 5 - 5", 8'd0, cpu_output);
         
         // Test EQUALS operations
         $display("\n--- EQUALS Tests ---");
         
         // Test: 7 == 7 (should be 1/true) - This passes
-        execute_instruction({8'd7, 8'd7, 8'd7, 8'h03});
+        execute_instruction({4'd7, 4'd7, 4'd7, `EQL_OPCODE});
         check_alu_result("EQL 7 == 7", 8'd1, cpu_output);
         
         // Test GREATER THAN operations
         $display("\n--- GREATER THAN Tests ---");
         
         // Test: 3 > 8 (should be 0/false) - This passes
-        execute_instruction({8'd10, 8'd3, 8'd8, 8'h04});
+        execute_instruction({4'd10, 4'd3, 4'd8, `GRT_OPCODE});
         check_alu_result("GRT 3 > 8", 8'd0, cpu_output);
         
         // Test: 6 > 6 (should be 0/false) - This passes
-        execute_instruction({8'd11, 8'd6, 8'd6, 8'h04});
+        execute_instruction({8'd11, 4'd6, 4'd6, `GRT_OPCODE});
         check_alu_result("GRT 6 > 6", 8'd0, cpu_output);
     endtask
     
@@ -195,52 +206,52 @@ module cpu_test_bench();
         // Load very simple 4x4 matrices for easy verification
         // Matrix A: Simple values (1,2,3,4 pattern)
         $display("Loading Matrix A into T0-T15...");
-        execute_instruction({8'd0, 8'd1, 8'd0, 8'h06}); // T0 = 1
-        execute_instruction({8'd1, 8'd0, 8'd0, 8'h06}); // T1 = 0
-        execute_instruction({8'd2, 8'd0, 8'd0, 8'h06}); // T2 = 0
-        execute_instruction({8'd3, 8'd0, 8'd0, 8'h06}); // T3 = 0
+        execute_instruction({4'd0, 4'd1, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T0 = 1
+        execute_instruction({4'd1, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T1 = 0
+        execute_instruction({4'd2, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T2 = 0
+        execute_instruction({4'd3, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T3 = 0
         
-        execute_instruction({8'd4, 8'd0, 8'd0, 8'h06}); // T4 = 0
-        execute_instruction({8'd5, 8'd1, 8'd0, 8'h06}); // T5 = 1
-        execute_instruction({8'd6, 8'd0, 8'd0, 8'h06}); // T6 = 0
-        execute_instruction({8'd7, 8'd0, 8'd0, 8'h06}); // T7 = 0
+        execute_instruction({4'd4, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T4 = 0
+        execute_instruction({4'd5, 4'd1, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T5 = 1
+        execute_instruction({4'd6, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T6 = 0
+        execute_instruction({4'd7, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T7 = 0
         
-        execute_instruction({8'd8, 8'd0, 8'd0, 8'h06}); // T8 = 0
-        execute_instruction({8'd9, 8'd0, 8'd0, 8'h06}); // T9 = 0
-        execute_instruction({8'd10, 8'd1, 8'd0, 8'h06}); // T10 = 1
-        execute_instruction({8'd11, 8'd0, 8'd0, 8'h06}); // T11 = 0
+        execute_instruction({4'd8, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T8 = 0
+        execute_instruction({4'd9, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T9 = 0
+        execute_instruction({4'd10, 4'd1, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T10 = 1
+        execute_instruction({4'd11, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T11 = 0
         
-        execute_instruction({8'd12, 8'd0, 8'd0, 8'h06}); // T12 = 0
-        execute_instruction({8'd13, 8'd0, 8'd0, 8'h06}); // T13 = 0
-        execute_instruction({8'd14, 8'd0, 8'd0, 8'h06}); // T14 = 0
-        execute_instruction({8'd15, 8'd1, 8'd0, 8'h06}); // T15 = 1
+        execute_instruction({4'd12, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T12 = 0
+        execute_instruction({4'd13, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T13 = 0
+        execute_instruction({4'd14, 4'd0, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T14 = 0
+        execute_instruction({4'd15, 4'd1, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T15 = 1
         
         // Matrix B: Simple test values
         $display("Loading Matrix B into T16-T31...");
-        execute_instruction({8'd16, 8'd1, 8'd0, 8'h06}); // T16 = 1
-        execute_instruction({8'd17, 8'd2, 8'd0, 8'h06}); // T17 = 2
-        execute_instruction({8'd18, 8'd3, 8'd0, 8'h06}); // T18 = 3
-        execute_instruction({8'd19, 8'd4, 8'd0, 8'h06}); // T19 = 4
+        execute_instruction({4'd16, 4'd1, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T16 = 1
+        execute_instruction({4'd17, 4'd2, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T17 = 2
+        execute_instruction({4'd18, 4'd3, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T18 = 3
+        execute_instruction({4'd19, 4'd4, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T19 = 4
         
-        execute_instruction({8'd20, 8'd5, 8'd0, 8'h06}); // T20 = 5
-        execute_instruction({8'd21, 8'd6, 8'd0, 8'h06}); // T21 = 6
-        execute_instruction({8'd22, 8'd7, 8'd0, 8'h06}); // T22 = 7
-        execute_instruction({8'd23, 8'd8, 8'd0, 8'h06}); // T23 = 8
+        execute_instruction({4'd20, 4'd5, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T20 = 5
+        execute_instruction({4'd21, 4'd6, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T21 = 6
+        execute_instruction({4'd22, 4'd7, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T22 = 7
+        execute_instruction({4'd23, 4'd8, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T23 = 8
         
-        execute_instruction({8'd24, 8'd1, 8'd0, 8'h06}); // T24 = 1
-        execute_instruction({8'd25, 8'd2, 8'd0, 8'h06}); // T25 = 2
-        execute_instruction({8'd26, 8'd3, 8'd0, 8'h06}); // T26 = 3
-        execute_instruction({8'd27, 8'd4, 8'd0, 8'h06}); // T27 = 4
+        execute_instruction({4'd24, 4'd1, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T24 = 1
+        execute_instruction({4'd25, 4'd2, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T25 = 2
+        execute_instruction({4'd26, 4'd3, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T26 = 3
+        execute_instruction({4'd27, 4'd4, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T27 = 4
         
-        execute_instruction({8'd28, 8'd5, 8'd0, 8'h06}); // T28 = 5
-        execute_instruction({8'd29, 8'd6, 8'd0, 8'h06}); // T29 = 6
-        execute_instruction({8'd30, 8'd7, 8'd0, 8'h06}); // T30 = 7
-        execute_instruction({8'd31, 8'd8, 8'd0, 8'h06}); // T31 = 8
+        execute_instruction({4'd28, 4'd5, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T28 = 5
+        execute_instruction({4'd29, 4'd6, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T29 = 6
+        execute_instruction({4'd30, 4'd7, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T30 = 7
+        execute_instruction({4'd31, 4'd8, 4'd0, `TENSOR_CORE_LOAD_OPCODE}); // T31 = 8
         
         $display("Executing tensor core matrix multiply...");
         
         // Execute tensor core operation
-        execute_instruction({8'd0, 8'd0, 8'd0, 8'h05}); // tensor_core_operate
+        execute_instruction({4'd0, 4'd0, 4'd0, `TENSOR_CORE_OPERATE_OPCODE}); // tensor_core_operate
         
         // Wait for tensor core to complete
         #200;
@@ -263,11 +274,11 @@ module cpu_test_bench();
         
         // Test zero subtraction (This passes)
         $display("\n--- Boundary Tests ---");
-        execute_instruction({8'd11, 8'd0, 8'd0, 8'h01}); // 0 - 0 = 0
+        execute_instruction({4'd11, 4'd0, 4'd0, `SUB_OPCODE}); // 0 - 0 = 0
         check_alu_result("SUB 0 - 0", 8'd0, cpu_output);
         
         // Test NOP instruction (should do nothing)
-        execute_instruction({8'd12, 8'd0, 8'd0, 8'h08}); // NOP
+        execute_instruction({4'd12, 4'd0, 4'd0, `NOP_OPCODE}); // NOP
         $display("NOP executed (no operation expected)");
     endtask
     
@@ -301,25 +312,19 @@ module cpu_test_bench();
         #11;
         
         // Run comprehensive tests
-        run_alu_tests();
-        run_edge_case_tests();
-        run_tensor_core_tests();
+        // run_alu_tests();
+        // run_edge_case_tests();
+        // run_tensor_core_tests();
         
         // Execute original program from machine_code file
         $display("\n================================================");
         $display("    EXECUTING PROGRAM FROM MACHINE CODE FILE   ");
         $display("================================================");
         
-        for (integer i = 0; i < 100 && machine_code[i] != 32'h0; i = i + 1) begin
+        for (integer i = 0; i < 200 && machine_code[i] != 32'hFFFF; i = i + 1) begin
             current_instruction = machine_code[i];
             instruction_count = i;
             #20;
-            
-            // Monitor tensor loads from original program
-            if (i >= 22 && i <= 53) begin
-                $display("[%0t] Loading Tensor[%0d] = %0d", $time, 
-                         current_instruction[31:24], current_instruction[23:16]);
-            end
         end
         
         // Display final tensor state

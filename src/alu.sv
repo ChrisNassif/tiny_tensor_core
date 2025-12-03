@@ -1,39 +1,50 @@
+`define NOP_OPCODE 4'b0000
+`define RESET_OPCODE 4'b0001
+
+`define ADD_OPCODE 4'b0010
+`define SUB_OPCODE 4'b0011
+`define EQL_OPCODE 4'b0100
+`define GRT_OPCODE 4'b0101
+
+`define CPU_LOAD_OPCODE 4'b0110
+
+`define CPU_MOV_OPCODE 4'b0111
+`define CPU_READ_OPCODE 4'b1000
+
+`define TENSOR_CORE_OPERATE_OPCODE 4'b1001
+`define TENSOR_CORE_LOAD_MATRIX1_OPCODE 4'b1010
+`define TENSOR_CORE_LOAD_MATRIX2_OPCODE 4'b1011
+`define CPU_TO_TENSOR_CORE_OPCODE 4'b1100
+`define TENSOR_CORE_TO_CPU_OPCODE 4'b1101
+
+`define TENSOR_CORE_MOV_OPCODE 4'b1110
+`define TENSOR_CORE_READ_OPCODE 4'b1111
+
+
+
 `define BUS_WIDTH 7
 `timescale 1ns / 1ps
+
+
+
+
+
 
 module alu (
     input logic reset_in,
     input logic enable_in,
-    input logic [7:0] opcode_in,
+    input logic [3:0] opcode_in,
     input logic signed [`BUS_WIDTH:0] alu_input1,
     input logic signed [`BUS_WIDTH:0] alu_input2,
-    output logic signed [`BUS_WIDTH:0] alu_output,
-    output logic overflow_flag,         // Overflow detection
-    output logic carry_flag,            // Carry flag for unsigned operations
-    output logic zero_flag,             // Zero flag
-    output logic sign_flag,             // Sign flag (MSB of result)
-    output logic parity_flag            // Parity flag
+    output logic signed [`BUS_WIDTH:0] alu_output
 );
-    localparam ADD = 8'b0, SUBTRACT = 8'b1, MULTIPLY = 8'b10, 
-        EQUALS = 8'b11, GREATER_THAN = 8'b100, ADD_IMMEDIATE = 8'b1001, 
-        SUBTRACT_IMMEDIATE = 8'b1010, MOV = 8'b1011;
 
     logic signed [`BUS_WIDTH+1:0] extended_result;  // extra bit for carry detection
-    logic [15:0] mult_result;     // 16-bit for multiplication
-
 
 
     always_comb begin 
-
-        // Default flag values and temp logic values
-        overflow_flag = 0;
-        carry_flag = 0;
-        zero_flag = 0;
-        sign_flag = 0;
+        
         extended_result = 0;
-        mult_result = 0;
-        parity_flag = 0;
-
 
         if (reset_in) begin 
             alu_output = 0;
@@ -41,40 +52,17 @@ module alu (
         
         else if (enable_in) begin
             case (opcode_in)
-                ADD: begin 
+                `ADD_OPCODE: begin 
                     extended_result = {1'b0, alu_input1} + {1'b0, alu_input2};
                     alu_output = extended_result[`BUS_WIDTH:0];
                 end
 
-                ADD_IMMEDIATE: begin 
-                    extended_result = {1'b0, alu_input1} + {1'b0, alu_input2};
-                    alu_output = extended_result[`BUS_WIDTH:0];
-                end
-
-                SUBTRACT: begin 
+                `SUB_OPCODE: begin 
                     extended_result = {1'b0, alu_input1} - {1'b0, alu_input2};
                     alu_output = extended_result[`BUS_WIDTH:0];
                 end
 
-                SUBTRACT_IMMEDIATE: begin 
-                    extended_result = {1'b0, alu_input1} - {1'b0, alu_input2};
-                    alu_output = extended_result[`BUS_WIDTH:0];
-                end
-
-                // MULTIPLY: begin 
-                //     mult_result = alu_input1 * alu_input2;
-                //     alu_output = mult_result[7:0];
-                    
-                //     // For multiplication, overflow occurs if result doesn't fit in 8 bits
-                //     overflow_flag = (mult_result[15:8] != 8'b0);
-                //     carry_flag = overflow_flag;
-                    
-                //     zero_flag = (alu_output == 8'b0);
-                //     sign_flag = alu_output[7];
-                //     parity_flag = ^alu_output;
-                // end
-
-                EQUALS: begin
+                `EQL_OPCODE: begin
                     if (alu_input1 == alu_input2) begin
                         alu_output = 1;
                     end
@@ -84,7 +72,7 @@ module alu (
                     end
                 end
 
-                GREATER_THAN: begin
+                `GRT_OPCODE: begin
                     if (alu_input1 > alu_input2) begin
                         alu_output = 1;
                     end
@@ -94,7 +82,7 @@ module alu (
                     end
                 end
 
-                MOV: begin
+                `CPU_MOV_OPCODE: begin
                     alu_output = alu_input1;
                 end
 
@@ -109,33 +97,6 @@ module alu (
         else begin
             alu_output = 0;
         end
-
-
-
-
-        // handle flags
-        if (opcode_in == ADD || opcode_in == ADD_IMMEDIATE) begin
-            
-            carry_flag = extended_result[`BUS_WIDTH+1];
-
-            // Signed overflow detection for addition
-            overflow_flag = (
-                (~alu_input1[`BUS_WIDTH] & ~alu_input2[`BUS_WIDTH] &  alu_output[`BUS_WIDTH]) | 
-                ( alu_input1[`BUS_WIDTH] &  alu_input2[`BUS_WIDTH] & ~alu_output[`BUS_WIDTH])
-            );
-        end
-
-        if (opcode_in == SUBTRACT || opcode_in == SUBTRACT_IMMEDIATE) begin
-            overflow_flag = (
-                (~alu_input1[`BUS_WIDTH] &  alu_input2[`BUS_WIDTH] &  alu_output[`BUS_WIDTH]) |
-                ( alu_input1[`BUS_WIDTH] & ~alu_input2[`BUS_WIDTH] & ~alu_output[`BUS_WIDTH])
-            );
-        end
-
-
-        zero_flag = (alu_output == 0);
-        sign_flag = alu_output[`BUS_WIDTH];
-        parity_flag = ^alu_output;
 
 
     end

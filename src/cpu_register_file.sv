@@ -1,7 +1,7 @@
 `define BUS_WIDTH 7
 
 module cpu_register_file #(
-    parameter NUMBER_OF_REGISTERS = 32
+    parameter NUMBER_OF_REGISTERS = 16
 )(
     input logic clock_in,
     input logic reset_in,

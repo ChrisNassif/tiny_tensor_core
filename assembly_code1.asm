@@ -56,12 +56,10 @@ nop
 nop
 nop
 nop
-nop
-nop
-nop
-nop
-tensor_core_to_cpu 13 0
-tensor_core_to_cpu 14 1
+tensor_core_to_cpu 18 0
+tensor_core_to_cpu 19 1
+tensor_core_to_cpu 20 2
+tensor_core_to_cpu 21 3
 cpu_read 11
 cpu_read 10
 cpu_read 9

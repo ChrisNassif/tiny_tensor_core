@@ -1,9 +1,41 @@
-def number_into_signed_8bit(number: str):
+import numpy as np
+
+
+operation_name_to_opcode = {
+    "nop": "0000",
+    "reset": "0001",
+    "add": "0010",
+    "sub": "0011",
+    "eql": "0100",
+    "grt": "0101",
+    "cpu_load": "0110",
+    "cpu_mov": "0111",
+    "cpu_read": "1000",
+    "tensor_core_operate": "1001",
+    "tensor_core_load_matrix1": "1010",
+    "tensor_core_load_matrix2": "1011",
+    "cpu_to_tensor_core": "1100",
+    "tensor_core_to_cpu": "1101",
+    "tensor_core_mov": "1110",
+    "tensor_core_read": "1111"
+}
+
+
+def number_into_signed_kbit_binary(number: str, k):
     number = int(number)
-    if number < -128 or number > 127:
+    if number < -1 * (2**(k-1)) or number > (2**(k-1))-1:
         raise Exception("code has out of bounds number")
     
-    return f'{number:08b}'
+    return np.binary_repr(number, k)
+
+
+
+def number_into_unsigned_kbit_binary(number: str, k):
+    number = int(number)
+    if number < 0 or number > (2**k)-1:
+        raise Exception("code has out of bounds number")
+    
+    return np.binary_repr(number, k)
 
 
 def main():
@@ -13,62 +45,82 @@ def main():
     machine_code = []
     
     for index, assembly_code_line in enumerate(assembly_code_lines):
-        assembly_code_tokens = assembly_code_line.split(" ")
+        assembly_code_tokens = assembly_code_line.strip().split(" ")
         
+        operation_name = assembly_code_tokens[0]
+        opcode = operation_name_to_opcode[operation_name]
+
+
         current_machine_code_line = ""
-        current_machine_code_line += number_into_signed_8bit(assembly_code_tokens[1])
-        current_machine_code_line += number_into_signed_8bit(assembly_code_tokens[2])
-        current_machine_code_line += number_into_signed_8bit(assembly_code_tokens[3])
+
+
+        # PARSE THE DIFFERENT INSTRUCTION FORMATS
         
-        match assembly_code_tokens[0]:
-            case "add":
-                current_machine_code_line += "00000000"
-            case "sub":
-                current_machine_code_line += "00000001"
-            case "mul":
-                current_machine_code_line += "00000010"
-            case "eql":
-                current_machine_code_line += "00000011"
-            case "grt":
-                current_machine_code_line += "00000100"
-            case "tensor_core_operate":
-                current_machine_code_line += "00000101"
-            case "tensor_core_load":
-                current_machine_code_line += "00000110"
-            case "cpu_to_tensor_core":
-                current_machine_code_line += "00000111"
-            case "nop":
-                current_machine_code_line += "00001000"
-            case "add_imm":
-                current_machine_code_line += "00001001" 
-            case "sub_imm":
-                current_machine_code_line += "00001010" 
-                
-            case "move_cpu":
-                current_machine_code_line += "00001011"
-            case "move_tensor_core":
-                current_machine_code_line += "00001100"
-            case "reset":
-                current_machine_code_line += "00001101"
-            case "tensor_core_to_cpu":
-                current_machine_code_line += "00001110"
-            case "read_cpu":
-                current_machine_code_line += "00001111"
-            case "read_tensor_core":
-                current_machine_code_line += "00010000"
-                
-            # UNIMPLEMENTED FROM HERE DOWN
-            case "read_tensor_core_burst":
-                current_machine_code_line += "00010001"
-            case "tensor_core_load_burst":
-                current_machine_code_line += "00010010"
-            case _:
-                raise Exception("Operation not found") 
+        if (operation_name in ["add", "sub", "grt", "eql"]):
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 4)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[3], 4)
+            
+        if (operation_name in ["cpu_mov",]):
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 4)
+            current_machine_code_line += "0"*4
+            
+            
+        elif (operation_name in ["cpu_load",]):
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
+            current_machine_code_line += number_into_signed_kbit_binary(assembly_code_tokens[2], 8)
+        
+        elif (operation_name in ["tensor_core_load_matrix1", "tensor_core_load_matrix2"]):
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
+            current_machine_code_line += number_into_signed_kbit_binary(assembly_code_tokens[2], 8)
+        
+        elif (operation_name in ["tensor_core_to_cpu",]):
+            current_machine_code_line += "0"*3
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 5)
+        
+        elif (operation_name in ["cpu_to_tensor_core",]):
+            current_machine_code_line += "0"*3
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 5)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 4)
+        
+        elif (operation_name in ["cpu_read",]):
+            current_machine_code_line += "0"*8
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
+        
+        elif (operation_name in ["tensor_core_read",]):
+            current_machine_code_line += "0"*7
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 5)
+        
+        elif (operation_name in ["tensor_core_mov",]):
+            current_machine_code_line += "0"*2
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 5)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 5)
+            
+        elif (operation_name in ["reset", "nop"]):
+            current_machine_code_line += "0"*12
+            
+        elif (operation_name in ["tensor_core_operate",]):
+            current_machine_code_line += "0"*11
+            
+            if (assembly_code_tokens[1] == "mul"):
+                current_machine_code_line += "0"
+            
+            elif (assembly_code_tokens[1] == "add"):
+                current_machine_code_line += "1"
+        
+        
+        
+        
+        current_machine_code_line += opcode
+        
+        print(current_machine_code_line)
         
         if index < len(assembly_code_lines) - 1:
-            machine_code.append(format(int(current_machine_code_line, 2), "08X") +'\n')
+            machine_code.append(format(int(current_machine_code_line, 2), "04X") +'\n')
         else:
-            machine_code.append(format(int(current_machine_code_line, 2), "08X"))
+            machine_code.append(format(int(current_machine_code_line, 2), "04X"))
         
         
     with open("machine_code", 'w+') as f:
