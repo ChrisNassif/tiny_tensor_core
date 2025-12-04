@@ -10,8 +10,7 @@ module small_tensor_core (
     input logic should_start_tensor_core,
     input logic [1:0] operation_select,
 
-    output logic signed [`BUS_WIDTH:0] tensor_core_output [4][4],
-    output logic is_done_with_calculation
+    output logic signed [`BUS_WIDTH:0] tensor_core_output [4][4]
 );
     logic [4:0] counter = 5'b10000;
     logic [1:0] operation = 2'b0;
@@ -50,22 +49,16 @@ module small_tensor_core (
     always @(negedge clock_in) begin
 
         if (tensor_core_register_file_write_enable == 1) begin
-            counter = 0;
-            is_done_with_calculation = 0;
+            counter = 5'b10000;
         end
 
-        else if (is_done_with_calculation == 0 && counter < 5'b10000) begin
+        else if (counter < 5'b10000) begin
             counter = counter + `BATCH_SIZE;
         end
 
         if (should_start_tensor_core == 1 && counter >= 5'b10000) begin
             counter = 0;
             operation = operation_select;
-            is_done_with_calculation = 0;
-        end
- 
-        if (counter >= 5'b10000) begin
-            is_done_with_calculation = 1;
         end
         
     end
@@ -74,22 +67,16 @@ module small_tensor_core (
     always @(posedge clock_in) begin
 
         if (tensor_core_register_file_write_enable == 1) begin
-            counter = 0;
-            is_done_with_calculation = 0;
+            counter = 5'b10000;
         end
 
-        else if (is_done_with_calculation == 0 && counter < 5'b10000) begin
+        else if (counter < 5'b10000) begin
             counter = counter + `BATCH_SIZE;
         end
 
         if (should_start_tensor_core == 1 && counter >= 5'b10000) begin
             counter = 0;
             operation = operation_select;
-            is_done_with_calculation = 0;
-        end
- 
-        if (counter >= 5'b10000) begin
-            is_done_with_calculation = 1;
         end
     end
 

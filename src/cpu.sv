@@ -60,10 +60,12 @@ module cpu (
     logic [4:0] tensor_core_register_file_non_bulk_read_register_address;
     wire signed [`BUS_WIDTH:0] tensor_core_register_file_non_bulk_read_data;
     wire signed [`BUS_WIDTH:0] tensor_core_output [4] [4];
-    wire is_tensor_core_done_with_calculation;
+    logic is_tensor_core_done_with_calculation;
     
     logic signed [`BUS_WIDTH:0] tensor_core_input1 [4] [4];
     logic signed [`BUS_WIDTH:0] tensor_core_input2 [4] [4];
+
+    logic [1:0] tensor_core_timer;
     
 
 
@@ -184,17 +186,20 @@ module cpu (
 
 
     // wire up the tensor_core_register_file_bulk_write_data and tensor core inputs correctly
-    initial begin
-        for (int i = 0; i < 4; i++) begin
-            for (int j = 0; j < 4; j++) begin
-                tensor_core_register_file_bulk_write_data[0][i][j] = 0;
-                tensor_core_register_file_bulk_write_data[1][i][j] = 0;
+    // initial begin
+        
+    //     is_tensor_core_done_with_calculation = 1'b0;
 
-                tensor_core_input1[i][j] = 0;
-                tensor_core_input2[i][j] = 0;
-            end
-        end
-    end
+    //     for (int i = 0; i < 4; i++) begin
+    //         for (int j = 0; j < 4; j++) begin
+    //             tensor_core_register_file_bulk_write_data[0][i][j] = 0;
+    //             tensor_core_register_file_bulk_write_data[1][i][j] = 0;
+
+    //             tensor_core_input1[i][j] = 0;
+    //             tensor_core_input2[i][j] = 0;
+    //         end
+    //     end
+    // end
     
     always_comb begin
         for (int i = 0; i < 4; i++) begin
@@ -205,6 +210,30 @@ module cpu (
                 tensor_core_input1[i][j] = tensor_core_register_file_bulk_read_data[0][i][j];
                 tensor_core_input2[i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
             end
+        end
+    end
+
+    
+    always @(posedge clock_in) begin
+
+        if ((alu_opcode == `RESET_OPCODE)) begin
+            tensor_core_timer = 0;
+            is_tensor_core_done_with_calculation = 1'b0;
+        end
+
+        if (tensor_core_timer == 2'b10) begin
+            tensor_core_timer = 0;
+            is_tensor_core_done_with_calculation = 1'b0;
+        end
+
+
+        if (tensor_core_timer == 2'b00 && (alu_opcode == `TENSOR_CORE_OPERATE_OPCODE)) begin
+            tensor_core_timer++;
+        end
+
+        if (tensor_core_timer == 2'b01) begin
+            tensor_core_timer++;
+            is_tensor_core_done_with_calculation = 1'b1;
         end
     end
 
@@ -236,7 +265,7 @@ module cpu (
         .tensor_core_register_file_write_enable(tensor_core_register_file_bulk_write_enable | tensor_core_register_file_non_bulk_write_enable | alu_opcode == `RESET_OPCODE),
         
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
-        .tensor_core_output(tensor_core_output), .is_done_with_calculation(is_tensor_core_done_with_calculation)
+        .tensor_core_output(tensor_core_output)
     );
 
 

@@ -1,3 +1,4 @@
+reset
 tensor_core_load_matrix1 0 3
 tensor_core_load_matrix1 1 1
 tensor_core_load_matrix1 2 -5
@@ -69,15 +70,6 @@ tensor_core_to_cpu 12 20
 tensor_core_to_cpu 13 21
 tensor_core_to_cpu 14 22
 tensor_core_to_cpu 15 23
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
 tensor_core_read 0
 tensor_core_read 1
 tensor_core_read 2
@@ -110,15 +102,6 @@ tensor_core_read 28
 tensor_core_read 29
 tensor_core_read 30
 tensor_core_read 31
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
 cpu_read 0
 cpu_read 1
 cpu_read 2
@@ -135,32 +118,6 @@ cpu_read 12
 cpu_read 13
 cpu_read 14
 cpu_read 15
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
 tensor_core_operate add
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
+tensor_core_operate add
 tensor_core_operate relu
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop

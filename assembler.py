@@ -62,6 +62,7 @@ def main():
         operation_name = assembly_code_tokens[0]
         opcode = operation_name_to_opcode[operation_name]
 
+        should_have_nop_after = False
 
         current_machine_code_line = ""
 
@@ -124,7 +125,8 @@ def main():
                 
             elif (assembly_code_tokens[1] == "relu"):
                 current_machine_code_line += "10"
-        
+
+            should_have_nop_after = True
         
         
         
@@ -132,10 +134,21 @@ def main():
         
         print(current_machine_code_line)
         
+        
+        # Format the machine code line       
         if index < len(assembly_code_lines) - 1:
-            machine_code.append(format(int(current_machine_code_line, 2), "04X") +'\n')
+            current_machine_code_line = format(int(current_machine_code_line, 2), "04X") +'\n'
         else:
-            machine_code.append(format(int(current_machine_code_line, 2), "04X"))
+            current_machine_code_line = format(int(current_machine_code_line, 2), "04X")
+        
+        machine_code.append(current_machine_code_line)
+        
+        if should_have_nop_after:
+            if index < len(assembly_code_lines) - 1:
+                machine_code.append(format(int("0"*16, 2), "04X") + '\n')
+            else:
+                machine_code.append('\n' + format(int("0"*16, 2), "04X"))
+            
         
     
 
