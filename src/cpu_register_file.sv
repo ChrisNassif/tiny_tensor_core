@@ -19,11 +19,6 @@ module cpu_register_file #(
     assign read_data2_out = registers[read_register_address2_in];
 
 
-    initial begin
-        for (int i = 0; i < NUMBER_OF_REGISTERS; i++) begin
-            registers[i] <= 0;
-        end
-    end
 
     always_ff @(posedge clock_in) begin
         if (write_enable_in && write_register_address_in != 0 && reset_in == 0) begin

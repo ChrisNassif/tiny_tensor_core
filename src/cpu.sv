@@ -184,22 +184,6 @@ module cpu (
     );
 
 
-
-    // wire up the tensor_core_register_file_bulk_write_data and tensor core inputs correctly
-    // initial begin
-        
-    //     is_tensor_core_done_with_calculation = 1'b0;
-
-    //     for (int i = 0; i < 4; i++) begin
-    //         for (int j = 0; j < 4; j++) begin
-    //             tensor_core_register_file_bulk_write_data[0][i][j] = 0;
-    //             tensor_core_register_file_bulk_write_data[1][i][j] = 0;
-
-    //             tensor_core_input1[i][j] = 0;
-    //             tensor_core_input2[i][j] = 0;
-    //         end
-    //     end
-    // end
     
     always_comb begin
         for (int i = 0; i < 4; i++) begin
