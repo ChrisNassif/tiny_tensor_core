@@ -1,6 +1,9 @@
 import numpy as np
-
-
+import sys
+    
+    
+    
+    
 operation_name_to_opcode = {
     "nop": "0000",
     "reset": "0001",
@@ -39,8 +42,17 @@ def number_into_unsigned_kbit_binary(number: str, k):
 
 
 def main():
-    with open("assembly_code.asm", "r") as f:
+    
+    if len(sys.argv) > 1:
+        assembly_file = sys.argv[1]
+    else:
+        assembly_file = "assembly_code.asm"
+        
+    with open(assembly_file, "r") as f:
         assembly_code_lines = f.readlines()
+
+
+
 
     machine_code = []
     
@@ -102,13 +114,16 @@ def main():
             current_machine_code_line += "0"*12
             
         elif (operation_name in ["tensor_core_operate",]):
-            current_machine_code_line += "0"*11
+            current_machine_code_line += "0"*10
             
             if (assembly_code_tokens[1] == "mul"):
-                current_machine_code_line += "0"
+                current_machine_code_line += "00"
             
             elif (assembly_code_tokens[1] == "add"):
-                current_machine_code_line += "1"
+                current_machine_code_line += "01"
+                
+            elif (assembly_code_tokens[1] == "relu"):
+                current_machine_code_line += "10"
         
         
         
@@ -122,7 +137,9 @@ def main():
         else:
             machine_code.append(format(int(current_machine_code_line, 2), "04X"))
         
-        
+    
+
+    
     with open("machine_code", 'w+') as f:
         f.writelines(machine_code)
 

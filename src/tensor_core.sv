@@ -8,20 +8,39 @@ module small_tensor_core (
     input logic signed [`BUS_WIDTH:0] tensor_core_input1 [4][4], 
     input logic signed [`BUS_WIDTH:0] tensor_core_input2 [4][4],
     input logic should_start_tensor_core,
+    input logic [1:0] operation_select,
+
     output logic signed [`BUS_WIDTH:0] tensor_core_output [4][4],
     output logic is_done_with_calculation
 );
-    logic [4:0] counter;
-    logic signed [`BUS_WIDTH:0] products [4] [`BATCH_SIZE];
+    logic [4:0] counter = 5'b10000;
+    logic [1:0] operation = 2'b0;
+    logic signed [`BUS_WIDTH + `BUS_WIDTH + 1:0] products [4] [`BATCH_SIZE];
 
     always_comb begin
         for (int i = 0; i < `BATCH_SIZE; i++) begin
+
             for (int k = 0; k < 4; k++) begin
                 products[k][i] = tensor_core_input1[(counter+i)/4][k] * tensor_core_input2[k][(counter+i)%4];
-            end 
+            end
+            
+            // matrix multiply
+            if (operation == 2'b00) begin 
+                // tensor_core_output[counter/4][counter%4] = tensor_core_input1[counter/4][counter%4] + products[0] + products[1] + products[2] + products[3];
+                tensor_core_output[(counter+i)/4][(counter+i)%4] = products[0][i] + products[1][i] + products[2][i] + products[3][i];
+            end
 
-            // tensor_core_output[counter/4][counter%4] = tensor_core_input1[counter/4][counter%4] + products[0] + products[1] + products[2] + products[3];
-            tensor_core_output[(counter+i)/4][(counter+i)%4] = products[0][i] + products[1][i] + products[2][i] + products[3][i];
+
+            // matrix addition
+            else if (operation == 2'b01) begin
+                tensor_core_output[(counter+i)/4][(counter+i)%4] = tensor_core_input1[(counter+i)/4][(counter+i)%4] + tensor_core_input2[(counter+i)/4][(counter+i)%4];
+            end
+
+
+            // relu
+            else begin
+                tensor_core_output[(counter+i)/4][(counter+i)%4] = (tensor_core_input1[(counter+i)/4][(counter+i)%4][`BUS_WIDTH] == 1'b0) ? tensor_core_input1[(counter+i)/4][(counter+i)%4]: 0;
+            end
         end
     end
 
@@ -35,17 +54,20 @@ module small_tensor_core (
             is_done_with_calculation = 0;
         end
 
-        if (is_done_with_calculation == 0 && tensor_core_register_file_write_enable == 0 && counter != 0) begin
+        else if (is_done_with_calculation == 0 && counter < 5'b10000) begin
             counter = counter + `BATCH_SIZE;
         end
 
-        if (should_start_tensor_core == 1 && counter == 0) begin
-            counter = counter + `BATCH_SIZE;
+        if (should_start_tensor_core == 1 && counter >= 5'b10000) begin
+            counter = 0;
+            operation = operation_select;
+            is_done_with_calculation = 0;
         end
-
+ 
         if (counter >= 5'b10000) begin
             is_done_with_calculation = 1;
         end
+        
     end
 
 
@@ -56,14 +78,16 @@ module small_tensor_core (
             is_done_with_calculation = 0;
         end
 
-        if (is_done_with_calculation == 0 && tensor_core_register_file_write_enable == 0 && counter != 0) begin
+        else if (is_done_with_calculation == 0 && counter < 5'b10000) begin
             counter = counter + `BATCH_SIZE;
         end
 
-        if (should_start_tensor_core == 1 && counter == 0) begin
-            counter = counter + `BATCH_SIZE;
+        if (should_start_tensor_core == 1 && counter >= 5'b10000) begin
+            counter = 0;
+            operation = operation_select;
+            is_done_with_calculation = 0;
         end
-
+ 
         if (counter >= 5'b10000) begin
             is_done_with_calculation = 1;
         end
@@ -77,10 +101,20 @@ module small_tensor_core (
 
 
     // Expose the internals of this module to gtkwave
+    genvar k, l;
+    generate
+        for (k = 0; k < 4; k++) begin : expose_tensor_core
+            for (l = 0; l < `BATCH_SIZE; l++) begin: expose_tensor_core2
+                wire signed [7:0] products_wire = products[k][l];
+            end
+        end
+    endgenerate
+
+
     genvar i, j;
     generate
-        for (i = 0; i < 4; i++) begin : expose_tensor_core
-            for (j = 0; j < 4; j++) begin: expose_tensor_core2
+        for (i = 0; i < 4; i++) begin : expose_tensor_core3
+            for (j = 0; j < 4; j++) begin: expose_tensor_core4
                 wire [7:0] tensor_core_input1_wire = tensor_core_input1[i][j];
                 wire [7:0] tensor_core_input2_wire = tensor_core_input2[i][j];
                 wire [7:0] tensor_core_output_wire = tensor_core_output[i][j];

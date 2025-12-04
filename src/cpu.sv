@@ -232,6 +232,7 @@ module cpu (
         .clock_in(tensor_core_clock),
         
         .should_start_tensor_core((alu_opcode == `TENSOR_CORE_OPERATE_OPCODE)),
+        .operation_select(current_instruction[5:4]),
         .tensor_core_register_file_write_enable(tensor_core_register_file_bulk_write_enable | tensor_core_register_file_non_bulk_write_enable | alu_opcode == `RESET_OPCODE),
         
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),

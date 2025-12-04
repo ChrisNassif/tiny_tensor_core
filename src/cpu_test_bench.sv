@@ -321,7 +321,7 @@ module cpu_test_bench();
         $display("    EXECUTING PROGRAM FROM MACHINE CODE FILE   ");
         $display("================================================");
         
-        for (integer i = 0; i < 200 && machine_code[i] != 32'hFFFF; i = i + 1) begin
+        for (integer i = 0; machine_code[i] != 32'hFFFF; i = i + 1) begin
             current_instruction = machine_code[i];
             instruction_count = i;
             #20;
