@@ -29,6 +29,12 @@
 `define BUS_WIDTH 7
 
 
+`define MATRIX_SIZE 4
+`define NUMBER_OF_REGISTERS_PER_MATRIX `MATRIX_SIZE * `MATRIX_SIZE
+`define NUMBER_OF_MATRICES 2
+`define NUMBER_OF_REGISTERS `NUMBER_OF_MATRICES * `NUMBER_OF_REGISTERS_PER_MATRIX
+
+
 module cpu (
     input logic clock_in, 
     input logic shifted_clock_in,
@@ -54,16 +60,16 @@ module cpu (
     logic [4:0] tensor_core_register_file_non_bulk_write_register_address;
 
     logic tensor_core_register_file_bulk_write_enable;
-    logic signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_write_data [2] [4] [4];
-    wire signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data [2] [4] [4];
+    logic signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_write_data [`NUMBER_OF_MATRICES] [`MATRIX_SIZE] [`MATRIX_SIZE];
+    wire signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data [`NUMBER_OF_MATRICES] [`MATRIX_SIZE] [`MATRIX_SIZE];
 
     logic [4:0] tensor_core_register_file_non_bulk_read_register_address;
     wire signed [`BUS_WIDTH:0] tensor_core_register_file_non_bulk_read_data;
-    wire signed [`BUS_WIDTH:0] tensor_core_output [4] [4];
+    wire signed [`BUS_WIDTH:0] tensor_core_output [`MATRIX_SIZE] [`MATRIX_SIZE];
     logic is_tensor_core_done_with_calculation;
     
-    logic signed [`BUS_WIDTH:0] tensor_core_input1 [4] [4];
-    logic signed [`BUS_WIDTH:0] tensor_core_input2 [4] [4];
+    logic signed [`BUS_WIDTH:0] tensor_core_input1 [`MATRIX_SIZE] [`MATRIX_SIZE];
+    logic signed [`BUS_WIDTH:0] tensor_core_input2 [`MATRIX_SIZE] [`MATRIX_SIZE];
 
     logic [1:0] tensor_core_timer;
     
@@ -186,8 +192,8 @@ module cpu (
 
     
     always_comb begin
-        for (int i = 0; i < 4; i++) begin
-            for (int j = 0; j < 4; j++) begin
+        for (int i = 0; i < `MATRIX_SIZE; i++) begin
+            for (int j = 0; j < `MATRIX_SIZE; j++) begin
                 tensor_core_register_file_bulk_write_data[0][i][j] = tensor_core_output[i][j];
                 tensor_core_register_file_bulk_write_data[1][i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
 
@@ -266,11 +272,11 @@ module cpu (
     // Expose the internals of this module to gtkwave
     genvar i, j, n;
     generate
-        for (n = 0; n < 2; n++) begin: hi
-            for (i = 0; i < 4; i++) begin : expose_tensor_core
-                for (j = 0; j < 4; j++) begin: expose_tensor_core2
-                    wire [7:0] tensor_core_register_file_bulk_read_data_ = tensor_core_register_file_bulk_read_data[n][i][j];
-                    wire [7:0] tensor_core_output_ = tensor_core_output[i][j];
+        for (n = 0; n < `NUMBER_OF_MATRICES; n++) begin: hi
+            for (i = 0; i < `MATRIX_SIZE; i++) begin : expose_tensor_core
+                for (j = 0; j < `MATRIX_SIZE; j++) begin: expose_tensor_core2
+                    wire [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data_ = tensor_core_register_file_bulk_read_data[n][i][j];
+                    wire [`BUS_WIDTH:0] tensor_core_output_ = tensor_core_output[i][j];
                 end
             end
         end

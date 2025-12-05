@@ -1,7 +1,7 @@
 `define BUS_WIDTH 7
 
 module cpu_register_file #(
-    parameter NUMBER_OF_REGISTERS = 16
+    parameter NUMBER_OF_REGISTERS = 8
 )(
     input logic clock_in,
     input logic reset_in,
@@ -31,19 +31,6 @@ module cpu_register_file #(
             end
         end 
     end
-
-    always_ff @(negedge clock_in) begin
-        if (write_enable_in && write_register_address_in != 0 && reset_in == 0) begin
-            registers[write_register_address_in] <= write_data_in;
-        end
-
-        else if (reset_in == 1) begin
-            for (int i = 0; i < NUMBER_OF_REGISTERS; i++) begin
-                registers[i] <= 0;
-            end
-        end 
-    end
-
 
     // make the registers visible to gtkwave
     genvar i;
