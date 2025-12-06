@@ -29,12 +29,6 @@
 `define BUS_WIDTH 7
 
 
-`define MATRIX_SIZE 4
-`define NUMBER_OF_REGISTERS_PER_MATRIX `MATRIX_SIZE * `MATRIX_SIZE
-`define NUMBER_OF_MATRICES 2
-`define NUMBER_OF_REGISTERS `NUMBER_OF_MATRICES * `NUMBER_OF_REGISTERS_PER_MATRIX
-
-
 module cpu (
     input logic clock_in, 
     input logic shifted_clock_in,
@@ -47,9 +41,9 @@ module cpu (
     logic signed [`BUS_WIDTH:0] alu_input1, alu_input2, alu_output;
     logic [3:0] alu_opcode;
 
-    logic [3:0] cpu_register_file_read_register_address1, cpu_register_file_read_register_address2;
+    logic [2:0] cpu_register_file_read_register_address1, cpu_register_file_read_register_address2;
     logic signed [`BUS_WIDTH:0] cpu_register_file_read_data1, cpu_register_file_read_data2;
-    logic [3:0] cpu_register_file_write_register_address;
+    logic [2:0] cpu_register_file_write_register_address;
     logic signed [`BUS_WIDTH:0] cpu_register_file_write_data;
     logic cpu_register_file_write_enable;
 
@@ -60,16 +54,16 @@ module cpu (
     logic [4:0] tensor_core_register_file_non_bulk_write_register_address;
 
     logic tensor_core_register_file_bulk_write_enable;
-    logic signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_write_data [`NUMBER_OF_MATRICES] [`MATRIX_SIZE] [`MATRIX_SIZE];
-    wire signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data [`NUMBER_OF_MATRICES] [`MATRIX_SIZE] [`MATRIX_SIZE];
+    logic signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_write_data [2] [3] [3];
+    wire signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data [2] [3] [3];
 
     logic [4:0] tensor_core_register_file_non_bulk_read_register_address;
     wire signed [`BUS_WIDTH:0] tensor_core_register_file_non_bulk_read_data;
-    wire signed [`BUS_WIDTH:0] tensor_core_output [`MATRIX_SIZE] [`MATRIX_SIZE];
+    wire signed [`BUS_WIDTH:0] tensor_core_output [3] [3];
     logic is_tensor_core_done_with_calculation;
     
-    logic signed [`BUS_WIDTH:0] tensor_core_input1 [`MATRIX_SIZE] [`MATRIX_SIZE];
-    logic signed [`BUS_WIDTH:0] tensor_core_input2 [`MATRIX_SIZE] [`MATRIX_SIZE];
+    logic signed [`BUS_WIDTH:0] tensor_core_input1 [3] [3];
+    logic signed [`BUS_WIDTH:0] tensor_core_input2 [3] [3];
 
     logic [1:0] tensor_core_timer;
     
@@ -83,13 +77,9 @@ module cpu (
     // ---------------------------------------------------------------------
 
 
-    assign cpu_register_file_write_register_address = (
-        (alu_opcode == `TENSOR_CORE_TO_CPU_OPCODE) ? current_instruction[12:9]:
-        current_instruction[15:12]
-    );
-
-    assign cpu_register_file_read_register_address1 = current_instruction[11:8];
-    assign cpu_register_file_read_register_address2 = current_instruction[7:4];
+    assign cpu_register_file_write_register_address = current_instruction[15:13];
+    assign cpu_register_file_read_register_address1 = current_instruction[10:8];
+    assign cpu_register_file_read_register_address2 = current_instruction[6:4];
     assign alu_opcode = current_instruction[3:0];
 
 
@@ -166,12 +156,19 @@ module cpu (
     );
 
     assign tensor_core_register_file_non_bulk_write_register_address = (
-        (alu_opcode == `TENSOR_CORE_LOAD_MATRIX1_OPCODE) ? {1'b0, current_instruction[15:12]}:    // tensor core load immediate
-        (alu_opcode == `TENSOR_CORE_LOAD_MATRIX2_OPCODE) ? {1'b1, current_instruction[15:12]}:    // tensor core load immediate
-        (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? current_instruction[12:8]:  // move from cpu to tensor core
-        (alu_opcode == `TENSOR_CORE_MOV_OPCODE) ? current_instruction[13:9]:    // move from tensor core to another tensor core register
+        (alu_opcode == `TENSOR_CORE_LOAD_MATRIX1_OPCODE) ? {current_instruction[15:12], 1'b0}:    // tensor core load immediate
+        (alu_opcode == `TENSOR_CORE_LOAD_MATRIX2_OPCODE) ? {current_instruction[15:12], 1'b1}:    // tensor core load immediate
+        (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? current_instruction[15:11]:  // move from cpu to tensor core
+        (alu_opcode == `TENSOR_CORE_MOV_OPCODE) ? current_instruction[15:11]:    // move from tensor core to another tensor core register
         0
     );
+    // assign tensor_core_register_file_non_bulk_write_register_address = (
+    //     (alu_opcode == `TENSOR_CORE_LOAD_MATRIX1_OPCODE) ? {1'b0, current_instruction[15:12]}:    // tensor core load immediate
+    //     (alu_opcode == `TENSOR_CORE_LOAD_MATRIX2_OPCODE) ? {1'b1, current_instruction[15:12]}:    // tensor core load immediate
+    //     (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? current_instruction[15:11]:  // move from cpu to tensor core
+    //     (alu_opcode == `TENSOR_CORE_MOV_OPCODE) ? current_instruction[15:11]:    // move from tensor core to another tensor core register
+    //     0
+    // );
 
     assign tensor_core_register_file_non_bulk_write_data = (
         (alu_opcode == `TENSOR_CORE_LOAD_MATRIX1_OPCODE) ? current_instruction[11:4]:     // tensor core load immediate
@@ -182,18 +179,13 @@ module cpu (
     );
 
 
-    assign tensor_core_register_file_non_bulk_read_register_address = (
-        (alu_opcode == `TENSOR_CORE_TO_CPU_OPCODE) ? current_instruction[8:4]:  // tensor core to cpu
-        (alu_opcode == `TENSOR_CORE_READ_OPCODE) ? current_instruction[8:4]:     // read tensor core
-        (alu_opcode == `TENSOR_CORE_MOV_OPCODE) ? current_instruction[8:4]:     // move tensor core
-        current_instruction[15:11]
-    );
+    assign tensor_core_register_file_non_bulk_read_register_address = current_instruction[8:4];
 
 
     
     always_comb begin
-        for (int i = 0; i < `MATRIX_SIZE; i++) begin
-            for (int j = 0; j < `MATRIX_SIZE; j++) begin
+        for (int i = 0; i < 3; i++) begin
+            for (int j = 0; j < 3; j++) begin
                 tensor_core_register_file_bulk_write_data[0][i][j] = tensor_core_output[i][j];
                 tensor_core_register_file_bulk_write_data[1][i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
 
@@ -203,6 +195,8 @@ module cpu (
         end
     end
 
+
+
     
     always @(posedge clock_in) begin
 
@@ -211,19 +205,25 @@ module cpu (
             is_tensor_core_done_with_calculation = 1'b0;
         end
 
-        if (tensor_core_timer == 2'b10) begin
+        if (tensor_core_timer == 2'd3) begin
             tensor_core_timer = 0;
             is_tensor_core_done_with_calculation = 1'b0;
         end
 
 
-        if (tensor_core_timer == 2'b00 && (alu_opcode == `TENSOR_CORE_OPERATE_OPCODE)) begin
+        else if (tensor_core_timer == 2'd2) begin
+            tensor_core_timer++;
+            is_tensor_core_done_with_calculation = 1'b1;
+        end
+
+
+        else if (tensor_core_timer == 2'd1) begin
             tensor_core_timer++;
         end
 
-        if (tensor_core_timer == 2'b01) begin
+
+        else if (tensor_core_timer == 0 && (alu_opcode == `TENSOR_CORE_OPERATE_OPCODE)) begin
             tensor_core_timer++;
-            is_tensor_core_done_with_calculation = 1'b1;
         end
     end
 
@@ -248,7 +248,7 @@ module cpu (
 
 
     small_tensor_core main_tensor_core (
-        .clock_in(tensor_core_clock),
+        .tensor_core_clock(tensor_core_clock),
         
         .should_start_tensor_core((alu_opcode == `TENSOR_CORE_OPERATE_OPCODE)),
         .operation_select(current_instruction[5:4]),
@@ -272,9 +272,9 @@ module cpu (
     // Expose the internals of this module to gtkwave
     genvar i, j, n;
     generate
-        for (n = 0; n < `NUMBER_OF_MATRICES; n++) begin: hi
-            for (i = 0; i < `MATRIX_SIZE; i++) begin : expose_tensor_core
-                for (j = 0; j < `MATRIX_SIZE; j++) begin: expose_tensor_core2
+        for (n = 0; n < 2; n++) begin: hi
+            for (i = 0; i < 3; i++) begin : expose_tensor_core
+                for (j = 0; j < 3; j++) begin: expose_tensor_core2
                     wire [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data_ = tensor_core_register_file_bulk_read_data[n][i][j];
                     wire [`BUS_WIDTH:0] tensor_core_output_ = tensor_core_output[i][j];
                 end

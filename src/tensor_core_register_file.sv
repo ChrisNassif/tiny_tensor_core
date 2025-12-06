@@ -11,13 +11,13 @@ module tensor_core_register_file (
     input logic clock_in,
     input logic reset_in,
     input logic non_bulk_write_enable_in,
-    input logic [$clog2(2 * 9)-1:0] non_bulk_write_register_address_in,
+    input logic [4:0] non_bulk_write_register_address_in,
     input logic signed [`BUS_WIDTH:0] non_bulk_write_data_in,
 
     input logic bulk_write_enable_in,
     input logic signed [`BUS_WIDTH:0] bulk_write_data_in [2] [3] [3],
 
-    input logic [$clog2(2 * 9)-1:0] non_bulk_read_register_address_in,
+    input logic [4:0] non_bulk_read_register_address_in,
     output logic signed [`BUS_WIDTH:0] non_bulk_read_data_out,
     output logic signed [`BUS_WIDTH:0] bulk_read_data_out [2] [3] [3]
 );

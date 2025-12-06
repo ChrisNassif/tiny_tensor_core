@@ -4,7 +4,6 @@
 
 module small_tensor_core (
     input logic tensor_core_clock,
-    input logic cpu_clock,
     input logic tensor_core_register_file_write_enable,
     input logic signed [`BUS_WIDTH:0] tensor_core_input1 [3][3], 
     input logic signed [`BUS_WIDTH:0] tensor_core_input2 [3][3],
@@ -13,6 +12,7 @@ module small_tensor_core (
 
     output logic signed [`BUS_WIDTH:0] tensor_core_output [3][3]
 );
+
     logic [4:0] counter = 5'd9;
     logic [1:0] operation = 2'b0;
     logic signed [`BUS_WIDTH*2 + 1:0] products [3] [`BATCH_SIZE];
@@ -56,7 +56,7 @@ module small_tensor_core (
             counter = 5'd9;
         end
 
-        else if (counter <'5'd9) begin
+        else if (counter < 5'd9) begin
             counter = counter + `BATCH_SIZE;
         end
 
@@ -73,7 +73,7 @@ module small_tensor_core (
             counter = 5'd9;
         end
 
-        else if (counter <'5'd9) begin
+        else if (counter < 5'd9) begin
             counter = counter + `BATCH_SIZE;
         end
 
@@ -95,7 +95,7 @@ module small_tensor_core (
     // Expose the internals of this module to gtkwave
     genvar k, l;
     generate
-        for (k = 0; k < 4; k++) begin : expose_tensor_core
+        for (k = 0; k < 3; k++) begin : expose_tensor_core
             for (l = 0; l < `BATCH_SIZE; l++) begin: expose_tensor_core2
                 wire signed [7:0] products_wire = products[k][l];
             end
@@ -105,8 +105,8 @@ module small_tensor_core (
 
     genvar i, j;
     generate
-        for (i = 0; i < 4; i++) begin : expose_tensor_core3
-            for (j = 0; j < 4; j++) begin: expose_tensor_core4
+        for (i = 0; i < 3; i++) begin : expose_tensor_core3
+            for (j = 0; j < 3; j++) begin: expose_tensor_core4
                 wire [7:0] tensor_core_input1_wire = tensor_core_input1[i][j];
                 wire [7:0] tensor_core_input2_wire = tensor_core_input2[i][j];
                 wire [7:0] tensor_core_output_wire = tensor_core_output[i][j];

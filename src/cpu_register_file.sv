@@ -15,6 +15,7 @@ module cpu_register_file #(
 );
 
     reg signed [`BUS_WIDTH:0] registers [NUMBER_OF_REGISTERS];
+
     assign read_data1_out = registers[read_register_address1_in];
     assign read_data2_out = registers[read_register_address2_in];
 
@@ -31,6 +32,9 @@ module cpu_register_file #(
             end
         end 
     end
+
+
+
 
     // make the registers visible to gtkwave
     genvar i;
