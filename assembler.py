@@ -2,7 +2,7 @@ import numpy as np
 import sys
     
     
-    
+NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 9
     
 operation_name_to_opcode = {
     "nop": "0000",
@@ -15,8 +15,7 @@ operation_name_to_opcode = {
     "cpu_mov": "0111",
     "cpu_read": "1000",
     "tensor_core_operate": "1001",
-    "tensor_core_load_matrix1": "1010",
-    "tensor_core_load_matrix2": "1011",
+    "tensor_core_load": "1010",
     "cpu_to_tensor_core": "1100",
     "tensor_core_to_cpu": "1101",
     "tensor_core_mov": "1110",
@@ -67,52 +66,66 @@ def main():
         current_machine_code_line = ""
 
 
+
         # PARSE THE DIFFERENT INSTRUCTION FORMATS
         
-        if (operation_name in ["add", "sub", "grt", "eql"]):
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 4)
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[3], 4)
+        if (operation_name in ["nop", "reset"]):
+            current_machine_code_line += "0"*12
             
-        if (operation_name in ["cpu_mov",]):
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 4)
+        elif (operation_name in ["add", "sub", "grt", "eql"]):
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], k=3)
+            current_machine_code_line += "0"*2
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], k=3)
+            current_machine_code_line += "0"*1
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[3], k=3)
+            
+            
+        elif (operation_name in ["cpu_mov",]):
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], k=3)
             current_machine_code_line += "0"*4
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], k=3)
             
             
         elif (operation_name in ["cpu_load",]):
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
-            current_machine_code_line += number_into_signed_kbit_binary(assembly_code_tokens[2], 8)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], k=3)
+            current_machine_code_line += "0"*1
+            current_machine_code_line += number_into_signed_kbit_binary(assembly_code_tokens[2], k=8)
         
-        elif (operation_name in ["tensor_core_load_matrix1", "tensor_core_load_matrix2"]):
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
-            current_machine_code_line += number_into_signed_kbit_binary(assembly_code_tokens[2], 8)
+        elif (operation_name in ["tensor_core_load",]):
+            if (int(assembly_code_tokens[1]) > 17 and int(assembly_code_tokens[1]) < 0):
+                raise Exception("Improper arguments for tensor_core_load")
+            
+            
+            tensor_core_address = number_into_unsigned_kbit_binary(assembly_code_tokens[1], k=5)
+            
+            opcode = opcode[0:-1] + tensor_core_address[-1]
+            
+            current_machine_code_line += tensor_core_address[0:-1]
+            current_machine_code_line += number_into_signed_kbit_binary(assembly_code_tokens[2], k=8)
         
         elif (operation_name in ["tensor_core_to_cpu",]):
-            current_machine_code_line += "0"*3
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 5)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], k=3)
+            current_machine_code_line += "0"*4
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], k=5)
         
         elif (operation_name in ["cpu_to_tensor_core",]):
-            current_machine_code_line += "0"*3
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 5)
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 4)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], k=5)
+            current_machine_code_line += "0"*4
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], k=3)
         
         elif (operation_name in ["cpu_read",]):
-            current_machine_code_line += "0"*8
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 4)
+            current_machine_code_line += "0"*9
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], k=3)
         
         elif (operation_name in ["tensor_core_read",]):
             current_machine_code_line += "0"*7
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 5)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], k=5)
         
         elif (operation_name in ["tensor_core_mov",]):
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], k=5)
             current_machine_code_line += "0"*2
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[1], 5)
-            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], 5)
+            current_machine_code_line += number_into_unsigned_kbit_binary(assembly_code_tokens[2], k=5)
             
-        elif (operation_name in ["reset", "nop"]):
-            current_machine_code_line += "0"*12
             
         elif (operation_name in ["tensor_core_operate",]):
             current_machine_code_line += "0"*10
@@ -145,10 +158,11 @@ def main():
         
         if should_have_nop_after:
             if index < len(assembly_code_lines) - 1:
-                machine_code.append(format(int("0"*16, 2), "04X") + '\n')
+                for i in range(NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION):
+                    machine_code.append(format(int("0"*16, 2), "04X") + '\n')
             else:
-                machine_code.append('\n' + format(int("0"*16, 2), "04X"))
-            
+                for i in range(NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION):
+                    machine_code.append('\n' + format(int("0"*16, 2), "04X"))            
         
     
 
