@@ -202,29 +202,29 @@ module cpu (
     always @(posedge clock_in) begin
 
         if ((alu_opcode == `RESET_OPCODE)) begin
-            tensor_core_timer = 0;
-            is_tensor_core_done_with_calculation = 1'b0;
+            tensor_core_timer <= 0;
+            is_tensor_core_done_with_calculation <= 1'b0;
         end
 
-        if (tensor_core_timer == 3'd4) begin
-            tensor_core_timer = 0;
-            is_tensor_core_done_with_calculation = 1'b0;
+        else if (tensor_core_timer == 3'd4) begin
+            tensor_core_timer <= 0;
+            is_tensor_core_done_with_calculation <= 1'b0;
         end
 
 
         else if (tensor_core_timer == 3'd3) begin
-            tensor_core_timer++;
-            is_tensor_core_done_with_calculation = 1'b1;
+            tensor_core_timer <= tensor_core_timer + 1;
+            is_tensor_core_done_with_calculation <= 1'b1;
         end
 
 
         else if (tensor_core_timer == 3'd1 || tensor_core_timer == 3'd2) begin
-            tensor_core_timer++;
+            tensor_core_timer <= tensor_core_timer + 1;
         end
 
 
         else if (tensor_core_timer == 0 && (alu_opcode == `TENSOR_CORE_OPERATE_OPCODE)) begin
-            tensor_core_timer++;
+            tensor_core_timer <= tensor_core_timer + 1;
         end
     end
 
