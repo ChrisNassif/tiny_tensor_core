@@ -206,19 +206,19 @@ module cpu (
             is_tensor_core_done_with_calculation <= 1'b0;
         end
 
-        else if (tensor_core_timer == 3'd4) begin
+        else if (tensor_core_timer == 3'd5) begin
             tensor_core_timer <= 0;
             is_tensor_core_done_with_calculation <= 1'b0;
         end
 
 
-        else if (tensor_core_timer == 3'd3) begin
+        else if (tensor_core_timer == 3'd4) begin
             tensor_core_timer <= tensor_core_timer + 1;
             is_tensor_core_done_with_calculation <= 1'b1;
         end
 
 
-        else if (tensor_core_timer == 3'd1 || tensor_core_timer == 3'd2) begin
+        else if (tensor_core_timer == 3'd1 || tensor_core_timer == 3'd2 || tensor_core_timer == 3'd3) begin
             tensor_core_timer <= tensor_core_timer + 1;
         end
 
