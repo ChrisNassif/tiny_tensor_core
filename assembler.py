@@ -2,7 +2,7 @@ import numpy as np
 import sys
     
     
-    
+NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 9
     
 operation_name_to_opcode = {
     "nop": "0000",
@@ -158,14 +158,11 @@ def main():
         
         if should_have_nop_after:
             if index < len(assembly_code_lines) - 1:
-                machine_code.append(format(int("0"*16, 2), "04X") + '\n')
-                machine_code.append(format(int("0"*16, 2), "04X") + '\n')
-                machine_code.append(format(int("0"*16, 2), "04X") + '\n')
+                for i in range(NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION):
+                    machine_code.append(format(int("0"*16, 2), "04X") + '\n')
             else:
-                machine_code.append('\n' + format(int("0"*16, 2), "04X"))
-                machine_code.append('\n' + format(int("0"*16, 2), "04X"))
-                machine_code.append('\n' + format(int("0"*16, 2), "04X"))
-            
+                for i in range(NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION):
+                    machine_code.append('\n' + format(int("0"*16, 2), "04X"))            
         
     
 

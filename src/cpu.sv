@@ -65,7 +65,7 @@ module cpu (
     logic signed [`BUS_WIDTH:0] tensor_core_input1 [3] [3];
     logic signed [`BUS_WIDTH:0] tensor_core_input2 [3] [3];
 
-    logic [1:0] tensor_core_timer;
+    logic [2:0] tensor_core_timer;
     
 
 
@@ -206,19 +206,19 @@ module cpu (
             is_tensor_core_done_with_calculation = 1'b0;
         end
 
-        if (tensor_core_timer == 2'd3) begin
+        if (tensor_core_timer == 3'd4) begin
             tensor_core_timer = 0;
             is_tensor_core_done_with_calculation = 1'b0;
         end
 
 
-        else if (tensor_core_timer == 2'd2) begin
+        else if (tensor_core_timer == 3'd3) begin
             tensor_core_timer++;
             is_tensor_core_done_with_calculation = 1'b1;
         end
 
 
-        else if (tensor_core_timer == 2'd1) begin
+        else if (tensor_core_timer == 3'd1 || tensor_core_timer == 3'd2) begin
             tensor_core_timer++;
         end
 
@@ -249,7 +249,7 @@ module cpu (
 
 
     small_tensor_core main_tensor_core (
-        .tensor_core_clock(tensor_core_clock), reset_in((alu_opcode == `RESET_OPCODE)),
+        .tensor_core_clock(tensor_core_clock), .reset_in((alu_opcode == `RESET_OPCODE)),
         
         .should_start_tensor_core((alu_opcode == `TENSOR_CORE_OPERATE_OPCODE)),
         .operation_select(current_instruction[5:4]),
