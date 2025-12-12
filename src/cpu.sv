@@ -148,18 +148,19 @@ module cpu (
 
     // for the opcode of load immediate and move from cpu registers to the tensor core register file   
     assign tensor_core_register_file_non_bulk_write_enable = (
-        (alu_opcode == `TENSOR_CORE_LOAD_MATRIX1_OPCODE) ? 1: // tensor core load immediate
-        (alu_opcode == `TENSOR_CORE_LOAD_MATRIX2_OPCODE) ? 1: // tensor core load immediate
-        (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? 1: // move from cpu to tensor core
-        (alu_opcode == `TENSOR_CORE_MOV_OPCODE) ? 1: // move from tensor core to another tensor core register
+        alu_opcode == `TENSOR_CORE_LOAD_MATRIX1_OPCODE || // tensor core load immediate
+        alu_opcode == `TENSOR_CORE_LOAD_MATRIX2_OPCODE || // tensor core load immediate
+        alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE ||       // move from cpu to tensor core
+        alu_opcode == `TENSOR_CORE_MOV_OPCODE ? 1:        // move from tensor core to another tensor core register
         0
     );
 
     assign tensor_core_register_file_non_bulk_write_register_address = (
         (alu_opcode == `TENSOR_CORE_LOAD_MATRIX1_OPCODE) ? {current_instruction[15:12], 1'b0}:    // tensor core load immediate
         (alu_opcode == `TENSOR_CORE_LOAD_MATRIX2_OPCODE) ? {current_instruction[15:12], 1'b1}:    // tensor core load immediate
-        (alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE) ? current_instruction[15:11]:  // move from cpu to tensor core
-        (alu_opcode == `TENSOR_CORE_MOV_OPCODE) ? current_instruction[15:11]:    // move from tensor core to another tensor core register
+
+        alu_opcode == `CPU_TO_TENSOR_CORE_OPCODE ||                            // move from cpu to tensor core
+        alu_opcode == `TENSOR_CORE_MOV_OPCODE ? current_instruction[15:11]:    // move from tensor core to another tensor core register
         0
     );
     // assign tensor_core_register_file_non_bulk_write_register_address = (
@@ -248,7 +249,7 @@ module cpu (
 
 
     small_tensor_core main_tensor_core (
-        .tensor_core_clock(tensor_core_clock),
+        .tensor_core_clock(tensor_core_clock), reset_in((alu_opcode == `RESET_OPCODE)),
         
         .should_start_tensor_core((alu_opcode == `TENSOR_CORE_OPERATE_OPCODE)),
         .operation_select(current_instruction[5:4]),
