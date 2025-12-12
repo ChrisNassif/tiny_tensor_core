@@ -14,8 +14,8 @@ module small_tensor_core (
     output logic signed [`BUS_WIDTH:0] tensor_core_output [3][3]
 );
 
-    logic [4:0] counter = 5'd9;
-    logic [1:0] operation = 2'b0;
+    logic [4:0] counter;
+    logic [1:0] operation;
     logic signed [`BUS_WIDTH*2 + 1:0] products [3] [`BATCH_SIZE];
 
 
