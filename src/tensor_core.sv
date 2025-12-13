@@ -68,22 +68,22 @@ module small_tensor_core (
     end
 
     
-    // always @(negedge tensor_core_clock) begin
+    always @(negedge tensor_core_clock) begin
 
-    //     if (tensor_core_register_file_write_enable == 1 || reset_in == 1) begin
-    //         counter <= 5'd9;
-    //     end
+        if (tensor_core_register_file_write_enable == 1 || reset_in == 1) begin
+            counter <= 5'd9;
+        end
 
-    //     else if (counter < 5'd9) begin
-    //         counter <= counter + `BATCH_SIZE;
-    //     end
+        else if (counter < 5'd9) begin
+            counter <= counter + `BATCH_SIZE;
+        end
 
-    //     if (should_start_tensor_core == 1 && counter >= 5'd9) begin
-    //         counter <= 0;
-    //         operation <= operation_select;
-    //     end
+        if (should_start_tensor_core == 1 && counter >= 5'd9) begin
+            counter <= 0;
+            operation <= operation_select;
+        end
         
-    // end
+    end
 
 
 

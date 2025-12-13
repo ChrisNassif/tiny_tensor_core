@@ -2,7 +2,7 @@ import numpy as np
 import sys
     
     
-NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 5
+NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 3
     
 operation_name_to_opcode = {
     "nop": "0000",

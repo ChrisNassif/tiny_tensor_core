@@ -132,7 +132,7 @@ module cpu_test_bench();
         $display("    CPU TEST WITH TENSOR REGISTER DISPLAY      ");
         $display("================================================");
         
-        #11;
+        #9;
         
         // Run comprehensive tests
         // run_alu_tests();
