@@ -14,8 +14,8 @@ module small_tensor_core (
     output logic signed [`BUS_WIDTH:0] tensor_core_output [3][3]
 );
 
-    logic [4:0] counter = 5'd9;
-    logic [1:0] operation = 2'b0;
+    logic [4:0] counter;
+    logic [1:0] operation;
     logic signed [`BUS_WIDTH*2 + 1:0] products [3] [`BATCH_SIZE];
 
 
@@ -61,19 +61,19 @@ module small_tensor_core (
 
 
     // Two copies of the state machine that controls the state of the tensor core
-    always @(posedge tensor_core_clock) begin
+    always_ff @(posedge tensor_core_clock) begin
 
         if (tensor_core_register_file_write_enable == 1 || reset_in == 1) begin
-            counter = 5'd9;
+            counter <= 5'd9;
         end
 
         else if (counter < 5'd9) begin
-            counter = counter + `BATCH_SIZE;
+            counter <= counter + `BATCH_SIZE;
         end
 
         if (should_start_tensor_core == 1 && counter >= 5'd9) begin
-            counter = 0;
-            operation = operation_select;
+            counter <= 0;
+            operation <= operation_select;
         end
     end
 
@@ -81,16 +81,16 @@ module small_tensor_core (
     always @(negedge tensor_core_clock) begin
 
         if (tensor_core_register_file_write_enable == 1 || reset_in == 1) begin
-            counter = 5'd9;
+            counter <= 5'd9;
         end
 
         else if (counter < 5'd9) begin
-            counter = counter + `BATCH_SIZE;
+            counter <= counter + `BATCH_SIZE;
         end
 
         if (should_start_tensor_core == 1 && counter >= 5'd9) begin
-            counter = 0;
-            operation = operation_select;
+            counter <= 0;
+            operation <= operation_select;
         end
         
     end

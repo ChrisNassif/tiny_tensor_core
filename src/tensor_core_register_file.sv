@@ -1,28 +1,42 @@
 `define BUS_WIDTH 7
 
-// `define MATRIX_SIZE 4
-// `define NUMBER_OF_REGISTERS_PER_MATRIX 3 * 3
-// `define NUMBER_OF_MATRICES 2
-// `define NUMBER_OF_REGISTERS 2 * 9
+
 
 // A register file meant to supply values to a tensor core.
 // This register file exposes all of the wires to each register, so a tensor core can take each of the values inside the registers in a single clock cycle 
 module tensor_core_register_file (
     input logic clock_in,
     input logic reset_in,
+
+    // non bulk read/ write
     input logic non_bulk_write_enable_in,
     input logic [4:0] non_bulk_write_register_address_in,
     input logic signed [`BUS_WIDTH:0] non_bulk_write_data_in,
 
+    input logic [4:0] non_bulk_read_register_address_in,
+    output logic signed [`BUS_WIDTH:0] non_bulk_read_data_out,
+
+    // writing elements 4 at a time
+    input logic quad_write_enable_in,
+    input logic [2:0] quad_write_register_address_in, // supports values 0 to 4
+    input logic signed [`BUS_WIDTH:0] quad_write_data_in [4],
+
+    // dual read
+    input logic [3:0] dual_read_register_address_in,  // supports values 0 to 8
+    output logic signed [`BUS_WIDTH:0] dual_read_data_out [2],
+
+    // bulk read/ write
     input logic bulk_write_enable_in,
     input logic signed [`BUS_WIDTH:0] bulk_write_data_in [2] [3] [3],
 
-    input logic [4:0] non_bulk_read_register_address_in,
-    output logic signed [`BUS_WIDTH:0] non_bulk_read_data_out,
     output logic signed [`BUS_WIDTH:0] bulk_read_data_out [2] [3] [3]
 );
 
-    reg [7:0] registers [2] [4] [4];
+    // temporary wires to make things more readable
+    // wire [4:0] current_dual_read_register_address;
+    // wire [4:0] current_quad_write_register_address;
+    
+    reg signed [7:0] registers [2] [3] [3];
 
 
     assign non_bulk_read_data_out = registers[non_bulk_read_register_address_in/9][(non_bulk_read_register_address_in%9)/3][non_bulk_read_register_address_in%3];
@@ -36,6 +50,11 @@ module tensor_core_register_file (
                 end
             end
         end
+
+        for (int n = 0; n < 2; n++) begin
+            dual_read_data_out[n] = registers[((dual_read_register_address_in<<1)+n)/9][(((dual_read_register_address_in<<1)+n)%9)/3][((dual_read_register_address_in<<1)+n)%3];
+        end
+
     end
 
     always_ff @(posedge clock_in) begin
@@ -50,6 +69,11 @@ module tensor_core_register_file (
             end
         end
 
+        else if (quad_write_enable_in && reset_in == 0) begin
+            for (int i = 0; i < 4; i++) begin
+                registers[((quad_write_register_address_in<<2)+i)/9][(((quad_write_register_address_in<<2)+i)%9)/3][((quad_write_register_address_in<<2)+i)%3] <= quad_write_data_in[i];
+            end
+        end
 
         else if (non_bulk_write_enable_in && reset_in == 0) begin
             registers[non_bulk_write_register_address_in/9][(non_bulk_write_register_address_in%9)/3][non_bulk_write_register_address_in%3] <= non_bulk_write_data_in;

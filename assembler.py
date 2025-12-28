@@ -2,8 +2,8 @@ import numpy as np
 import sys
     
     
-NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 9
-NUMBER_OF_NOPS_AFTER_BURST_OPERATION = 9
+NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 18
+NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 16
 
 operation_name_to_opcode = {
     "generic": "00",
@@ -13,9 +13,9 @@ operation_name_to_opcode = {
 }
 
 generic_opselects = {
-    "read": "00",
+    "nop": "00",
     "move": "01",
-    "nop": "10",
+    "read": "10",
     "reset": "11"
 }
 
@@ -89,6 +89,8 @@ def main():
 
         should_have_matrix_operation_nops_after = False
         should_have_burst_operation_nops_after = False
+        burst_write_arguments = []
+        
         
         
         current_machine_code_line = ""
@@ -165,20 +167,22 @@ def main():
             
             read_or_write = assembly_code_tokens[1]
             matrix_name = assembly_code_tokens[2]
-            
-            if read_or_write == "write":
-                write_byte = number_into_signed_kbit_binary(assembly_code_tokens[2], k=8)
-                current_machine_code_line += write_byte
-            else:
-                current_machine_code_line += "0"*8
-                
-            current_machine_code_line += "0"*4
+
+            current_machine_code_line += "0"*12
             
             current_machine_code_line += burst_matrix_selects[matrix_name]
             current_machine_code_line += burst_read_write_selects[read_or_write]
-
-            should_have_burst_operation_nops_after = True
-        
+            current_machine_code_line += operation_name_to_opcode["burst"]
+            
+            if read_or_write == "write":
+                burst_write_arguments = assembly_code_tokens[3:]
+                
+            elif read_or_write == "read":
+                should_have_burst_operation_nops_after = True
+                
+            else:
+                raise Exception(f"Only accepts read or write as acceptable arguments on line {line_index}")
+            
         else:
             raise Exception(f"operation name {operation_name} on line {line_index} is not supported")
                 
@@ -188,33 +192,36 @@ def main():
         
         
         # Format the machine code line       
-        if line_index < len(assembly_code_lines):
-            current_machine_code_line = format(int(current_machine_code_line, 2), "04X") +'\n'
-        else:
-            current_machine_code_line = format(int(current_machine_code_line, 2), "04X")
+        machine_code.append(format(int(current_machine_code_line, 2), "04X") +'\n')
         
-        
-        machine_code.append(current_machine_code_line)
+        if operation_name != "burst":
+            machine_code.append(format(int(current_machine_code_line, 2), "04X") +'\n')
         
         
         if should_have_matrix_operation_nops_after:
-            if line_index < len(assembly_code_lines):
-                for i in range(NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION):
-                    machine_code.append(format(int("0"*16, 2), "04X") + '\n')
-            else:
-                for i in range(NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION):
-                    machine_code.append('\n' + format(int("0"*16, 2), "04X"))
-                    
+            for i in range(NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION):
+                machine_code.append(format(int("0"*16, 2), "04X") + '\n')
                     
         if should_have_burst_operation_nops_after:
-            if line_index < len(assembly_code_lines):
-                for i in range(NUMBER_OF_NOPS_AFTER_BURST_OPERATION):
-                    machine_code.append(format(int("0"*16, 2), "04X") + '\n')
-            else:
-                for i in range(NUMBER_OF_NOPS_AFTER_BURST_OPERATION):
-                    machine_code.append('\n' + format(int("0"*16, 2), "04X"))
+            for i in range(NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION):
+                machine_code.append(format(int("0"*16, 2), "04X") + '\n')
     
-
+    
+        if burst_write_arguments != []:
+            if len(burst_write_arguments) != 18:
+                raise Exception(f"Error in line {line_index} burst write does not have the correct number of elements")
+             
+            grouped_burst_write = list(zip(burst_write_arguments[::2], burst_write_arguments[1::2]))
+            
+            for argument1, argument2 in grouped_burst_write:
+                current_machine_code_line = ""
+                current_machine_code_line += number_into_signed_kbit_binary(argument1, k=8)
+                current_machine_code_line += number_into_signed_kbit_binary(argument2, k=8)
+                
+                machine_code.append(format(int(current_machine_code_line, 2), "04X") + '\n')
+            
+            machine_code.append(format(int("0"*16, 2), "04X") + '\n')
+            machine_code.append(format(int("0"*16, 2), "04X") + '\n')
     
     with open("machine_code", 'w+') as f:
         f.writelines(machine_code)

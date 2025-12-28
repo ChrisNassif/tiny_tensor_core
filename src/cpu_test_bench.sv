@@ -3,28 +3,31 @@
 
 
 
-`define ADD_OPCODE 4'b0000
-`define SUB_OPCODE 4'b0001
-`define MUL_OPCODE 4'b0010
-`define EQL_OPCODE 4'b0011
-`define GRT_OPCODE 4'b0100
+// `define ADD_OPCODE 4'b0000
+// `define SUB_OPCODE 4'b0001
+// `define MUL_OPCODE 4'b0010
+// `define EQL_OPCODE 4'b0011
+// `define GRT_OPCODE 4'b0100
 
-`define TENSOR_CORE_OPERATE_OPCODE 4'b0101
-`define TENSOR_CORE_LOAD_OPCODE 4'b0110
-`define CPU_TO_TENSOR_CORE_OPCODE 4'b0111
-`define TENSOR_CORE_TO_CPU_OPCODE 4'b1000
-`define NOP_OPCODE 4'b1001
+// `define TENSOR_CORE_OPERATE_OPCODE 4'b0101
+// `define TENSOR_CORE_LOAD_OPCODE 4'b0110
+// `define CPU_TO_TENSOR_CORE_OPCODE 4'b0111
+// `define TENSOR_CORE_TO_CPU_OPCODE 4'b1000
+// `define NOP_OPCODE 4'b1001
 
-`define ADD_IMM_OPCODE 4'b1010
+// `define ADD_IMM_OPCODE 4'b1010
 
-`define MOVE_CPU_OPCODE 8'b1011
-`define MOVE_TENSOR_CORE_OPCODE 8'b1100
-`define RESET_OPCODE 4'b1101
+// `define MOVE_CPU_OPCODE 8'b1011
+// `define MOVE_TENSOR_CORE_OPCODE 8'b1100
+// `define RESET_OPCODE 4'b1101
 
-`define READ_CPU_OPCODE 4'b1110
-`define READ_TENSOR_CORE_OPCODE 4'b1111
+// `define READ_CPU_OPCODE 4'b1110
+// `define READ_TENSOR_CORE_OPCODE 4'b1111
+
+
 
 `define BUS_WIDTH 7
+
 
 module cpu_test_bench();
     // Core signals
@@ -53,18 +56,18 @@ module cpu_test_bench();
     
     // Clock generation
     always begin
-        #5 shifted_clock = !shifted_clock;
-        #5 clock = !clock;        
+        #10 shifted_clock = !shifted_clock;
+        #10 clock = !clock;        
     end
     
     always begin
-        #2.5 shifted_clock2 = !shifted_clock2;
-        #7.5;
+        #5 shifted_clock2 = !shifted_clock2;
+        #15;
     end
     
     always begin
-        #7.5 shifted_clock3 = !shifted_clock3;
-        #2.5;
+        #15 shifted_clock3 = !shifted_clock3;
+        #5;
     end
     
     // ============================================
