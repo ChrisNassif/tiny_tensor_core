@@ -2,7 +2,7 @@ import numpy as np
 import sys
     
     
-NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 18
+NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 7
 NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 16
 
 operation_name_to_opcode = {
@@ -166,16 +166,16 @@ def main():
         elif (operation_name in ["burst",]):
             
             read_or_write = assembly_code_tokens[1]
-            matrix_name = assembly_code_tokens[2]
+            # matrix_name = assembly_code_tokens[2]
 
-            current_machine_code_line += "0"*12
+            current_machine_code_line += "0"*13
             
-            current_machine_code_line += burst_matrix_selects[matrix_name]
+            # current_machine_code_line += burst_matrix_selects[matrix_name]
             current_machine_code_line += burst_read_write_selects[read_or_write]
             current_machine_code_line += operation_name_to_opcode["burst"]
             
             if read_or_write == "write":
-                burst_write_arguments = assembly_code_tokens[3:]
+                burst_write_arguments = assembly_code_tokens[2:]
                 
             elif read_or_write == "read":
                 should_have_burst_operation_nops_after = True
