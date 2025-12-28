@@ -8,14 +8,14 @@ module small_tensor_core (
     input logic signed [`BUS_WIDTH:0] tensor_core_input1 [3][3], 
     input logic signed [`BUS_WIDTH:0] tensor_core_input2 [3][3],
     input logic should_start_tensor_core,
-    input logic [1:0] operation_select,
+    input logic [2:0] operation_select,
     input logic reset_in,
 
     output logic signed [`BUS_WIDTH:0] tensor_core_output [3][3]
 );
 
-    logic [4:0] counter;
-    logic [1:0] operation;
+    logic [4:0] counter = 5'd9;
+    logic [1:0] operation = 2'b0;
     logic signed [`BUS_WIDTH*2 + 1:0] products [3] [`BATCH_SIZE];
 
 
@@ -29,22 +29,32 @@ module small_tensor_core (
             end
             
             // matrix multiply
-            if (operation == 2'b00) begin 
+            if (operation == 3'b000) begin 
                 // tensor_core_output[counter/4][counter%4] = tensor_core_input1[counter/4][counter%4] + products[0] + products[1] + products[2] + products[3];
                 tensor_core_output[(counter+i)/3][(counter+i)%3] = products[0][i] + products[1][i] + products[2][i];
             end
 
 
             // matrix addition
-            else if (operation == 2'b01) begin
+            else if (operation == 3'b001) begin
                 tensor_core_output[(counter+i)/3][(counter+i)%3] = tensor_core_input1[(counter+i)/3][(counter+i)%3] + tensor_core_input2[(counter+i)/3][(counter+i)%3];
             end
 
 
             // relu
-            else begin
+            else if (operation == 3'b010) begin
                 tensor_core_output[(counter+i)/3][(counter+i)%3] = (tensor_core_input1[(counter+i)/3][(counter+i)%3][`BUS_WIDTH] == 1'b0) ? tensor_core_input1[(counter+i)/3][(counter+i)%3]: 0;
             end
+
+            // addition summation
+            // else if (operation == 3'b011) begin
+            // end
+
+
+            // dot product 
+            // else if (operation == 3'b100) begin           
+            // end
+
         end
     end
 
@@ -54,16 +64,16 @@ module small_tensor_core (
     always @(posedge tensor_core_clock) begin
 
         if (tensor_core_register_file_write_enable == 1 || reset_in == 1) begin
-            counter <= 5'd9;
+            counter = 5'd9;
         end
 
         else if (counter < 5'd9) begin
-            counter <= counter + `BATCH_SIZE;
+            counter = counter + `BATCH_SIZE;
         end
 
-        else if (should_start_tensor_core == 1 && counter >= 5'd9) begin
-            counter <= 0;
-            operation <= operation_select;
+        if (should_start_tensor_core == 1 && counter >= 5'd9) begin
+            counter = 0;
+            operation = operation_select;
         end
     end
 
@@ -71,16 +81,16 @@ module small_tensor_core (
     always @(negedge tensor_core_clock) begin
 
         if (tensor_core_register_file_write_enable == 1 || reset_in == 1) begin
-            counter <= 5'd9;
+            counter = 5'd9;
         end
 
         else if (counter < 5'd9) begin
-            counter <= counter + `BATCH_SIZE;
+            counter = counter + `BATCH_SIZE;
         end
 
         if (should_start_tensor_core == 1 && counter >= 5'd9) begin
-            counter <= 0;
-            operation <= operation_select;
+            counter = 0;
+            operation = operation_select;
         end
         
     end
