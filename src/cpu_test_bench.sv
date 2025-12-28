@@ -3,31 +3,28 @@
 
 
 
-`define NOP_OPCODE 4'b0000
-`define RESET_OPCODE 4'b0001
+`define ADD_OPCODE 4'b0000
+`define SUB_OPCODE 4'b0001
+`define MUL_OPCODE 4'b0010
+`define EQL_OPCODE 4'b0011
+`define GRT_OPCODE 4'b0100
 
-`define ADD_OPCODE 4'b0010
-`define SUB_OPCODE 4'b0011
-`define EQL_OPCODE 4'b0100
-`define GRT_OPCODE 4'b0101
+`define TENSOR_CORE_OPERATE_OPCODE 4'b0101
+`define TENSOR_CORE_LOAD_OPCODE 4'b0110
+`define CPU_TO_TENSOR_CORE_OPCODE 4'b0111
+`define TENSOR_CORE_TO_CPU_OPCODE 4'b1000
+`define NOP_OPCODE 4'b1001
 
-`define CPU_LOAD_OPCODE 4'b0110
+`define ADD_IMM_OPCODE 4'b1010
 
-`define CPU_MOV_OPCODE 4'b0111
-`define CPU_READ_OPCODE 4'b1000
+`define MOVE_CPU_OPCODE 8'b1011
+`define MOVE_TENSOR_CORE_OPCODE 8'b1100
+`define RESET_OPCODE 4'b1101
 
-`define TENSOR_CORE_OPERATE_OPCODE 4'b1001
-`define TENSOR_CORE_LOAD_MATRIX1_OPCODE 4'b1010
-`define TENSOR_CORE_LOAD_MATRIX2_OPCODE 4'b1011
-`define CPU_TO_TENSOR_CORE_OPCODE 4'b1100
-`define TENSOR_CORE_TO_CPU_OPCODE 4'b1101
-
-`define TENSOR_CORE_MOV_OPCODE 4'b1110
-`define TENSOR_CORE_READ_OPCODE 4'b1111
-
+`define READ_CPU_OPCODE 4'b1110
+`define READ_TENSOR_CORE_OPCODE 4'b1111
 
 `define BUS_WIDTH 7
-
 
 module cpu_test_bench();
     // Core signals
@@ -96,14 +93,14 @@ module cpu_test_bench();
     // ============================================
     // CPU REGISTER WIRES FOR WAVEFORM DISPLAY
     // ============================================
-    wire signed [`BUS_WIDTH:0] R0  = main_cpu.main_cpu_register_file.registers[0];
-    wire signed [`BUS_WIDTH:0] R1  = main_cpu.main_cpu_register_file.registers[1];
-    wire signed [`BUS_WIDTH:0] R2  = main_cpu.main_cpu_register_file.registers[2];
-    wire signed [`BUS_WIDTH:0] R3  = main_cpu.main_cpu_register_file.registers[3];
-    wire signed [`BUS_WIDTH:0] R4  = main_cpu.main_cpu_register_file.registers[4];
-    wire signed [`BUS_WIDTH:0] R5  = main_cpu.main_cpu_register_file.registers[5];
-    wire signed [`BUS_WIDTH:0] R6  = main_cpu.main_cpu_register_file.registers[6];
-    wire signed [`BUS_WIDTH:0] R7  = main_cpu.main_cpu_register_file.registers[7];
+    // wire signed [`BUS_WIDTH:0] R0  = main_cpu.main_cpu_register_file.registers[0];
+    // wire signed [`BUS_WIDTH:0] R1  = main_cpu.main_cpu_register_file.registers[1];
+    // wire signed [`BUS_WIDTH:0] R2  = main_cpu.main_cpu_register_file.registers[2];
+    // wire signed [`BUS_WIDTH:0] R3  = main_cpu.main_cpu_register_file.registers[3];
+    // wire signed [`BUS_WIDTH:0] R4  = main_cpu.main_cpu_register_file.registers[4];
+    // wire signed [`BUS_WIDTH:0] R5  = main_cpu.main_cpu_register_file.registers[5];
+    // wire signed [`BUS_WIDTH:0] R6  = main_cpu.main_cpu_register_file.registers[6];
+    // wire signed [`BUS_WIDTH:0] R7  = main_cpu.main_cpu_register_file.registers[7];
 
 
     // Status flags
@@ -119,11 +116,11 @@ module cpu_test_bench();
         $dumpvars(0, T16, T17);
         
         // Dump CPU registers
-        $dumpvars(0, R0, R1, R2, R3, R4, R5, R6, R7);
+        // $dumpvars(0, R0, R1, R2, R3, R4, R5, R6, R7);
         
         // Dump other key signals
-        $dumpvars(1, main_cpu.alu_opcode);
-        $dumpvars(1, main_cpu.cpu_register_file_write_enable);
+        // $dumpvars(1, main_cpu.alu_opcode);
+        // $dumpvars(1, main_cpu.cpu_register_file_write_enable);
         $dumpvars(1, main_cpu.tensor_core_register_file_non_bulk_write_enable);
         
         clock = 0;
@@ -135,7 +132,7 @@ module cpu_test_bench();
         $display("    CPU TEST WITH TENSOR REGISTER DISPLAY      ");
         $display("================================================");
         
-        #9;
+        #11;
         
         // Run comprehensive tests
         // run_alu_tests();
