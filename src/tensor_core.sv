@@ -1,4 +1,14 @@
 `define BUS_WIDTH 7
+
+`define BUS_MAX_SIGNED_INTEGER {1'b0, {(`BUS_WIDTH){1'b1}}}
+`define BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY {{(`BUS_WIDTH+3){1'b0}}, `BUS_MAX_SIGNED_INTEGER}
+`define BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_ADD {{1'b0}, `BUS_MAX_SIGNED_INTEGER}
+
+`define BUS_MIN_SIGNED_INTEGER {1'b1, {(`BUS_WIDTH){1'b0}}}
+`define BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY {{(`BUS_WIDTH+3){1'b1}}, `BUS_MIN_SIGNED_INTEGER}
+`define BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_ADD {{1'b1}, `BUS_MIN_SIGNED_INTEGER}
+
+
 `define BATCH_SIZE 1
 
 
@@ -15,29 +25,65 @@ module small_tensor_core (
 );
 
     logic [4:0] counter;
-    logic [1:0] operation;
-    logic signed [`BUS_WIDTH*2 + 1:0] products [3] [`BATCH_SIZE];
+    logic [2:0] operation;
 
+    // these should get synthesized as a wire but is a logic rn for simplicity in generating a ton of them
+    logic signed [`BUS_WIDTH*2 + 1:0] products_matrix_multiply [3] [`BATCH_SIZE];
+    logic signed [`BUS_WIDTH*2 + 3:0] intermediate_sum_matrix_multiply [`BATCH_SIZE];
 
+    logic signed [`BUS_WIDTH + 1:0] intermediate_sum_matrix_add [`BATCH_SIZE];
 
     // The combinatorial logic to layout the multipliers and adders
     always_comb begin
         for (int i = 0; i < `BATCH_SIZE; i++) begin
-
-            for (int k = 0; k < 3; k++) begin
-                products[k][i] = tensor_core_input1[(counter+i)/3][k] * tensor_core_input2[k][(counter+i)%3];
-            end
             
+            // instantiate the multipliers and adders for each of the operations
+            for (int k = 0; k < 3; k++) begin
+                products_matrix_multiply[k][i] = tensor_core_input1[(counter+i)/3][k] * tensor_core_input2[k][(counter+i)%3];
+            end
+
+            intermediate_sum_matrix_multiply[i] = products_matrix_multiply[0][i] + products_matrix_multiply[1][i] + products_matrix_multiply[2][i];
+
+            intermediate_sum_matrix_add[i] = tensor_core_input1[(counter+i)/3][(counter+i)%3] + tensor_core_input2[(counter+i)/3][(counter+i)%3];
+
+
+
             // matrix multiply
             if (operation == 3'b000) begin 
-                // tensor_core_output[counter/4][counter%4] = tensor_core_input1[counter/4][counter%4] + products[0] + products[1] + products[2] + products[3];
-                tensor_core_output[(counter+i)/3][(counter+i)%3] = products[0][i] + products[1][i] + products[2][i];
+                // tensor_core_output[counter/4][counter%4] = tensor_core_input1[counter/4][counter%4] + products_matrix_multiply[0] + products_matrix_multiply[1] + products_matrix_multiply[2] + products_matrix_multiply[3];
+
+
+                // clamp the value to the max signed integer or min signed integer in the case of overflow
+                // if (intermediate_sum_matrix_multiply > `BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY) begin
+                //     tensor_core_output[(counter+i)/3][(counter+i)%3] = `BUS_MAX_SIGNED_INTEGER;
+                // end
+
+                // else if (intermediate_sum_matrix_multiply < `BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY) begin
+                //     tensor_core_output[(counter+i)/3][(counter+i)%3] = `BUS_MIN_SIGNED_INTEGER;
+                // end
+
+                // else begin
+                tensor_core_output[(counter+i)/3][(counter+i)%3] = intermediate_sum_matrix_multiply[i][`BUS_WIDTH:0];
+                // end
+
             end
 
 
             // matrix addition
             else if (operation == 3'b001) begin
-                tensor_core_output[(counter+i)/3][(counter+i)%3] = tensor_core_input1[(counter+i)/3][(counter+i)%3] + tensor_core_input2[(counter+i)/3][(counter+i)%3];
+
+                // // clamp the value to the max signed integer or min signed integer in the case of overflow
+                // if (intermediate_sum_matrix_multiply > `BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_ADD) begin
+                //     tensor_core_output[(counter+i)/3][(counter+i)%3] = `BUS_MAX_SIGNED_INTEGER;
+                // end
+
+                // else if (intermediate_sum_matrix_multiply < `BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_ADD) begin
+                //     tensor_core_output[(counter+i)/3][(counter+i)%3] = `BUS_MIN_SIGNED_INTEGER;
+                // end
+
+                // else begin
+                tensor_core_output[(counter+i)/3][(counter+i)%3] = intermediate_sum_matrix_add[i][`BUS_WIDTH:0];
+                // end
             end
 
 
@@ -45,6 +91,10 @@ module small_tensor_core (
             else if (operation == 3'b010) begin
                 tensor_core_output[(counter+i)/3][(counter+i)%3] = (tensor_core_input1[(counter+i)/3][(counter+i)%3][`BUS_WIDTH] == 1'b0) ? tensor_core_input1[(counter+i)/3][(counter+i)%3]: 0;
             end
+
+            // else begin
+            //     tensor_core_output[(counter+i)/3][(counter+i)%3] = 0;
+            // end
 
             // addition summation
             // else if (operation == 3'b011) begin
@@ -108,7 +158,7 @@ module small_tensor_core (
     generate
         for (k = 0; k < 3; k++) begin : expose_tensor_core
             for (l = 0; l < `BATCH_SIZE; l++) begin: expose_tensor_core2
-                wire signed [7:0] products_wire = products[k][l];
+                wire signed [7:0] products_matrix_multiply_wire = products_matrix_multiply[k][l];
             end
         end
     endgenerate

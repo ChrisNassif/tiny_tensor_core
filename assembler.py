@@ -2,8 +2,8 @@ import numpy as np
 import sys
     
     
-NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 9
-NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 16
+NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 10
+NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 19
 
 operation_name_to_opcode = {
     "generic": "00",

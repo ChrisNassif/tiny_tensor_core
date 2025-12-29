@@ -9,13 +9,14 @@
 `define GENERIC_READ_OPSELECT 2'b10
 `define GENERIC_RESET_OPSELECT 2'b11
 
+`define BURST_READ_SELECT 1'b0
+`define BURST_WRITE_SELECT 1'b1
 
+// these aren't used rn
 `define BURST_MATRIX1_SELECT 2'b00
 `define BURST_MATRIX2_SELECT 2'b01
 `define BURST_BOTH_MATRICES_SELECT 2'b10
 
-`define BURST_READ_SELECT 1'b0
-`define BURST_WRITE_SELECT 1'b1
 
 `define BUS_WIDTH 7
 
@@ -248,7 +249,7 @@ module cpu (
         .non_bulk_read_data_out(tensor_core_register_file_non_bulk_read_data),
 
         .quad_write_enable_in(is_burst_write_active),
-        .quad_write_register_address_in(burst_current_index),
+        .quad_write_register_address_in(burst_current_index[2:0]),
         .quad_write_data_in(burst_current_quad_write_data),
 
         .dual_read_register_address_in(burst_current_index),
