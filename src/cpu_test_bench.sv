@@ -107,7 +107,7 @@ module cpu_test_bench();
 
 
     // Status flags
-    wire tensor_done = main_cpu.is_tensor_core_done_with_calculation;
+    // wire tensor_done = main_cpu.is_tensor_core_done_with_calculation;
     
     initial begin
         $dumpfile("build/cpu_test_bench.vcd");
