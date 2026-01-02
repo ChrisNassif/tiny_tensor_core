@@ -83,7 +83,6 @@ module cpu (
 
 
     assign tensor_core_clock = (shifted_clock_in ^ clock_in);
-    // assign tensor_core_clock = clock_in;
 
 
     assign opcode = current_instruction[1:0];
@@ -210,9 +209,11 @@ module cpu (
         if ((opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT)) begin
             tensor_core_timer <= 0;
             is_tensor_core_done_with_calculation <= 1'b0;
+            // tensor_core_operation <= 0;
         end
 
-        if (tensor_core_timer == 3'd7) begin
+
+        else if (tensor_core_timer == 3'd7) begin
             tensor_core_timer <= 0;
             is_tensor_core_done_with_calculation <= 1'b0;
         end
@@ -231,6 +232,7 @@ module cpu (
 
         else if (tensor_core_timer == 0 && opcode == `TENSOR_CORE_OPERATE_OPCODE && is_burst_write_active == 1'b0) begin
             tensor_core_timer <= tensor_core_timer + 1;
+            // tensor_core_operation <= current_instruction[4:2]
         end
     end
  
@@ -263,9 +265,9 @@ module cpu (
 
 
     small_tensor_core main_tensor_core (
-        .tensor_core_clock(tensor_core_clock), 
+        .tensor_core_clock(tensor_core_clock),
         .reset_in((opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT)),
-        
+
         .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && is_burst_write_active == 1'b0),
         .matrix_operation_select(current_instruction[4:2]),
         .tensor_core_register_file_write_enable(tensor_core_register_file_bulk_write_enable | tensor_core_register_file_non_bulk_write_enable | (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT)),

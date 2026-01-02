@@ -18,6 +18,9 @@
 
 
 
+
+// TODO: REFACTOR THIS TO USE WRITE DUAL OR WRITE BULK INSTEAD OF STORING 72 REGISTERS
+
 module small_tensor_core (
     input logic tensor_core_clock,
     input logic tensor_core_register_file_write_enable,
@@ -62,20 +65,6 @@ module small_tensor_core (
         for (int i = 0; i < `BATCH_SIZE; i++) begin
             intermediate_sum_matrix_add[i] = tensor_core_input1[(counter+i)/3][(counter+i)%3] + tensor_core_input2[(counter+i)/3][(counter+i)%3];
         end
-
-
-
-        // UNIMPLEMENTED INSTRUCTIONS
-
-        // addition summation
-        // finds the sum of all of the elements in the matrix
-        // else if (matrix_operation == 3'b011) begin
-        // end
-
-
-        // dot product 
-        // else if (matrix_operation == 3'b100) begin           
-        // end
 
     end
 
@@ -157,13 +146,6 @@ module small_tensor_core (
             end
         end
     end
-
-    
-    // always_ff @(negedge tensor_core_clock) begin
-    //     else if (counter < 5'd9) begin
-    //         counter <= counter + `BATCH_SIZE;
-    //     end
-    // end
 
 
 
