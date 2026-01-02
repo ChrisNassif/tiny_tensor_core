@@ -212,19 +212,19 @@ module cpu (
             is_tensor_core_done_with_calculation <= 1'b0;
         end
 
-        if (tensor_core_timer == 3'd4) begin
+        if (tensor_core_timer == 3'd7) begin
             tensor_core_timer <= 0;
             is_tensor_core_done_with_calculation <= 1'b0;
         end
 
 
-        else if (tensor_core_timer == 3'd3) begin
+        else if (tensor_core_timer == 3'd6) begin
             tensor_core_timer <= tensor_core_timer + 1;
             is_tensor_core_done_with_calculation <= 1'b1;
         end
 
 
-        else if (tensor_core_timer == 3'd1 || tensor_core_timer == 3'd2) begin
+        else if (tensor_core_timer >= 3'd1 && tensor_core_timer < 3'd6) begin
             tensor_core_timer <= tensor_core_timer + 1;
         end
 
@@ -263,10 +263,11 @@ module cpu (
 
 
     small_tensor_core main_tensor_core (
-        .tensor_core_clock(tensor_core_clock), .reset_in((opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT)),
+        .tensor_core_clock(tensor_core_clock), 
+        .reset_in((opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT)),
         
         .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && is_burst_write_active == 1'b0),
-        .operation_select(current_instruction[4:2]),
+        .matrix_operation_select(current_instruction[4:2]),
         .tensor_core_register_file_write_enable(tensor_core_register_file_bulk_write_enable | tensor_core_register_file_non_bulk_write_enable | (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT)),
         
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
