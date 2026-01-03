@@ -267,7 +267,7 @@ module cpu (
 
 
     small_tensor_core main_tensor_core (
-        .clock_in(clock_in),
+        .clock_in(tensor_core_clock),
         .reset_in(opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT),
 
         .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && is_burst_write_active == 1'b0),
@@ -292,26 +292,26 @@ module cpu (
 
 
 
-    // Expose the internals of this module to gtkwave
-    genvar i, j, n, a, b;
-    generate
-        for (n = 0; n < 2; n++) begin: expose_matrix_index
-            for (i = 0; i < 3; i++) begin : expose_tensor_core
-                for (j = 0; j < 3; j++) begin: expose_tensor_core2
-                    wire [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data_ = tensor_core_register_file_bulk_read_data[n][i][j];
-                    // wire [`BUS_WIDTH:0] tensor_core_output_ = tensor_core_output[i][j];
-                end
-            end
-        end
+    // // Expose the internals of this module to gtkwave
+    // genvar i, j, n, a, b;
+    // generate
+    //     for (n = 0; n < 2; n++) begin: expose_matrix_index
+    //         for (i = 0; i < 3; i++) begin : expose_tensor_core
+    //             for (j = 0; j < 3; j++) begin: expose_tensor_core2
+    //                 wire [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data_ = tensor_core_register_file_bulk_read_data[n][i][j];
+    //                 // wire [`BUS_WIDTH:0] tensor_core_output_ = tensor_core_output[i][j];
+    //             end
+    //         end
+    //     end
 
-        for (a = 0; a < 2; a++) begin: hi
-            wire signed [`BUS_WIDTH:0] burst_current_dual_read_data_ = burst_current_dual_read_data[a];
-        end
+    //     for (a = 0; a < 2; a++) begin: hi
+    //         wire signed [`BUS_WIDTH:0] burst_current_dual_read_data_ = burst_current_dual_read_data[a];
+    //     end
 
-        for (b = 0; b < 4; b++) begin: h2
-            wire signed [`BUS_WIDTH:0] burst_current_quad_write_data_ = burst_current_quad_write_data[b];
-        end
-    endgenerate
+    //     for (b = 0; b < 4; b++) begin: h2
+    //         wire signed [`BUS_WIDTH:0] burst_current_quad_write_data_ = burst_current_quad_write_data[b];
+    //     end
+    // endgenerate
 
 
 

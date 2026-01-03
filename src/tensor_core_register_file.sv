@@ -137,19 +137,19 @@ module tensor_core_register_file (
 
 
 
-    // make the registers visible to gtkwave
-    genvar i, j, k;
-    generate
-        for (i = 0; i < 2; i++) begin : expose_regs1
-            for (j = 0; j < 3; j++) begin : expose_regs2
-                for (k = 0; k < 3; k++) begin : expose_regs3
-                    wire [`BUS_WIDTH:0] reg_wire = registers[i][j][k];
-                    wire [`BUS_WIDTH:0] bulk_read_data_out_ = bulk_read_data_out[i][j][k];
-                    wire [`BUS_WIDTH:0] bulk_write_data_in_ = bulk_write_data_in[i][j][k];
-                end
-            end
-        end
-    endgenerate
+    // // make the registers visible to gtkwave
+    // genvar i, j, k;
+    // generate
+    //     for (i = 0; i < 2; i++) begin : expose_regs1
+    //         for (j = 0; j < 3; j++) begin : expose_regs2
+    //             for (k = 0; k < 3; k++) begin : expose_regs3
+    //                 wire [`BUS_WIDTH:0] reg_wire = registers[i][j][k];
+    //                 wire [`BUS_WIDTH:0] bulk_read_data_out_ = bulk_read_data_out[i][j][k];
+    //                 wire [`BUS_WIDTH:0] bulk_write_data_in_ = bulk_write_data_in[i][j][k];
+    //             end
+    //         end
+    //     end
+    // endgenerate
 
 
 endmodule
