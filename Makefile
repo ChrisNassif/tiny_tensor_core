@@ -10,7 +10,7 @@ transistor_count_alu:
 
 
 test_cpu:
-	iverilog -g2012 -o build/cpu_test_bench.out src/cpu_test_bench.sv src/cpu.sv src/alu.sv src/cpu_register_file.sv src/tensor_core.sv src/tensor_core_register_file.sv
+	iverilog -g2012 -o build/cpu_test_bench.out src/cpu_test_bench.sv src/cpu.sv src/tensor_core.sv src/tensor_core_register_file.sv
 	vvp build/cpu_test_bench.out
 	gtkwave build/cpu_test_bench.vcd
 

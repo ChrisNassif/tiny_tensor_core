@@ -31,7 +31,7 @@ module small_tensor_core (
     input logic signed [`BUS_WIDTH:0] tensor_core_input1 [3][3], 
     input logic signed [`BUS_WIDTH:0] tensor_core_input2 [3][3],
 
-    output logic signed [`BUS_WIDTH:0] tensor_core_dual_output [2] // only do a triple write to the register file
+    output logic signed [`BUS_WIDTH:0] tensor_core_output [3] [3] // only do a triple write to the register file
 );
 
 
@@ -75,8 +75,8 @@ module small_tensor_core (
 
             counter <= 5'd9;
 
-            for (int i = 0; i < 2; i++) begin
-                tensor_core_dual_output[i] <= 0;
+            for (int i = 0; i < 9; i++) begin
+                tensor_core_output[i/3][i%3] <= 0;
             end
         end
 
@@ -88,23 +88,25 @@ module small_tensor_core (
             counter <= 0;
             matrix_operation <= matrix_operation_select;
         end
+    end
 
 
+    always_ff @(posedge clock_in) begin
 
         // matrix multiply
         if (matrix_operation == 3'b000 && counter < 5'd9) begin 
             
             // // clamp the value to the max signed integer or min signed integer in the case of overflow
             // if (intermediate_sum_matrix_multiply > `BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY) begin
-            //     tensor_core_dual_output[tensor_core_clock_phase] <= `BUS_MAX_SIGNED_INTEGER;
+            //     tensor_core_output[tensor_core_clock_phase] <= `BUS_MAX_SIGNED_INTEGER;
             // end
 
             // else if (intermediate_sum_matrix_multiply < `BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY) begin
-            //     tensor_core_dual_output[tensor_core_clock_phase] <= `BUS_MIN_SIGNED_INTEGER;
+            //     tensor_core_output[tensor_core_clock_phase] <= `BUS_MIN_SIGNED_INTEGER;
             // end
 
             // else begin
-            tensor_core_dual_output[0] <= intermediate_sum_matrix_multiply[`BUS_WIDTH:0];
+            tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_multiply[`BUS_WIDTH:0];
             // end
         end
 
@@ -114,15 +116,15 @@ module small_tensor_core (
 
             // // clamp the value to the max signed integer or min signed integer in the case of overflow
             // if (intermediate_sum_matrix_add > `BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_ADD) begin
-            //     tensor_core_dual_output[tensor_core_clock_phase] <= `BUS_MAX_SIGNED_INTEGER;
+            //     tensor_core_output[tensor_core_clock_phase] <= `BUS_MAX_SIGNED_INTEGER;
             // end
 
             // else if (intermediate_sum_matrix_add < `BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_ADD) begin
-            //     tensor_core_dual_output[tensor_core_clock_phase] <= `BUS_MIN_SIGNED_INTEGER;
+            //     tensor_core_output[tensor_core_clock_phase] <= `BUS_MIN_SIGNED_INTEGER;
             // end
 
             // else begin
-            tensor_core_dual_output[0] <= intermediate_sum_matrix_add[`BUS_WIDTH:0];
+            tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_add[`BUS_WIDTH:0];
             // end
         end
 
@@ -131,7 +133,7 @@ module small_tensor_core (
         // relu operation
         // checks the sign bit and if its 1 then set the output to 0
         else if (matrix_operation == 3'b010 && counter < 5'd9) begin
-            tensor_core_dual_output[0] <= (tensor_core_input1[counter/3][counter%3][`BUS_WIDTH] == 1'b0) ? tensor_core_input1[counter/3][counter%3]: 0;
+            tensor_core_output[counter/3][counter%3] <= (tensor_core_input1[counter/3][counter%3][`BUS_WIDTH] == 1'b0) ? tensor_core_input1[counter/3][counter%3]: 0;
         end
 
     end
@@ -149,15 +151,15 @@ module small_tensor_core (
             
             // // clamp the value to the max signed integer or min signed integer in the case of overflow
             // if (intermediate_sum_matrix_multiply > `BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY) begin
-            //     tensor_core_dual_output[tensor_core_clock_phase] <= `BUS_MAX_SIGNED_INTEGER;
+            //     tensor_core_output[tensor_core_clock_phase] <= `BUS_MAX_SIGNED_INTEGER;
             // end
 
             // else if (intermediate_sum_matrix_multiply < `BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY) begin
-            //     tensor_core_dual_output[tensor_core_clock_phase] <= `BUS_MIN_SIGNED_INTEGER;
+            //     tensor_core_output[tensor_core_clock_phase] <= `BUS_MIN_SIGNED_INTEGER;
             // end
 
             // else begin
-            tensor_core_dual_output[1] <= intermediate_sum_matrix_multiply[`BUS_WIDTH:0];
+            tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_multiply[`BUS_WIDTH:0];
             // end
         end
 
@@ -167,15 +169,15 @@ module small_tensor_core (
 
             // // clamp the value to the max signed integer or min signed integer in the case of overflow
             // if (intermediate_sum_matrix_add > `BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_ADD) begin
-            //     tensor_core_dual_output[tensor_core_clock_phase] <= `BUS_MAX_SIGNED_INTEGER;
+            //     tensor_core_output[tensor_core_clock_phase] <= `BUS_MAX_SIGNED_INTEGER;
             // end
 
             // else if (intermediate_sum_matrix_add < `BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_ADD) begin
-            //     tensor_core_dual_output[tensor_core_clock_phase] <= `BUS_MIN_SIGNED_INTEGER;
+            //     tensor_core_output[tensor_core_clock_phase] <= `BUS_MIN_SIGNED_INTEGER;
             // end
 
             // else begin
-            tensor_core_dual_output[1] <= intermediate_sum_matrix_add[`BUS_WIDTH:0];
+            tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_add[`BUS_WIDTH:0];
             // end
         end
 
@@ -184,7 +186,7 @@ module small_tensor_core (
         // relu operation
         // checks the sign bit and if its 1 then set the output to 0
         else if (matrix_operation == 3'b010 && counter < 5'd9) begin
-            tensor_core_dual_output[1] <= (tensor_core_input1[counter/3][counter%3][`BUS_WIDTH] == 1'b0) ? tensor_core_input1[counter/3][counter%3]: 0;
+            tensor_core_output[counter/3][counter%3] <= (tensor_core_input1[counter/3][counter%3][`BUS_WIDTH] == 1'b0) ? tensor_core_input1[counter/3][counter%3]: 0;
         end
     end
 
@@ -217,8 +219,8 @@ module small_tensor_core (
             end
         end
 
-        for (a = 0; a < 2; a++) begin: expose_tensor_core5
-            wire [7:0] tensor_core_dual_output_wire = tensor_core_dual_output[a];
+        for (a = 0; a < 9; a++) begin: expose_tensor_core5
+            wire [7:0] tensor_core_output_wire = tensor_core_output[a/3][a%3];
         end
     endgenerate
 endmodule

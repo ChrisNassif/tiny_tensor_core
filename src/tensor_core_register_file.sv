@@ -25,10 +25,10 @@ module tensor_core_register_file (
     input logic [3:0] dual_read_register_address_in,  // supports values 0 to 8
     output logic signed [`BUS_WIDTH:0] dual_read_data_out [2],
 
-    // dual write to matrix 1
-    input logic dual_write_matrix1_enable_in,
-    input logic [2:0] dual_write_matrix1_register_address_in, // supports values 0 to 4 and only supports writing to matrix 1
-    input logic signed [`BUS_WIDTH:0] dual_write_matrix1_data_in [2],
+    // // dual write to matrix 1
+    // input logic dual_write_matrix1_enable_in,
+    // input logic [2:0] dual_write_matrix1_register_address_in, // supports values 0 to 4 and only supports writing to matrix 1
+    // input logic signed [`BUS_WIDTH:0] dual_write_matrix1_data_in [2],
 
     // // triple write
     // input logic triple_write_matrix1_enable_in,
@@ -94,20 +94,20 @@ module tensor_core_register_file (
 
 
         // dual write to matrix 1
-        else if (dual_write_matrix1_enable_in && reset_in == 0) begin
+        // else if (dual_write_matrix1_enable_in && reset_in == 0) begin
             
-            if (dual_write_matrix1_register_address_in != 3'd4) begin
+        //     if (dual_write_matrix1_register_address_in != 3'd4) begin
                 
-                for (int i = 0; i < 2; i++) begin
-                    registers[0][(((dual_write_matrix1_register_address_in<<1)+i)%9)/3][((dual_write_matrix1_register_address_in<<1)+i)%3] <= dual_write_matrix1_data_in[i];
-                end
-            end
+        //         for (int i = 0; i < 2; i++) begin
+        //             registers[0][(((dual_write_matrix1_register_address_in<<1)+i)%9)/3][((dual_write_matrix1_register_address_in<<1)+i)%3] <= dual_write_matrix1_data_in[i];
+        //         end
+        //     end
 
-            else begin
-                registers[0][2][2] <= dual_write_matrix1_data_in[0];
-            end
+        //     else begin
+        //         registers[0][2][2] <= dual_write_matrix1_data_in[0];
+        //     end
 
-        end
+        // end
 
 
         // else if (triple_write_enable_in && reset_in == 0) begin
