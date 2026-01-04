@@ -96,11 +96,20 @@ module cpu (
     assign burst_current_quad_write_data[2] = current_instruction[15:8];
     assign burst_current_quad_write_data[3] = current_instruction[7:0];
 
+
+
+
+
+    assign burst_current_dual_read_data[0] = tensor_core_output[(((burst_current_index<<1))%9)/3][((burst_current_index<<1))%3];
+    assign burst_current_dual_read_data[1] = tensor_core_output[(((burst_current_index<<1)+1)%9)/3][((burst_current_index<<1)+1)%3];
+
     assign cpu_output = (
         (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_READ_OPSELECT) ? tensor_core_register_file_non_bulk_read_data:
         (is_burst_read_active) ? burst_current_dual_read_data[~clock_in]:
         8'b0
     );
+
+
 
 
     assign tensor_core_register_file_non_bulk_read_register_address = (
@@ -156,28 +165,30 @@ module cpu (
     always_ff @(posedge clock_in) begin
 
         if (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT) begin
-            burst_current_index <= 9;
+            burst_current_index <= 5;
             is_burst_read_active <= 0;
             is_burst_write_active <= 0;
         end
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_SELECT && burst_current_index == 9) begin
+        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_SELECT && burst_current_index == 5) begin
             burst_current_index <= 0;
             is_burst_read_active <= 1;
         end
 
-        else if (is_burst_read_active && burst_current_index < 8) begin
+        else if (is_burst_read_active && burst_current_index < 4) begin
             burst_current_index <= burst_current_index + 1;
         end
 
-        else if (is_burst_read_active && burst_current_index == 8) begin
+        else if (is_burst_read_active && burst_current_index == 4) begin
             burst_current_index <= burst_current_index + 1;
             is_burst_read_active <= 0;
         end
 
 
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_WRITE_SELECT && burst_current_index == 9) begin
+
+
+        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_WRITE_SELECT && burst_current_index == 5) begin
             is_burst_write_active <= 1;
             burst_current_index <= 0;
         end
@@ -187,10 +198,11 @@ module cpu (
         end
 
         else if (is_burst_write_active && burst_current_index == 4) begin
-            burst_current_index <= 9;
+            burst_current_index <= burst_current_index + 1;
             is_burst_write_active <= 0;
         end
     end
+
 
 
     always_ff @(negedge clock_in) begin
@@ -256,8 +268,8 @@ module cpu (
         .quad_write_register_address_in(burst_current_index[2:0]),
         .quad_write_data_in(burst_current_quad_write_data),
 
-        .dual_read_register_address_in(burst_current_index),
-        .dual_read_data_out(burst_current_dual_read_data),
+        // .dual_read_register_address_in(burst_current_index),
+        // .dual_read_data_out(burst_current_dual_read_data),
 
         .bulk_write_enable_in((tensor_core_register_file_bulk_write_enable | is_tensor_core_done_with_calculation) && is_burst_write_active == 1'b0), 
         .bulk_write_data_in(tensor_core_register_file_bulk_write_data),
@@ -292,26 +304,26 @@ module cpu (
 
 
 
-    // // Expose the internals of this module to gtkwave
-    // genvar i, j, n, a, b;
-    // generate
-    //     for (n = 0; n < 2; n++) begin: expose_matrix_index
-    //         for (i = 0; i < 3; i++) begin : expose_tensor_core
-    //             for (j = 0; j < 3; j++) begin: expose_tensor_core2
-    //                 wire [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data_ = tensor_core_register_file_bulk_read_data[n][i][j];
-    //                 // wire [`BUS_WIDTH:0] tensor_core_output_ = tensor_core_output[i][j];
-    //             end
-    //         end
-    //     end
+    // Expose the internals of this module to gtkwave
+    genvar i, j, n, a, b;
+    generate
+        for (n = 0; n < 2; n++) begin: expose_matrix_index
+            for (i = 0; i < 3; i++) begin : expose_tensor_core
+                for (j = 0; j < 3; j++) begin: expose_tensor_core2
+                    wire [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data_ = tensor_core_register_file_bulk_read_data[n][i][j];
+                    // wire [`BUS_WIDTH:0] tensor_core_output_ = tensor_core_output[i][j];
+                end
+            end
+        end
 
-    //     for (a = 0; a < 2; a++) begin: hi
-    //         wire signed [`BUS_WIDTH:0] burst_current_dual_read_data_ = burst_current_dual_read_data[a];
-    //     end
+        for (a = 0; a < 2; a++) begin: hi
+            wire signed [`BUS_WIDTH:0] burst_current_dual_read_data_ = burst_current_dual_read_data[a];
+        end
 
-    //     for (b = 0; b < 4; b++) begin: h2
-    //         wire signed [`BUS_WIDTH:0] burst_current_quad_write_data_ = burst_current_quad_write_data[b];
-    //     end
-    // endgenerate
+        for (b = 0; b < 4; b++) begin: h2
+            wire signed [`BUS_WIDTH:0] burst_current_quad_write_data_ = burst_current_quad_write_data[b];
+        end
+    endgenerate
 
 
 

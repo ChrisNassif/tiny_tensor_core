@@ -21,9 +21,9 @@ module tensor_core_register_file (
     input logic [2:0] quad_write_register_address_in, // supports values 0 to 4
     input logic signed [`BUS_WIDTH:0] quad_write_data_in [4],
 
-    // dual read
-    input logic [3:0] dual_read_register_address_in,  // supports values 0 to 8
-    output logic signed [`BUS_WIDTH:0] dual_read_data_out [2],
+    // // dual read
+    // input logic [3:0] dual_read_register_address_in,  // supports values 0 to 8
+    // output logic signed [`BUS_WIDTH:0] dual_read_data_out [2],
 
     // // dual write to matrix 1
     // input logic dual_write_matrix1_enable_in,
@@ -62,10 +62,10 @@ module tensor_core_register_file (
         end
 
 
-        // assign dual read wires
-        for (int n = 0; n < 2; n++) begin
-            dual_read_data_out[n] = registers[((dual_read_register_address_in<<1)+n)/9][(((dual_read_register_address_in<<1)+n)%9)/3][((dual_read_register_address_in<<1)+n)%3];
-        end
+        // // assign dual read wires
+        // for (int n = 0; n < 2; n++) begin
+        //     dual_read_data_out[n] = registers[((dual_read_register_address_in<<1)+n)/9][(((dual_read_register_address_in<<1)+n)%9)/3][((dual_read_register_address_in<<1)+n)%3];
+        // end
 
     end
 
