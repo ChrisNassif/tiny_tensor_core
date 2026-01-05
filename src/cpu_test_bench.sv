@@ -33,7 +33,7 @@ module cpu_test_bench();
     // Core signals
     logic clock;
     logic shifted_clock, shifted_clock2, shifted_clock3;
-    logic [15:0] machine_code [0:1023];
+    logic [15:0] machine_code [0:20000];
     logic [15:0] current_instruction;
     logic signed [`BUS_WIDTH:0] cpu_output;
     

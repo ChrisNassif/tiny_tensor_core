@@ -6,6 +6,24 @@ matrix_multiply
 matrix_add
 relu
 burst read
-burst read
-burst write -1 0 2 3 4 5 -4 2 3 1 2 3 1 2 -2 0 -3 -1
-burst read
+burst read_and_write 1 2 3 1 2 -2 0 -3 -1 2 0 2 3 4 5 -4 2 3
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop

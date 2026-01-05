@@ -32,16 +32,10 @@ operate_opselects = {
 
 
 burst_read_write_selects = {
-    "read": "0",
-    "write": "1"
+    "read": "00",
+    "write": "01",
+    "read_and_write": "10"
 }
-
-
-burst_matrix_selects = {
-    "matrix1": "0",
-    "matrix2": "1"
-}
-
 
 
 
@@ -169,11 +163,9 @@ def main():
         elif (operation_name in ["burst",]):
             
             read_or_write = assembly_code_tokens[1]
-            # matrix_name = assembly_code_tokens[2]
 
-            current_machine_code_line += "0"*13
+            current_machine_code_line += "0"*12
             
-            # current_machine_code_line += burst_matrix_selects[matrix_name]
             current_machine_code_line += burst_read_write_selects[read_or_write]
             current_machine_code_line += operation_name_to_opcode["burst"]
             
@@ -182,9 +174,12 @@ def main():
                 
             elif read_or_write == "read":
                 should_have_burst_operation_nops_after = True
+            
+            elif read_or_write == "read_and_write":
+                burst_write_arguments = assembly_code_tokens[2:]
                 
             else:
-                raise Exception(f"Only accepts read or write as acceptable arguments on line {line_index}")
+                raise Exception(f"Only accepts read or write or read_and_write as acceptable arguments on line {line_index}")
             
         else:
             raise Exception(f"operation name {operation_name} on line {line_index} is not supported")
