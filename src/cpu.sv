@@ -33,16 +33,6 @@ module cpu (
     output logic signed [`BUS_WIDTH:0] cpu_output
 );
 
-    
-
-
-    logic boot_reset = 1'b1;
-
-    always_ff @(posedge clock_in) begin
-        boot_reset <= 1'b0;
-    end
-
-
     // DECLARATIONS
 
     logic tensor_core_clock;
@@ -160,18 +150,7 @@ module cpu (
 
 
 
-    
-    always_comb begin
-        for (int i = 0; i < 3; i++) begin
-            for (int j = 0; j < 3; j++) begin
-                tensor_core_register_file_bulk_write_data[0][i][j] = tensor_core_output[i][j];
-                tensor_core_register_file_bulk_write_data[1][i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
 
-                tensor_core_input1[i][j] = tensor_core_register_file_bulk_read_data[0][i][j];
-                tensor_core_input2[i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
-            end
-        end
-    end
 
 
     
@@ -261,6 +240,8 @@ module cpu (
 
  
 
+
+
  
 
 
@@ -299,6 +280,19 @@ module cpu (
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
         .tensor_core_output(tensor_core_output)
     );
+
+
+    always_comb begin
+        for (int i = 0; i < 3; i++) begin
+            for (int j = 0; j < 3; j++) begin
+                tensor_core_register_file_bulk_write_data[0][i][j] = tensor_core_output[i][j];
+                tensor_core_register_file_bulk_write_data[1][i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
+
+                tensor_core_input1[i][j] = tensor_core_register_file_bulk_read_data[0][i][j];
+                tensor_core_input2[i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
+            end
+        end
+    end
 
 
 
