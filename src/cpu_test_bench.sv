@@ -32,6 +32,7 @@
 module cpu_test_bench();
     // Core signals
     logic clock;
+    logic power_on_reset_signal;
     logic shifted_clock, shifted_clock2, shifted_clock3;
     logic [15:0] machine_code [0:20000];
     logic [15:0] current_instruction;
@@ -51,9 +52,19 @@ module cpu_test_bench();
         .clock_in(clock), 
         .shifted_clock_in(shifted_clock),
         .current_instruction(current_instruction), 
+        .power_on_reset_signal(power_on_reset_signal),
         .cpu_output(cpu_output)
     );
     
+    initial begin
+        power_on_reset_signal = 1;
+    end
+
+    always @(posedge clock) begin
+        power_on_reset_signal <= 0;
+    end
+
+
     // Clock generation
     always begin
         #10 shifted_clock = !shifted_clock;
