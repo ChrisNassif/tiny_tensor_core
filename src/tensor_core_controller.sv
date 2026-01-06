@@ -25,12 +25,12 @@
 
 // TODO: OUTPUT IS ONLY 33 MHz
 // TODO: Make the shifted clock_in optional likely through a slightly different option in the tensor core operate opcode
-module cpu (
+module tensor_core_controller (
     input logic clock_in, 
-    input logic shifted_clock_in,
+    input logic reset_in,
     input logic power_on_reset_signal,
     input logic [15:0] current_instruction, 
-    output logic signed [`BUS_WIDTH:0] cpu_output
+    output logic signed [`BUS_WIDTH:0] output
 );
 
 
@@ -90,7 +90,7 @@ module cpu (
     assign tensor_core_clock = (shifted_clock_in ^ clock_in);
 
 
-    assign should_reset_everything = (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT && is_burst_write_active === 1'b0) || power_on_reset_signal;
+    assign should_reset_everything = (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT && is_burst_write_active == 1'b0) || power_on_reset_signal;
 
 
     assign opcode = current_instruction[1:0];
@@ -110,7 +110,7 @@ module cpu (
     assign burst_current_dual_read_data[0] = tensor_core_output[(((burst_current_index<<1))%9)/3][((burst_current_index<<1))%3];
     assign burst_current_dual_read_data[1] = tensor_core_output[(((burst_current_index<<1)+1)%9)/3][((burst_current_index<<1)+1)%3];
 
-    assign cpu_output = (
+    assign output = (
         (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_READ_OPSELECT) ? tensor_core_register_file_non_bulk_read_data:
         (is_burst_read_active) ? burst_current_dual_read_data[~clock_in]:
         8'b0
@@ -129,7 +129,6 @@ module cpu (
     assign tensor_core_register_file_bulk_write_enable = 1'b0;
 
 
-    // for the opcode of load immediate and move from cpu registers to the tensor core register file   
     assign tensor_core_register_file_non_bulk_write_enable = (
         (opcode == `LOAD_IMMEDIATE_OPCODE) ||                                                   // tensor core load immediate
         (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_MOVE_OPSELECT) ? 1:        // move from tensor core to another tensor core register

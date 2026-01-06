@@ -81,13 +81,6 @@ module small_tensor_core (
 
         else if (counter < 5'd9) begin
             counter <= counter + 1;
-
-            // case (matrix_operation)
-            //     3'b000: tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_multiply[`BUS_WIDTH:0];
-            //     3'b001: tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_add[`BUS_WIDTH:0];
-            //     3'b010: tensor_core_output[counter/3][counter%3] <= (tensor_core_input1[counter/3][counter%3][`BUS_WIDTH] == 1'b0) ? tensor_core_input1[counter/3][counter%3] : 0;
-            //     default: tensor_core_output[counter/3][counter%3] <= tensor_core_output[counter/3][counter%3];
-            // endcase
         end
 
         else if (should_start_tensor_core == 1) begin
