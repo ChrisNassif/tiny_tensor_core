@@ -27,7 +27,7 @@
 // TODO: Make the shifted clock_in optional likely through a slightly different option in the tensor core operate opcode
 module tensor_core_controller (
     input logic clock_in, 
-    input logic reset_in,
+    input logic shifted_clock_in,
     input logic power_on_reset_signal,
     input logic [15:0] current_instruction, 
     output logic signed [`BUS_WIDTH:0] output
