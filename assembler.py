@@ -5,36 +5,29 @@ import sys
 # NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 10
 # NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 19
 
-NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 8
+NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 16
 NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 11
 
 operation_name_to_opcode = {
-    "generic": "00",
-    "load_immediate": "01",
-    "operate": "10",
-    "burst": "11"
-}
-
-generic_opselects = {
     "nop": "00",
-    "move": "01",
-    "read": "10",
+    "operate": "01",
+    "burst": "10",
     "reset": "11"
 }
 
+
 operate_opselects = {
-    "matrix_multiply": "000",
-    "matrix_add": "001",
-    "relu": "010",
-    "addition_summation": "011",
-    "dot_product": "100"
+    "matrix_multiply": "00",
+    "matrix_add": "01",
+    "relu": "10",
 }
 
 
 burst_read_write_selects = {
     "read": "00",
     "write": "01",
-    "read_and_write": "10"
+    "read_and_write": "10",
+    "matrix2_write": "11"
 }
 
 
@@ -82,12 +75,10 @@ def main():
         assembly_code_tokens = assembly_code_line.strip().split(" ")
         
         operation_name = assembly_code_tokens[0]
-        # opcode = operation_name_to_opcode[operation_name]
 
         should_have_matrix_operation_nops_after = False
         should_have_burst_operation_nops_after = False
         burst_write_arguments = []
-        
         
         
         current_machine_code_line = ""
@@ -95,72 +86,22 @@ def main():
 
 
         # PARSE THE DIFFERENT INSTRUCTION FORMATS
-        
         if (operation_name in ["nop", "reset"]):
+            current_machine_code_line += "0"*14
+            current_machine_code_line += operation_name_to_opcode[operation_name]
+    
+            
+        elif (operation_name in ["matrix_multiply", "matrix_add", "relu"]):
+            
             current_machine_code_line += "0"*12
-            current_machine_code_line += generic_opselects[operation_name]
-            current_machine_code_line += operation_name_to_opcode["generic"]
-            
-        
-        elif (operation_name in ["read",]):
-            read_register_address = assembly_code_tokens[1]
-            
-            if (int(read_register_address) > 17 or int(read_register_address) < 0): 
-                raise Exception(f"Improper arguments for read instruction in line {line_index}")
-
-            current_machine_code_line += "0"*5
-            current_machine_code_line += number_into_unsigned_kbit_binary(read_register_address, k=5)
-            current_machine_code_line += "0"*2
-            current_machine_code_line += generic_opselects[operation_name]
-            current_machine_code_line += operation_name_to_opcode["generic"]
-            
-            
-        elif (operation_name in ["move",]):
-            write_register_address = assembly_code_tokens[1]
-            read_register_address = assembly_code_tokens[2]
-            
-            
-            if (int(write_register_address) > 17 or int(write_register_address) < 0): 
-                raise Exception(f"Improper arguments for move instruction in line {line_index}")
-            
-            if (int(read_register_address) > 17 or int(read_register_address) < 0): 
-                raise Exception(f"Improper arguments for move instruction in line {line_index}")
-            
-            
-            current_machine_code_line += number_into_unsigned_kbit_binary(write_register_address, k=5)
-            current_machine_code_line += number_into_unsigned_kbit_binary(read_register_address, k=5)
-            current_machine_code_line += "0"*2
-            current_machine_code_line += generic_opselects[operation_name]
-            current_machine_code_line += operation_name_to_opcode["generic"]
-            
-            
-            
-        elif (operation_name in ["load_immediate",]):
-            
-            write_register_address = assembly_code_tokens[1]
-            immediate_operand = assembly_code_tokens[2]
-            
-            if (int(write_register_address) > 17 or int(write_register_address) < 0): 
-                raise Exception(f"Improper arguments for load_immediate instruction in line {line_index}")
-            
-
-            current_machine_code_line += number_into_unsigned_kbit_binary(write_register_address, k=5)
-            current_machine_code_line += number_into_signed_kbit_binary(immediate_operand, k=8)
-            current_machine_code_line += "0"
-            current_machine_code_line += operation_name_to_opcode["load_immediate"]
-            
-            
-            
-        elif (operation_name in ["matrix_multiply", "matrix_add", "relu", "matrix_summation", "dot_product"]):
-            
-            current_machine_code_line += "0"*11
             current_machine_code_line += operate_opselects[operation_name]
             current_machine_code_line += operation_name_to_opcode["operate"]
             
-            should_have_matrix_operation_nops_after = True
+            if operation_name != "relu":
+                should_have_matrix_operation_nops_after = True
         
         
-        elif (operation_name in ["burst",]):
+        elif (operation_name == "burst"):
             
             read_or_write = assembly_code_tokens[1]
 

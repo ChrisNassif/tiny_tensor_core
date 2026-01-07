@@ -1,22 +1,11 @@
-`define GENERIC_OPCODE 2'b00
-`define LOAD_IMMEDIATE_OPCODE 2'b01
-`define TENSOR_CORE_OPERATE_OPCODE 2'b10
-`define BURST_OPCODE 2'b11
-
-
-`define GENERIC_NOP_OPSELECT 2'b00
-`define GENERIC_MOVE_OPSELECT 2'b01
-`define GENERIC_READ_OPSELECT 2'b10
-`define GENERIC_RESET_OPSELECT 2'b11
+`define NOP_OPCODE 2'b00
+`define TENSOR_CORE_OPERATE_OPCODE 2'b01
+`define BURST_OPCODE 2'b10
 
 `define BURST_READ_SELECT 2'b00
 `define BURST_WRITE_SELECT 2'b01
 `define BURST_READ_AND_WRITE_SELECT 2'b10
-
-// these aren't used rn
-`define BURST_MATRIX1_SELECT 2'b00
-`define BURST_MATRIX2_SELECT 2'b01
-`define BURST_BOTH_MATRICES_SELECT 2'b10
+`define BURST_MATRIX2_WRITE_SELECT 2'b11
 
 
 `define BUS_WIDTH 7
@@ -24,30 +13,19 @@
 
 
 // TODO: OUTPUT IS ONLY 33 MHz
-// TODO: Make the shifted clock_in optional likely through a slightly different option in the tensor core operate opcode
+// TODO: Potential optimization: make it so that we can read while doing a tensor core operation 
+//       and then have a write operation that only writes to matrix2 
+//       so that 1 operation is approximately on average 1 half write + 1 tensor core operation
 module tensor_core_controller (
     input logic clock_in, 
-    input logic shifted_clock_in,
-    input logic power_on_reset_signal,
+    input logic reset_in,
     input logic [15:0] current_instruction, 
-    output logic signed [`BUS_WIDTH:0] output
+    output logic signed [`BUS_WIDTH:0] tensor_core_controller_output
 );
 
 
 
     // DECLARATIONS
-
-    logic tensor_core_clock;
-
-    wire should_reset_everything;
-
-    logic tensor_core_register_file_non_bulk_write_enable;
-    logic signed [`BUS_WIDTH:0] tensor_core_register_file_non_bulk_write_data;
-    logic [4:0] tensor_core_register_file_non_bulk_write_register_address;
-
-    logic [4:0] tensor_core_register_file_non_bulk_read_register_address;
-    wire signed [`BUS_WIDTH:0] tensor_core_register_file_non_bulk_read_data;
-
     logic tensor_core_register_file_bulk_write_enable;
     logic signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_write_data [2] [3] [3];
     
@@ -55,11 +33,6 @@ module tensor_core_controller (
     wire signed [`BUS_WIDTH:0] tensor_core_output [3] [3];
     logic signed [`BUS_WIDTH:0] tensor_core_input1 [3] [3];
     logic signed [`BUS_WIDTH:0] tensor_core_input2 [3] [3];
-
-    // used for the state machine that waits for the tensor core to finish operating on the matrices
-    logic signed [3:0] tensor_core_timer;
-    logic is_tensor_core_done_with_calculation; 
-
 
 
     // used for the burst instruction state machine
@@ -86,13 +59,6 @@ module tensor_core_controller (
     wire [1:0] generic_opselect;
     wire [2:0] operate_opselect;
 
-
-    assign tensor_core_clock = (shifted_clock_in ^ clock_in);
-
-
-    assign should_reset_everything = (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_RESET_OPSELECT && is_burst_write_active == 1'b0) || power_on_reset_signal;
-
-
     assign opcode = current_instruction[1:0];
     assign generic_opselect = current_instruction[3:2];
     assign operate_opselect = current_instruction[4:2];
@@ -110,45 +76,9 @@ module tensor_core_controller (
     assign burst_current_dual_read_data[0] = tensor_core_output[(((burst_current_index<<1))%9)/3][((burst_current_index<<1))%3];
     assign burst_current_dual_read_data[1] = tensor_core_output[(((burst_current_index<<1)+1)%9)/3][((burst_current_index<<1)+1)%3];
 
-    assign output = (
-        (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_READ_OPSELECT) ? tensor_core_register_file_non_bulk_read_data:
-        (is_burst_read_active) ? burst_current_dual_read_data[~clock_in]:
-        8'b0
-    );
 
 
-
-
-    assign tensor_core_register_file_non_bulk_read_register_address = (
-        opcode == `GENERIC_OPCODE ? current_instruction[10:6]:
-        8'b0
-    );
-
-
-    // For the opcode of operating on the contents in the tensor core register file
-    assign tensor_core_register_file_bulk_write_enable = 1'b0;
-
-
-    assign tensor_core_register_file_non_bulk_write_enable = (
-        (opcode == `LOAD_IMMEDIATE_OPCODE) ||                                                   // tensor core load immediate
-        (opcode == `GENERIC_OPCODE && generic_opselect == `GENERIC_MOVE_OPSELECT) ? 1:        // move from tensor core to another tensor core register
-        0
-    );
-
-
-    assign tensor_core_register_file_non_bulk_write_register_address = (
-        (opcode == `LOAD_IMMEDIATE_OPCODE) ? current_instruction[15:11]:    // tensor core load immediate
-        (opcode == `GENERIC_OPCODE) ? current_instruction[15:11]:           // generic opcodes
-        0
-    );
-
-
-    assign tensor_core_register_file_non_bulk_write_data = (
-        (opcode == `LOAD_IMMEDIATE_OPCODE) ? current_instruction[10:3]:     // tensor core load immediate
-        (opcode == `GENERIC_OPCODE) ? tensor_core_register_file_non_bulk_read_data: // move from tensor core to another tensor core register
-        0
-    );
-
+    assign tensor_core_controller_output = ((is_burst_read_active) ? burst_current_dual_read_data[~clock_in]: 8'b0);
 
 
 
@@ -159,7 +89,7 @@ module tensor_core_controller (
     // this state machine will manage the burst reads and writes and ensures that it happens for the correct amount of time
     always_ff @(posedge clock_in) begin
 
-        if (should_reset_everything) begin
+        if (reset_in) begin
             burst_current_index <= 5;
             is_burst_read_active <= 0;
             is_burst_write_active <= 0;
@@ -199,85 +129,27 @@ module tensor_core_controller (
         burst_write_negative_storage[0] <= current_instruction[15:8];
         burst_write_negative_storage[1] <= current_instruction[7:0];
     end
-
-
-
-
-
-    // manage the tensor core timer state machine
-    // this state machine waits for the tensor core to finish its calculation and then write the data to the tensor core register file at the correct time
-    always_ff @(posedge clock_in) begin
-
-        if ((should_reset_everything)) begin
-            tensor_core_timer <= 0;
-            is_tensor_core_done_with_calculation <= 1'b0;
-        end
-
-        else if (tensor_core_timer == 0 && opcode == `TENSOR_CORE_OPERATE_OPCODE && is_burst_write_active == 1'b0) begin
-            tensor_core_timer <= tensor_core_timer + 1;
-        end
-
-        else if (tensor_core_timer == 3'd5 && opcode == `TENSOR_CORE_OPERATE_OPCODE && is_burst_write_active == 1'b0) begin
-            tensor_core_timer <= 3'd1;
-            is_tensor_core_done_with_calculation <= 1'b0;
-        end
-
-        else if (tensor_core_timer == 3'd5) begin
-            tensor_core_timer <= 0;
-            is_tensor_core_done_with_calculation <= 1'b0;
-        end
-
-
-        else if (tensor_core_timer == 3'd4) begin
-            tensor_core_timer <= tensor_core_timer + 1;
-            is_tensor_core_done_with_calculation <= 1'b1;
-        end
-
-
-        else if (tensor_core_timer >= 3'd1 && tensor_core_timer <= 3'd3) begin
-            tensor_core_timer <= tensor_core_timer + 1;
-        end
-    end
-
- 
-
-
-
  
 
 
     tensor_core_register_file main_tensor_core_register_file (
-        .clock_in(clock_in), .reset_in((should_reset_everything)),
-
-        .non_bulk_write_enable_in(tensor_core_register_file_non_bulk_write_enable && is_burst_write_active == 1'b0),
-        .non_bulk_write_register_address_in(tensor_core_register_file_non_bulk_write_register_address),
-        .non_bulk_write_data_in(tensor_core_register_file_non_bulk_write_data),
-
-        .non_bulk_read_register_address_in(tensor_core_register_file_non_bulk_read_register_address),
-        .non_bulk_read_data_out(tensor_core_register_file_non_bulk_read_data),
+        .clock_in(clock_in), .reset_in(reset_in),
 
         .quad_write_enable_in(is_burst_write_active),
         .quad_write_register_address_in(burst_current_index[2:0]),
         .quad_write_data_in(burst_current_quad_write_data),
-
-        // .dual_read_register_address_in(burst_current_index),
-        // .dual_read_data_out(burst_current_dual_read_data),
-
-        .bulk_write_enable_in((tensor_core_register_file_bulk_write_enable | is_tensor_core_done_with_calculation) && is_burst_write_active == 1'b0), 
-        .bulk_write_data_in(tensor_core_register_file_bulk_write_data),
 
         .bulk_read_data_out(tensor_core_register_file_bulk_read_data)
     );
 
 
     small_tensor_core main_tensor_core (
-        .clock_in(tensor_core_clock),
-        .reset_in(should_reset_everything),
+        .clock_in(clock_in),
+        .reset_in(reset_in),
 
         .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && is_burst_write_active == 1'b0),
-        .matrix_operation_select(current_instruction[4:2]),
-        // .tensor_core_register_file_write_enable(tensor_core_register_file_bulk_write_enable | is_burst_write_active | tensor_core_register_file_non_bulk_write_enable | (should_reset_everything)),
-        
+        .matrix_operation_select(current_instruction[3:2]),
+
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
         .tensor_core_output(tensor_core_output)
     );
@@ -286,9 +158,6 @@ module tensor_core_controller (
     always_comb begin
         for (int i = 0; i < 3; i++) begin
             for (int j = 0; j < 3; j++) begin
-                tensor_core_register_file_bulk_write_data[0][i][j] = tensor_core_output[i][j];
-                tensor_core_register_file_bulk_write_data[1][i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
-
                 tensor_core_input1[i][j] = tensor_core_register_file_bulk_read_data[0][i][j];
                 tensor_core_input2[i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
             end

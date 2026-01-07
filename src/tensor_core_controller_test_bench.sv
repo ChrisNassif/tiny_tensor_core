@@ -12,7 +12,7 @@ module tensor_core_controller_test_bench();
     logic shifted_clock, shifted_clock2, shifted_clock3;
     logic [15:0] machine_code [0:20000];
     logic [15:0] current_instruction;
-    logic signed [`BUS_WIDTH:0] output;
+    logic signed [`BUS_WIDTH:0] tensor_core_controller_output;
     
     // Test tracking
     integer test_count = 0;
@@ -26,10 +26,9 @@ module tensor_core_controller_test_bench();
     
     tensor_core_controller main_tensor_core_controller(
         .clock_in(clock), 
-        .shifted_clock_in(shifted_clock),
+        .reset_in(power_on_reset_signal),
         .current_instruction(current_instruction), 
-        .power_on_reset_signal(power_on_reset_signal),
-        .output(output)
+        .tensor_core_controller_output(tensor_core_controller_output)
     );
     
     initial begin
@@ -93,7 +92,7 @@ module tensor_core_controller_test_bench();
         $dumpvars(0, T16, T17);
          
         // Dump other key signals
-        $dumpvars(1, main_tensor_core_controller.tensor_core_register_file_non_bulk_write_enable);
+        // $dumpvars(1, main_tensor_core_controller.tensor_core_register_file_non_bulk_write_enable);
         
         clock = 0;
         shifted_clock = 0;
