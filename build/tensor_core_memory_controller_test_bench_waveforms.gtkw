@@ -1,0 +1,74 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Thu Jan  8 06:04:30 2026
+[*]
+[dumpfile] "/home/animated/Projects/vlsi/gpu/build/tensor_core_memory_controller_test_bench.vcd"
+[dumpfile_mtime] "Thu Jan  8 06:03:05 2026"
+[dumpfile_size] 16166054
+[savefile] "/home/animated/Projects/vlsi/gpu/build/tensor_core_memory_controller_test_bench_waveforms.gtkw"
+[timestart] 0
+[size] 932 1001
+[pos] 795 -137
+*-16.800001 1935936300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tensor_core_memory_controller_test_bench.
+[treeopen] tensor_core_memory_controller_test_bench.main_tensor_core_controller.
+[sst_width] 278
+[signals_width] 302
+[sst_expanded] 1
+[sst_vpaned_height] 619
+@28
+tensor_core_memory_controller_test_bench.clock
+@420
+tensor_core_memory_controller_test_bench.T0[7:0]
+tensor_core_memory_controller_test_bench.T1[7:0]
+tensor_core_memory_controller_test_bench.T2[7:0]
+tensor_core_memory_controller_test_bench.T3[7:0]
+tensor_core_memory_controller_test_bench.T4[7:0]
+tensor_core_memory_controller_test_bench.T5[7:0]
+tensor_core_memory_controller_test_bench.T6[7:0]
+tensor_core_memory_controller_test_bench.T7[7:0]
+tensor_core_memory_controller_test_bench.T8[7:0]
+tensor_core_memory_controller_test_bench.T9[7:0]
+tensor_core_memory_controller_test_bench.T10[7:0]
+tensor_core_memory_controller_test_bench.T11[7:0]
+tensor_core_memory_controller_test_bench.T12[7:0]
+tensor_core_memory_controller_test_bench.T13[7:0]
+tensor_core_memory_controller_test_bench.T14[7:0]
+tensor_core_memory_controller_test_bench.T15[7:0]
+tensor_core_memory_controller_test_bench.T16[7:0]
+tensor_core_memory_controller_test_bench.T17[7:0]
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[0].tensor_core_output_wire[7:0]
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[1].tensor_core_output_wire[7:0]
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[2].tensor_core_output_wire[7:0]
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[3].tensor_core_output_wire[7:0]
+@c00420
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[4].tensor_core_output_wire[7:0]
+@28
+(0)tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[4].tensor_core_output_wire[7:0]
+(1)tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[4].tensor_core_output_wire[7:0]
+(2)tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[4].tensor_core_output_wire[7:0]
+(3)tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[4].tensor_core_output_wire[7:0]
+(4)tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[4].tensor_core_output_wire[7:0]
+(5)tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[4].tensor_core_output_wire[7:0]
+(6)tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[4].tensor_core_output_wire[7:0]
+(7)tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[4].tensor_core_output_wire[7:0]
+@1401200
+-group_end
+@420
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[5].tensor_core_output_wire[7:0]
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[6].tensor_core_output_wire[7:0]
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[7].tensor_core_output_wire[7:0]
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.expose_tensor_core5[8].tensor_core_output_wire[7:0]
+@23
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.tensor_core_controller_output[7:0]
+@22
+tensor_core_memory_controller_test_bench.current_instruction[15:0]
+@28
+tensor_core_memory_controller_test_bench.main_tensor_core_memory_controller.data_write_enable
+@22
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.main_tensor_core.counter[3:0]
+tensor_core_memory_controller_test_bench.main_tensor_core_controller.burst_current_index[3:0]
+@28
+tensor_core_memory_controller_test_bench.main_tensor_core_memory_controller.is_burst_read_active
+[pattern_trace] 1
+[pattern_trace] 0

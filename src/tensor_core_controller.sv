@@ -5,7 +5,7 @@
 `define BURST_READ_SELECT 2'b00
 `define BURST_WRITE_SELECT 2'b01
 `define BURST_READ_AND_WRITE_SELECT 2'b10
-`define BURST_MATRIX2_WRITE_SELECT 2'b11
+`define BURST_MATRIX1_WRITE_SELECT 2'b11
 
 
 `define BUS_WIDTH 7
@@ -14,7 +14,7 @@
 
 // TODO: OUTPUT IS ONLY 33 MHz
 // TODO: Potential optimization: make it so that we can read while doing a tensor core operation 
-//       and then have a write operation that only writes to matrix2 
+//       and then have a write operation that only writes to matrix1
 //       so that 1 operation is approximately on average 1 half write + 1 tensor core operation
 module tensor_core_controller (
     input logic clock_in, 
@@ -40,7 +40,7 @@ module tensor_core_controller (
     logic is_burst_read_active;
     logic [3:0] burst_current_index; // stores the current index that the burst opcode is looking at either for reading or writing
     logic [`BUS_WIDTH:0] burst_write_negative_storage [2];
-
+    // logic should_restrict_quad_write_to_matrix1;
 
     wire [1:0] burst_read_write_select;
 
@@ -70,21 +70,12 @@ module tensor_core_controller (
     assign burst_current_quad_write_data[3] = current_instruction[7:0];
 
 
-
-
-
     assign burst_current_dual_read_data[0] = tensor_core_output[(((burst_current_index<<1))%9)/3][((burst_current_index<<1))%3];
     assign burst_current_dual_read_data[1] = tensor_core_output[(((burst_current_index<<1)+1)%9)/3][((burst_current_index<<1)+1)%3];
 
+    assign tensor_core_controller_output = (is_burst_read_active ? burst_current_dual_read_data[~clock_in]: 8'b0);
 
 
-    assign tensor_core_controller_output = ((is_burst_read_active) ? burst_current_dual_read_data[~clock_in]: 8'b0);
-
-
-
-
-
-    
     // manage the state machine for the burst read and write
     // this state machine will manage the burst reads and writes and ensures that it happens for the correct amount of time
     always_ff @(posedge clock_in) begin
@@ -93,6 +84,7 @@ module tensor_core_controller (
             burst_current_index <= 5;
             is_burst_read_active <= 0;
             is_burst_write_active <= 0;
+            // should_restrict_quad_write_to_matrix1 <= 0;
         end
 
         else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_SELECT && burst_current_index == 5) begin
@@ -101,8 +93,9 @@ module tensor_core_controller (
         end
 
         else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_WRITE_SELECT && burst_current_index == 5) begin
-            is_burst_write_active <= 1;
             burst_current_index <= 0;
+            is_burst_write_active <= 1;
+            // should_restrict_quad_write_to_matrix1 <= 0;
         end
 
 
@@ -110,7 +103,27 @@ module tensor_core_controller (
             is_burst_write_active <= 1;
             is_burst_read_active <= 1;
             burst_current_index <= 0;
+            // should_restrict_quad_write_to_matrix1 <= 0;
         end
+
+        // else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_MATRIX1_SELECT && burst_current_index == 5) begin
+        //     is_burst_write_active <= 1;
+        //     is_burst_read_active <= 1;
+        //     burst_current_index <= 0;
+        //     should_restrict_quad_write_to_matrix1 <= 1;
+        // end
+
+        // else if ((is_burst_write_active && should_restrict_quad_write_to_matrix1) && burst_current_index < 4) begin
+        //     burst_current_index <= 5;
+        //     is_burst_read_active <= 0;
+        //     is_burst_write_active <= 0;
+        // end
+
+        // else if ((is_burst_write_active && should_restrict_quad_write_to_matrix1) && burst_current_index < 4) begin
+        //     burst_current_index <= 5;
+        //     is_burst_read_active <= 0;
+        //     is_burst_write_active <= 0;
+        // end
 
         else if ((is_burst_read_active || is_burst_write_active) && burst_current_index < 4) begin
             burst_current_index <= burst_current_index + 1;
@@ -138,6 +151,7 @@ module tensor_core_controller (
         .quad_write_enable_in(is_burst_write_active),
         .quad_write_register_address_in(burst_current_index[2:0]),
         .quad_write_data_in(burst_current_quad_write_data),
+        // .should_restrict_quad_write_to_matrix1(should_restrict_quad_write_to_matrix1),
 
         .bulk_read_data_out(tensor_core_register_file_bulk_read_data)
     );

@@ -14,6 +14,11 @@ test_tensor_core_controller:
 	vvp build/tensor_core_controller_test_bench.out
 	gtkwave build/tensor_core_controller_test_bench.vcd
 
+test_tensor_core_memory_controller:
+	iverilog -g2012 -o build/tensor_core_memory_controller_test_bench.out src/tensor_core_memory_controller_test_bench.sv src/tensor_core_memory_controller.sv src/tensor_core_controller.sv src/tensor_core.sv src/tensor_core_register_file.sv
+	vvp build/tensor_core_memory_controller_test_bench.out
+	gtkwave build/tensor_core_memory_controller_test_bench.vcd
+
 transistor_count_tensor_core_controller:
 	yosys -p "read_verilog -sv src/tensor_core_controller.sv src/alu.sv src/tensor_core.sv src/tensor_core_register_file.sv; synth; stat -tech cmos"
 

@@ -11,140 +11,153 @@
 `define BUS_WIDTH 7
 
 
-
+// TODO: REWRITE TO NOT USE POSEDGE AND NEGEDGE AT THE SAME TIME
 module tensor_core_memory_controller(
     input logic clock_in,
     input logic reset_in,  // can be connected to ground
-    input logic [7:0] tensor_core_controller_output,
+    input logic signed [7:0] tensor_core_controller_output,
 
     output logic clock_out,
     output logic reset_out,
-    output logic [15:0] current_tensor_core_instruction,
+    output logic [15:0] current_tensor_core_instruction
 );
+
+    logic [63:0] machine_code [0:20000];
+    logic [`BUS_WIDTH:0] data [0:20000];
+    logic [15:0] current_machine_code_instruction_index_positive_edge;
+    logic [15:0] current_machine_code_instruction_index_negative_edge;
+    wire [15:0] current_machine_code_instruction_index;
+
+
 
     assign clock_out = clock_in;
 
 
     logic power_on_reset_signal = 1;
+    logic positive_edge_reset_called;
 
     assign reset_out = (current_opcode == `RESET_OPCODE) || reset_in || power_on_reset_signal;
 
 
-    wire should_reset_burst_read_write_state_machine;
-    
-    logic is_burst_write_active;
-    logic is_burst_read_active;
-    logic [3:0] burst_current_index; // stores the current index that the burst opcode is looking at either for reading or writing
 
-
-    logic [15:0] raw_current_instruction;
+    logic [63:0] raw_current_instruction;
     wire [1:0] current_opcode;
     wire [1:0] burst_read_write_select;
 
-    assign burst_read_write_select = current_instruction[3:2];
+    assign raw_current_instruction = machine_code[current_machine_code_instruction_index];
+    assign current_opcode = raw_current_instruction[1:0];
+    assign burst_read_write_select = raw_current_instruction[3:2];
+
+
+
+    wire is_burst_write_active;
+    wire is_burst_read_active;
+    
+    assign is_burst_write_active = ((burst_read_write_select == `BURST_READ_AND_WRITE_SELECT || burst_read_write_select == `BURST_WRITE_SELECT) && current_opcode == `BURST_OPCODE && raw_current_instruction[15] == 1'b1);
+    assign is_burst_read_active = ((burst_read_write_select == `BURST_READ_AND_WRITE_SELECT || burst_read_write_select == `BURST_READ_SELECT) && current_opcode == `BURST_OPCODE && raw_current_instruction[14] == 1'b1);
 
 
 
 
-    logic [31:0] machine_code [0:20000];
-    logic [15:0] input_data [0:20000];
-    logic [15:0] current_machine_code_instruction_index;
+    wire [15:0] data_read_address1;
+    wire [15:0] data_read_address2;
+
+    assign data_read_address1 = raw_current_instruction[31:16];
+    assign data_read_address2 = raw_current_instruction[47:32];
+    
+    assign write_matrix_data1 = data[data_read_address1];
+    assign write_matrix_data2 = data[data_read_address2];
 
 
 
-    logic matrix1_memory_address; 
-    logic matrix1_data;
 
-    assign matrix1_memory_address = machine_code[current_machine_code_instruction_index][31:16];
-
+    wire data_write_enable;
+    wire [15:0] data_write_address;
+    wire [`BUS_WIDTH:0] data_write_data;
+    
+    assign data_write_enable = is_burst_read_active;
+    assign data_write_address = machine_code[current_machine_code_instruction_index][63:48];
+    assign data_write_data = tensor_core_controller_output;
 
 
     initial begin
         $readmemh("machine_code2", machine_code);
-        $readmemh("input_data", input_data);
+        $readmemh("data", data);
     end
 
     
     always_comb begin
-        
-        raw_current_instruction = machine_code[current_machine_code_instruction_index];
-        current_opcode = raw_current_instruction[1:0];
 
-        // Process the current instruction word if it is some kind of write instructions
-        if (is_burst_write_active) begin
-            current_tensor_core_instruction = {matrix1_data[2*burst_current_index], matrix1_data[2*burst_current_index+1]};
+        // Process the current instruction word if it is some kind of write or reset instructions
+        if (reset_out) begin
+            current_tensor_core_instruction = 0;
+        end
+        else if (is_burst_write_active) begin
+            current_tensor_core_instruction = {data[data_read_address1], data[data_read_address2]};
+        end
+
+        else if (is_burst_read_active) begin
+            current_tensor_core_instruction = 0;
         end
 
         else begin
             current_tensor_core_instruction = raw_current_instruction[15:0];
         end
 
-
-        // Process the reset instruction
-        if (current_opcode == `RESET_OPCODE) begin
-            current_tensor_core_instruction = 0;    // insert a nop and reset
-        end
-
     end
 
 
+
+    // handle writing data that is read from the tensor core
+    always_ff @(posedge clock_in) begin
+        if (data_write_enable) begin
+            data[data_write_address] <= data_write_data;
+        end
+    end
+
+    always_ff @(negedge clock_in) begin
+        if (data_write_enable) begin
+            data[data_write_address] <= data_write_data;
+        end
+    end
+
+
+    
+    assign current_machine_code_instruction_index = current_machine_code_instruction_index_positive_edge + current_machine_code_instruction_index_negative_edge;
+
     always_ff @(posedge clock_in) begin
 
-        if (reset_out) begin
-            clock_out <= 0;
-            current_machine_code_instruction_index <= 0;
+        if (power_on_reset_signal || reset_in) begin
+            current_machine_code_instruction_index_positive_edge <= 0;
+            current_machine_code_instruction_index_negative_edge <= 0;
             power_on_reset_signal <= 0;
+            positive_edge_reset_called <= 1;
         end
 
         else begin
-            clock_out <= ~clock_out;
-            current_machine_code_instruction_index <= current_machine_code_instruction_index + 1;
+            current_machine_code_instruction_index_positive_edge <= current_machine_code_instruction_index_positive_edge + 1;
         end
+    end
+
+
+    always_ff @(negedge clock_in) begin
+        if (positive_edge_reset_called == 0) begin
+            current_machine_code_instruction_index_negative_edge <= current_machine_code_instruction_index_negative_edge + 1;
+        end
+
+        positive_edge_reset_called <= 0;
     end
 
 
 
 
-    // manage the state machine for the burst read and write
-    // this state machine will manage the burst reads and writes and ensures that it happens for the correct amount of time
-    always_ff @(posedge clock_in) begin
-
-        if (clock_out == 0) begin
-            if (reset_out) begin
-                burst_current_index <= 5;
-                is_burst_read_active <= 0;
-                is_burst_write_active <= 0;
-            end
-
-            else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_SELECT && burst_current_index == 5) begin
-                burst_current_index <= 0;
-                is_burst_read_active <= 1;
-            end
-
-            else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_WRITE_SELECT && burst_current_index == 5) begin
-                is_burst_write_active <= 1;
-                burst_current_index <= 0;
-            end
-
-
-            else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_AND_WRITE_SELECT && burst_current_index == 5) begin
-                is_burst_write_active <= 1;
-                is_burst_read_active <= 1;
-                burst_current_index <= 0;
-            end
-
-            else if ((is_burst_read_active || is_burst_write_active) && burst_current_index < 4) begin
-                burst_current_index <= burst_current_index + 1;
-            end
-
-            else if ((is_burst_read_active || is_burst_write_active) && burst_current_index == 4) begin
-                burst_current_index <= burst_current_index + 1;
-                is_burst_read_active <= 0;
-                is_burst_write_active <= 0;
+    genvar i, j;
+    generate
+        for (i = 0; i < 20; i++) begin : i_
+            for (j = 0; j < 9; j++) begin : j_
+                wire [`BUS_WIDTH:0] data_ = data[i*9+j];
             end
         end
-    end
-
-
+    endgenerate
 endmodule
 

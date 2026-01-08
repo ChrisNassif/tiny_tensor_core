@@ -7,15 +7,15 @@
 module tensor_core_memory_controller_test_bench();
 
     // Core signals
-    logic doubled_clock;
-    logic clock, shifted_clock;
+    logic generated_clock;
+    logic clock;
+    logic reset;
 
-    logic power_on_reset_signal;
     
     logic [15:0] machine_code [0:20000];
     logic [15:0] current_instruction;
-    logic signed [`BUS_WIDTH:0] output;
-    logic [1024:0] tensor_core_output
+    logic signed [`BUS_WIDTH:0] out;
+    logic [1024:0] tensor_core_output;
     
     // Test tracking
     integer test_count = 0;
@@ -26,36 +26,27 @@ module tensor_core_memory_controller_test_bench();
     
     tensor_core_controller main_tensor_core_controller(
         .clock_in(clock), 
-        .shifted_clock_in(shifted_clock),
+        .reset_in(reset),
+
         .current_instruction(current_instruction), 
-        .power_on_reset_signal(power_on_reset_signal),
-        .output(output)
+        .tensor_core_controller_output(out)
     );
 
 
     tensor_core_memory_controller main_tensor_core_memory_controller(
-        .doubled_clock_in(doubled_clock),
-        .reset_in(0),  // can be connected to ground
-        .tensor_core_controller_output(output),
+        .clock_in(generated_clock),
+        .reset_in(1'b0),  // can be connected to ground
+        .tensor_core_controller_output(out),
 
         .clock_out(clock),
-        .shifted_clock_out(shifted_clock),
-        .current_tensor_core_instruction(current_instruction),
+        .reset_out(reset),
+        .current_tensor_core_instruction(current_instruction)
     );
-    
-
-    initial begin
-        power_on_reset_signal = 1;
-    end
-
-    always @(posedge clock) begin
-        power_on_reset_signal <= 0;
-    end
 
 
     // Clock generation
     always begin
-        #10 doubled_clock = !doubled_clock;
+        #10 generated_clock = !generated_clock;
     end
 
     
@@ -85,16 +76,15 @@ module tensor_core_memory_controller_test_bench();
 
     
     initial begin
-        $dumpfile("build/tensor_core_controller_test_bench.vcd");
-        $dumpvars(0, tensor_core_controller_test_bench);
+        $dumpfile("build/tensor_core_memory_controller_test_bench.vcd");
+        $dumpvars(0, tensor_core_memory_controller_test_bench);
         
         $dumpvars(0, T0, T1, T2, T3, T4, T5, T6, T7);
         $dumpvars(0, T8, T9, T10, T11, T12, T13, T14, T15);
         $dumpvars(0, T16, T17);
-        $dumpvars(1, main_tensor_core_controller.tensor_core_register_file_non_bulk_write_enable);
         
 
-        doubled_clock = 0;
+        generated_clock = 0;
 
 
         $display("==================================================================");

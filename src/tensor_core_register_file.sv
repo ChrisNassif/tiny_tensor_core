@@ -12,7 +12,7 @@ module tensor_core_register_file (
     input logic quad_write_enable_in,
     input logic [2:0] quad_write_register_address_in, // supports values 0 to 4
     input logic signed [`BUS_WIDTH:0] quad_write_data_in [4],
-
+    // input logic should_restrict_quad_write_to_matrix1;
     // bulk read
     output logic signed [`BUS_WIDTH:0] bulk_read_data_out [2] [3] [3]
 );
@@ -38,10 +38,23 @@ module tensor_core_register_file (
 
     always_ff @(posedge clock_in) begin
 
-        // quad write
+        // // quad write with restriction
+        // if (quad_write_enable_in && reset_in == 0) begin
+
+        //     for (int i = 0; i < 4; i++) begin
+                
+        //         if (!(should_restrict_quad_write_to_matrix1 && ((quad_write_register_address_in<<2)+i)/9 == 1)) begin
+        //             registers[((quad_write_register_address_in<<2)+i)/9][(((quad_write_register_address_in<<2)+i)%9)/3][((quad_write_register_address_in<<2)+i)%3] <= quad_write_data_in[i];
+        //         end
+            
+        //     end
+        // end
+
+        // quad write with restriction
         if (quad_write_enable_in && reset_in == 0) begin
+
             for (int i = 0; i < 4; i++) begin
-                registers[((quad_write_register_address_in<<2)+i)/9][(((quad_write_register_address_in<<2)+i)%9)/3][((quad_write_register_address_in<<2)+i)%3] <= quad_write_data_in[i];
+                registers[((quad_write_register_address_in<<2)+i)/9][(((quad_write_register_address_in<<2)+i)%9)/3][((quad_write_register_address_in<<2)+i)%3] <= quad_write_data_in[i];            
             end
         end
 

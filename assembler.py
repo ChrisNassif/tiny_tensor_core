@@ -1,12 +1,10 @@
 import numpy as np
 import sys
-    
-    
-# NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 10
-# NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 19
+
 
 NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 16
 NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 11
+
 
 operation_name_to_opcode = {
     "nop": "00",
@@ -27,7 +25,7 @@ burst_read_write_selects = {
     "read": "00",
     "write": "01",
     "read_and_write": "10",
-    "matrix2_write": "11"
+    "matrix1_write": "11"
 }
 
 
@@ -53,6 +51,8 @@ def number_into_unsigned_kbit_binary(number: str, k):
 
 
 def main():
+    global burst_read_write_selects, operate_opselects, operation_name_to_opcode
+    
     
     if len(sys.argv) > 1:
         assembly_file = sys.argv[1]
@@ -119,6 +119,9 @@ def main():
             elif read_or_write == "read_and_write":
                 burst_write_arguments = assembly_code_tokens[2:]
                 
+            elif read_or_write == "matrix1_write":
+                burst_read_write_selects = assembly_code_tokens[2:]
+                
             else:
                 raise Exception(f"Only accepts read or write or read_and_write as acceptable arguments on line {line_index}")
             
@@ -164,6 +167,9 @@ def main():
     
     with open("machine_code", 'w+') as f:
         f.writelines(machine_code)
+
+
+
 
 if __name__ == "__main__":
     main()
