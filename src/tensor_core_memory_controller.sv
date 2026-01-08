@@ -81,10 +81,20 @@ module tensor_core_memory_controller(
 
 
     initial begin
+        
+        for (int i = 0; i < 20000; i++) begin
+            machine_code[i] = 0;
+            data[i] = 0;
+        end
+        
         $readmemh("machine_code", machine_code);
         $readmemh("data", data);
     end
 
+
+    final begin
+        $writememh("data_out", data);
+    end
     
     always_comb begin
 

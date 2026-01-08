@@ -87,29 +87,32 @@ module tensor_core_controller (
             // should_restrict_quad_write_to_matrix1 <= 0;
         end
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_SELECT && burst_current_index == 5) begin
+        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_SELECT && (burst_current_index == 5 || burst_current_index == 4)) begin
             burst_current_index <= 0;
+            is_burst_write_active <= 0;
             is_burst_read_active <= 1;
         end
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_WRITE_SELECT && burst_current_index == 5) begin
+        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_WRITE_SELECT && (burst_current_index == 5 || burst_current_index == 4)) begin
             burst_current_index <= 0;
             is_burst_write_active <= 1;
+            is_burst_read_active <= 0;
             // should_restrict_quad_write_to_matrix1 <= 0;
         end
 
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_AND_WRITE_SELECT && burst_current_index == 5) begin
+        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_AND_WRITE_SELECT && (burst_current_index == 5 || burst_current_index == 4)) begin
+            burst_current_index <= 0;
             is_burst_write_active <= 1;
             is_burst_read_active <= 1;
-            burst_current_index <= 0;
             // should_restrict_quad_write_to_matrix1 <= 0;
         end
+
 
         // else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_MATRIX1_SELECT && burst_current_index == 5) begin
+        //     burst_current_index <= 0;
         //     is_burst_write_active <= 1;
         //     is_burst_read_active <= 1;
-        //     burst_current_index <= 0;
         //     should_restrict_quad_write_to_matrix1 <= 1;
         // end
 
@@ -161,7 +164,7 @@ module tensor_core_controller (
         .clock_in(clock_in),
         .reset_in(reset_in),
 
-        .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && is_burst_write_active == 1'b0),
+        .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && (!is_burst_write_active || burst_current_index == 4)),
         .matrix_operation_select(current_instruction[3:2]),
 
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
