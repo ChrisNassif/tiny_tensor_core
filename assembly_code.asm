@@ -1,13 +1,13 @@
 reset
-burst write -1 0 2 3 4 5 -4 2 3 1 2 3 1 2 -2 0 -3 -1
-burst read_and_write 1 2 3 1 2 -2 0 -3 -1 2 0 2 3 4 5 -4 2 3
-burst read
+burst write 0 1
+burst read_and_write 2 3 4
+burst read 5
 matrix_multiply
 matrix_multiply
 matrix_add
 relu
-burst read
-burst read_and_write 0 -3 -1 2 0 2 3 4 5 -4 2 3 1 2 3 1 2 -2
+burst read 6
+burst read_and_write 7 8 9
 matrix_add
-burst read
+burst read 10
 nop

@@ -3,7 +3,7 @@ import sys
 
 
 NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 16
-NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 11
+# NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 11
 
 
 operation_name_to_opcode = {
@@ -51,7 +51,6 @@ def number_into_unsigned_kbit_binary(number: str, k):
 
 
 def main():
-    global burst_read_write_selects, operate_opselects, operation_name_to_opcode
     
     
     if len(sys.argv) > 1:
@@ -69,8 +68,8 @@ def main():
     
     
     for line_index, assembly_code_line in enumerate(assembly_code_lines):
-        line_index += 1 # this is to make the index start from 1 and not start from 0
         
+        line_index += 1 # this is to make the index start from 1 and not start from 0
         
         assembly_code_tokens = assembly_code_line.strip().split(" ")
         
@@ -78,11 +77,15 @@ def main():
 
         should_have_matrix_operation_nops_after = False
         should_have_burst_operation_nops_after = False
-        burst_write_arguments = []
         
+        burst_write_matrix1_address = None
+        burst_write_matrix2_address = None
+        burst_read_address = None
+        
+        read_or_write = None
         
         current_machine_code_line = ""
-
+        current_machine_code_line += "0" * 48
 
 
         # PARSE THE DIFFERENT INSTRUCTION FORMATS
@@ -111,16 +114,20 @@ def main():
             current_machine_code_line += operation_name_to_opcode["burst"]
             
             if read_or_write == "write":
-                burst_write_arguments = assembly_code_tokens[2:]
+                burst_write_matrix1_address = int(assembly_code_tokens[2])
+                burst_write_matrix2_address = int(assembly_code_tokens[3])
                 
             elif read_or_write == "read":
+                burst_read_address = int(assembly_code_tokens[2])
                 should_have_burst_operation_nops_after = True
             
             elif read_or_write == "read_and_write":
-                burst_write_arguments = assembly_code_tokens[2:]
+                burst_read_address = int(assembly_code_tokens[2])
+                burst_write_matrix1_address = int(assembly_code_tokens[3])
+                burst_write_matrix2_address = int(assembly_code_tokens[4])
                 
-            elif read_or_write == "matrix1_write":
-                burst_read_write_selects = assembly_code_tokens[2:]
+            # elif read_or_write == "matrix1_write":
+            #     burst_write_matrix1_address = int(assembly_code_tokens[2])
                 
             else:
                 raise Exception(f"Only accepts read or write or read_and_write as acceptable arguments on line {line_index}")
@@ -129,41 +136,109 @@ def main():
             raise Exception(f"operation name {operation_name} on line {line_index} is not supported")
                 
                 
-                
         print(current_machine_code_line)
         
         
         # Format the machine code line       
-        machine_code.append(format(int(current_machine_code_line, 2), "04X") +'\n')
+        machine_code.append(format(int(current_machine_code_line, 2), "016X") +'\n')
         
+        
+        # add a copy of the instruction if it isn't a burst instruction
         if operation_name != "burst":
-            machine_code.append(format(int(current_machine_code_line, 2), "04X") +'\n')
+            machine_code.append(format(int(current_machine_code_line, 2), "016X") +'\n')
         
         
         if should_have_matrix_operation_nops_after:
             for i in range(NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION):
-                machine_code.append(format(int("0"*16, 2), "04X") + '\n')
+                machine_code.append(format(int("0"*64, 2), "016X") + '\n')
                     
-        if should_have_burst_operation_nops_after:
-            for i in range(NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION):
-                machine_code.append(format(int("0"*16, 2), "04X") + '\n')
+        # if should_have_burst_operation_nops_after:
+        #     for i in range(NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION):
+        #         machine_code.append(format(int("0"*64, 2), "016X") + '\n')
     
     
-        if burst_write_arguments != []:
-            if len(burst_write_arguments) != 18:
-                raise Exception(f"Error in line {line_index} burst write does not have the correct number of elements")
-             
-            grouped_burst_write = list(zip(burst_write_arguments[::2], burst_write_arguments[1::2]))
+    
+
+        
+        if burst_write_matrix1_address is not None and burst_write_matrix2_address is not None:
             
-            for argument1, argument2 in grouped_burst_write:
+            for index in range(9):
                 current_machine_code_line = ""
-                current_machine_code_line += number_into_signed_kbit_binary(argument1, k=8)
-                current_machine_code_line += number_into_signed_kbit_binary(argument2, k=8)
+                                
+                if burst_read_address is not None:
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + index, k=16)
+                else:
+                    current_machine_code_line += "0"*16
                 
-                machine_code.append(format(int(current_machine_code_line, 2), "04X") + '\n')
+                # print(f"index: {index}")
+                # print(f"burst_write_matrix1_address: {burst_write_matrix1_address}")
+                # print(f"burst_write_matrix2_address: {burst_write_matrix2_address}")
+                
+                if 2*index+1 < 9:
+                    # print(9*burst_write_matrix1_address + 2*index+1)
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix1_address + 2*index+1, k=16)
+                else:
+                    # print(9*burst_write_matrix2_address + 2*index+1 - 9)
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix2_address + 2*index+1 - 9, k=16)
+                
+                
+                if 2*index < 9:
+                    # print(9*burst_write_matrix1_address + 2*index)
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix1_address + 2*index,   k=16)
+                else:
+                    # print(9*burst_write_matrix2_address + 2*index - 9)
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix2_address + 2*index - 9, k=16)
+                
             
-            machine_code.append(format(int("0"*16, 2), "04X") + '\n')
-            machine_code.append(format(int("0"*16, 2), "04X") + '\n')
+                current_machine_code_line += "1"
+                
+                if burst_read_address is not None:
+                    current_machine_code_line += "1"
+                else:
+                    current_machine_code_line += "0"
+                    
+                current_machine_code_line += "0"*10
+            
+                current_machine_code_line += burst_read_write_selects[read_or_write]
+                current_machine_code_line += operation_name_to_opcode["burst"]
+                
+                
+                machine_code.append(format(int(current_machine_code_line, 2), "016X") + '\n')
+                
+            machine_code.append(format(int("0"*64, 2), "016X") + '\n')
+            machine_code.append(format(int("0"*64, 2), "016X") + '\n')
+            
+            
+    
+        elif burst_read_address is not None:
+            for index in range(9):
+                
+                current_machine_code_line = ""
+                
+                if burst_read_address is not None:
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + index, k=16)
+                
+                else:
+                    current_machine_code_line += "0"*16
+                    
+                    
+                current_machine_code_line += "0"*32
+                
+                current_machine_code_line += "0"
+                current_machine_code_line += "1"
+                current_machine_code_line += "0"*10
+            
+                current_machine_code_line += burst_read_write_selects[read_or_write]
+                current_machine_code_line += operation_name_to_opcode["burst"]
+                
+                                
+                machine_code.append(format(int(current_machine_code_line, 2), "016X") + '\n')\
+                    
+            machine_code.append(format(int("0"*64, 2), "016X") + '\n')
+            machine_code.append(format(int("0"*64, 2), "016X") + '\n')
+
+
+
     
     with open("machine_code", 'w+') as f:
         f.writelines(machine_code)
@@ -171,5 +246,6 @@ def main():
 
 
 
-if __name__ == "__main__":
+
+if __name__ == "__main__": 
     main()
