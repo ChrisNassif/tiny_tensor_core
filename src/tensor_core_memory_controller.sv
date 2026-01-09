@@ -88,7 +88,7 @@ module tensor_core_memory_controller(
         end
         
         $readmemh("machine_code", machine_code);
-        $readmemh("data", data);
+        $readmemh("data_in", data);
     end
 
 

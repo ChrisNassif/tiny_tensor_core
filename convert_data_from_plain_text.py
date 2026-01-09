@@ -19,4 +19,4 @@ def convert_to_uppercase_hex_lines(input_file, output_file):
         print(f"Error: The file '{input_file}' was not found.")
 
 if __name__ == "__main__":
-    convert_to_uppercase_hex_lines('data_plain_text.txt', 'data')
+    convert_to_uppercase_hex_lines('data_in_plain_text.txt', 'data_in')
