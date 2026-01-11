@@ -4,7 +4,7 @@
 `define BUS_WIDTH 7
 
 
-module tensor_core_memory_controller_test_bench();
+module tensor_core_test_bench();
 
     // Core signals
     logic generated_clock;
@@ -76,8 +76,8 @@ module tensor_core_memory_controller_test_bench();
 
     
     initial begin
-        $dumpfile("build/tensor_core_memory_controller_test_bench.vcd");
-        $dumpvars(0, tensor_core_memory_controller_test_bench);
+        $dumpfile("build/tensor_core_test_bench.vcd");
+        $dumpvars(0, tensor_core_test_bench);
         
         $dumpvars(0, T0, T1, T2, T3, T4, T5, T6, T7);
         $dumpvars(0, T8, T9, T10, T11, T12, T13, T14, T15);
