@@ -102,45 +102,36 @@ gtkwave --version      # Should show GTKWave version
 
 ## Usage
 
-### Tutorial
+The project is managed via a `Makefile` that handles compilation, simulation, and verification.
 
-In order to write a program and compile it into binary machine-understandable code, you can use the provided assembler.
+### 1. Run Custom Simulation
+To run your own assembly program interactively:
+1.  Edit `assembly_code.asm` (Code)
+2.  Edit `data_in_plain_text.txt` (Data)
+3.  Run:
+    ```bash
+    make run
+    ```
+    This will compile the code, run the simulation, and open GTKWave to view waveforms. Results will be saved to `data_out_plain_text.txt`.
 
+### 2. Run Verification Suite
+To run the full regression suite (Unit Tests + Fuzz Tests) in parallel:
 ```bash
-python3 assembler.py assembly_code.asm
+make verify
 ```
+This validates the RTL against the reference model.
 
-This will generate a binary file `machine_code` that can be loaded into the tensor core.
-
-
-You can also edit the input data which the machine code will use. The input data is stored in the `data_in_plain_text.txt` file. This is a human readable format, where each line contains 9 space-separated signed integers representing a 3x3 matrix in row-major order. For instance, the following line:
-
-```
-5 -8 2 10 -4 0 7 -1 9
-```
-
-represents the matrix:
-```
-[  5  -8   2 ]
-[ 10  -4   0 ]
-[  7  -1   9 ]
-```
-
-
-Then, the only thing you need to do is use the Makefile to run your assembly code:
-
+### 3. Fuzz Testing
+To regenerate the randomized fuzz test cases:
 ```bash
-make test_tensor_core
+make fuzz
 ```
 
-That's it! This command will:
-1. Convert plain text input data to binary format
-2. Compile all SystemVerilog source files using Icarus Verilog
-3. Run the simulation with VVP
-4. Convert binary output to human-readable format
-5. Launch GTKWave to view the waveforms
-
-Afterwards you can find the output of the tensor core program in the `data_out_plain_text.txt` file.
+### 4. Cleanup
+To remove generated artifacts:
+```bash
+make clean
+```
 
 
 
@@ -180,4 +171,6 @@ This represents the matrix:
 ### Output Data (`data_out_plain_text.txt`)
 
 Contains the results of matrix operations, also in 3x3 row-major format.
+
+
 

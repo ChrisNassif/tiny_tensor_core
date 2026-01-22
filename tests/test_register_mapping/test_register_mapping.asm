@@ -1,6 +1,6 @@
 reset
 nop
 burst write 0 1
-matrix_multiply
+matrix_add
 burst read 2
 nop

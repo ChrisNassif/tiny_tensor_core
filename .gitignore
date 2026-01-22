@@ -1,2 +1,9 @@
-build/*.out
-build/*.vcd
+build/
+__pycache__/
+*.pyc
+*.out
+*.vcd
+/data_in
+/data_out
+/machine_code
+/data_out_plain_text.txt
