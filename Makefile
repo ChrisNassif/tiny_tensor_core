@@ -31,7 +31,7 @@ test: verify
 
 # 3. Regenerate Fuzz Tests
 fuzz:
-	@python3 tests/create_stateless_fuzz.py
+	@python3 tests/create_fuzz.py
 	@echo "Fuzz tests regenerated."
 
 # 4. Clean Artifacts

@@ -7,15 +7,14 @@ def process_hex_data(input_file, output_file):
             parts = clean_line.split()
             
             for h in parts:
-                if len(h) == 2:
-                    try:
-                        val = int(h, 16)
-                        if val > 127:
-                            val -= 256
-                        decimals.append(val)
-                        
-                    except ValueError:
-                        continue
+                try:
+                    val = int(h, 16)
+                    if val > 127:
+                        val -= 256
+                    decimals.append(val)
+                    
+                except ValueError:
+                    continue
     
 
     row_size = 9

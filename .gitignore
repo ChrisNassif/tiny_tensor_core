@@ -7,3 +7,4 @@ __pycache__/
 /data_out
 /machine_code
 /data_out_plain_text.txt
+tests/test_fuzz_stateless

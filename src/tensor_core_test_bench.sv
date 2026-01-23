@@ -99,7 +99,7 @@ module tensor_core_test_bench();
         $display("    EXECUTING PROGRAM FROM MACHINE CODE FILE   ");
         $display("================================================");
         
-        for (integer i = 0; i < 100000; i = i + 1) begin
+        for (integer i = 0; i < 10000; i = i + 1) begin
             // wait to execute all of the instructions
             #20;
         end

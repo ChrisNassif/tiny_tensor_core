@@ -92,7 +92,7 @@ def main():
         print("No tests directory found.")
         sys.exit(1)
         
-    test_dirs = [d for d in os.listdir(test_root) if os.path.isdir(os.path.join(test_root, d))]
+    test_dirs = [d for d in os.listdir(test_root) if os.path.isdir(os.path.join(test_root, d)) and d != "__pycache__"]
     test_dirs.sort()
     
     # Use half of available CPUs to avoid freezing the system
