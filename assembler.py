@@ -3,7 +3,6 @@ import sys
 
 
 NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 16
-# NUMBER_OF_NOPS_AFTER_BURST_READ_OPERATION = 11
 
 
 operation_name_to_opcode = {
@@ -125,9 +124,6 @@ def main():
                 burst_write_matrix1_address = int(assembly_code_tokens[3])
                 burst_write_matrix2_address = int(assembly_code_tokens[4])
                 
-            # elif read_or_write == "matrix1_write":
-            #     burst_write_matrix1_address = int(assembly_code_tokens[2])
-                
             else:
                 raise Exception(f"Only accepts read or write or read_and_write as acceptable arguments on line {line_index}")
             
@@ -159,7 +155,7 @@ def main():
                 current_machine_code_line = ""
                                 
                 if burst_read_address is not None:
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + index, k=16)
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + int(index/2), k=16)
                 else:
                     current_machine_code_line += "0"*16
 
@@ -171,10 +167,8 @@ def main():
                 
                 
                 if 2*index < 9:
-                    # print(9*burst_write_matrix1_address + 2*index)
                     current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix1_address + 2*index,   k=16)
                 else:
-                    # print(9*burst_write_matrix2_address + 2*index - 9)
                     current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix2_address + 2*index - 9, k=16)
                 
             
@@ -192,22 +186,41 @@ def main():
                 
                 
                 machine_code.append(format(int(current_machine_code_line, 2), "016X") + '\n')
+
+
+            
+            if burst_read_address is not None:
+                for index in range(9, 18):
+                    current_machine_code_line = ""
+
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + int(index/2), k=16)     
+                        
+                    current_machine_code_line += "0"*32
+                    
+                    current_machine_code_line += "0"
+                    current_machine_code_line += "1"
+                    current_machine_code_line += "0"*10
                 
-            # machine_code.append(format(int("0"*64, 2), "016X") + '\n')
-            # machine_code.append(format(int("0"*64, 2), "016X") + '\n')
+                    current_machine_code_line += burst_read_write_selects[read_or_write]
+                    current_machine_code_line += operation_name_to_opcode["burst"]
+                    
+                                    
+                    machine_code.append(format(int(current_machine_code_line, 2), "016X") + '\n')
+
+                machine_code.append(format(int("0"*64, 2), "016X") + '\n')
+                
+            # else:
+            #     machine_code.append(format(int("0"*64, 2), "016X") + '\n')
+            #     machine_code.append(format(int("0"*64, 2), "016X") + '\n')
             
             
     
         elif burst_read_address is not None:
-            for index in range(9):
+            for index in range(18):
                 
                 current_machine_code_line = ""
-                
-                if burst_read_address is not None:
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + index, k=16)
-                
-                else:
-                    current_machine_code_line += "0"*16
+
+                current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + int(index/2), k=16)
                     
                     
                 current_machine_code_line += "0"*32
@@ -220,9 +233,9 @@ def main():
                 current_machine_code_line += operation_name_to_opcode["burst"]
                 
                                 
-                machine_code.append(format(int(current_machine_code_line, 2), "016X") + '\n')\
+                machine_code.append(format(int(current_machine_code_line, 2), "016X") + '\n')
                     
-            # machine_code.append(format(int("0"*64, 2), "016X") + '\n')
+            machine_code.append(format(int("0"*64, 2), "016X") + '\n')
             # machine_code.append(format(int("0"*64, 2), "016X") + '\n')
 
 

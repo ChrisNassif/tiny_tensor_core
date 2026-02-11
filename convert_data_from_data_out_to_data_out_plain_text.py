@@ -9,8 +9,8 @@ def process_hex_data(input_file, output_file):
             for h in parts:
                 try:
                     val = int(h, 16)
-                    if val > 127:
-                        val -= 256
+                    if val > (2**15 - 1):
+                        val -= (2**16)
                     decimals.append(val)
                     
                 except ValueError:

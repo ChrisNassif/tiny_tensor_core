@@ -3,11 +3,8 @@ import os
 import random
 import shutil
 
-def sat_add(a, b):
-    res = a + b
-    if res > 127: return 127
-    if res < -128: return -128
-    return res
+def wrap16(val):
+    return ((val + 32768) % 65536) - 32768
 
 def mat_mul(m1_flat, m2_flat):
     m1 = [m1_flat[i:i+3] for i in range(0, 9, 3)]
@@ -21,19 +18,22 @@ def mat_mul(m1_flat, m2_flat):
                 product = m1[i][k] * m2[k][j]
                 val += product
             
-            if val > 127: val = 127
-            if val < -128: val = -128
+            val = wrap16(val)
             res.append(val)
     return res
 
 def mat_add(m1_flat, m2_flat):
     res = []
     for i in range(9):
-        res.append(sat_add(m1_flat[i], m2_flat[i]))
+        res.append(m1_flat[i] + m2_flat[i])
     return res
 
 def mat_relu(m_flat):
     return [x if x > 0 else 0 for x in m_flat]
+
+def trunc8(m_flat):
+    """Truncate values to 8-bit signed, simulating hardware register load."""
+    return [((v + 128) % 256) - 128 for v in m_flat]
 
 def main():
     if len(sys.argv) < 3:
@@ -81,8 +81,8 @@ def main():
             if sub_op == "write":
                 idx1 = int(parts[2])
                 idx2 = int(parts[3])
-                current_input_1 = matrices[idx1]
-                current_input_2 = matrices[idx2]
+                current_input_1 = trunc8(matrices[idx1])
+                current_input_2 = trunc8(matrices[idx2])
             elif sub_op == "read":
                 idx_res = int(parts[2])
                 # In hardware, 'read' dumps the core output to memory.

@@ -1,17 +1,17 @@
 `define BUS_WIDTH 7
 
-`define BUS_MAX_SIGNED_INTEGER $signed({1'b0, {(`BUS_WIDTH){1'b1}}})
-`define BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY $signed({{(`BUS_WIDTH+3){1'b0}}, `BUS_MAX_SIGNED_INTEGER})
-`define BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_ADD $signed({{1'b0}, `BUS_MAX_SIGNED_INTEGER})
+// `define BUS_MAX_SIGNED_INTEGER $signed({1'b0, {(`BUS_WIDTH){1'b1}}})
+// `define BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY $signed({{(`BUS_WIDTH+3){1'b0}}, `BUS_MAX_SIGNED_INTEGER})
+// `define BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_ADD $signed({{1'b0}, `BUS_MAX_SIGNED_INTEGER})
 
-`define BUS_MIN_SIGNED_INTEGER $signed({1'b1, {(`BUS_WIDTH){1'b0}}})
-`define BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY $signed({{(`BUS_WIDTH+3){1'b1}}, `BUS_MIN_SIGNED_INTEGER})
-`define BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_ADD $signed({{1'b1}, `BUS_MIN_SIGNED_INTEGER})
-
-
+// `define BUS_MIN_SIGNED_INTEGER $signed({1'b1, {(`BUS_WIDTH){1'b0}}})
+// `define BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY $signed({{(`BUS_WIDTH+3){1'b1}}, `BUS_MIN_SIGNED_INTEGER})
+// `define BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_ADD $signed({{1'b1}, `BUS_MIN_SIGNED_INTEGER})
 
 
-module small_tensor_core (
+
+
+module tensor_core (
     input logic clock_in,
     input logic should_start_tensor_core,
     input logic [1:0] matrix_operation_select,
@@ -20,7 +20,7 @@ module small_tensor_core (
     input logic signed [`BUS_WIDTH:0] tensor_core_input1 [3][3], 
     input logic signed [`BUS_WIDTH:0] tensor_core_input2 [3][3],
 
-    output logic signed [`BUS_WIDTH:0] tensor_core_output [3][3]
+    output logic signed [`BUS_WIDTH*2+1:0] tensor_core_output [3][3]
 );
 
 
@@ -100,37 +100,14 @@ module small_tensor_core (
 
         // matrix multiply
         if (matrix_operation == 2'b00 && counter < 5'd9) begin 
-            
-            // clamp the value to the max signed integer or min signed integer in the case of overflow
-            if (intermediate_sum_matrix_multiply > `BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY) begin
-                tensor_core_output[counter/3][counter%3] <= `BUS_MAX_SIGNED_INTEGER;
-            end
-
-            else if (intermediate_sum_matrix_multiply < `BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY) begin
-                tensor_core_output[counter/3][counter%3] <= `BUS_MIN_SIGNED_INTEGER;
-            end
-
-            else begin
-                tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_multiply[`BUS_WIDTH:0];
-            end
+            tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_multiply;
         end
 
 
         // matrix addition
         else if (matrix_operation == 2'b01 && counter < 5'd9) begin
 
-            // clamp the value to the max signed integer or min signed integer in the case of overflow
-            if (intermediate_sum_matrix_add > `BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_ADD) begin
-                tensor_core_output[counter/3][counter%3] <= `BUS_MAX_SIGNED_INTEGER;
-            end
-
-            else if (intermediate_sum_matrix_add < `BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_ADD) begin
-                tensor_core_output[counter/3][counter%3] <= `BUS_MIN_SIGNED_INTEGER;
-            end
-
-            else begin
-                tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_add[`BUS_WIDTH:0];
-            end
+            tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_add;
         end
 
 
@@ -141,7 +118,7 @@ module small_tensor_core (
 
             for (int i = 0; i < 3; i++) begin
                 for (int j = 0; j < 3; j++) begin
-                    tensor_core_output[i][j] <= (tensor_core_output[i][j][`BUS_WIDTH] == 1'b0) ? tensor_core_output[i][j]: 0;
+                    tensor_core_output[i][j] <= (tensor_core_output[i][j][`BUS_WIDTH*2+1] == 1'b0) ? tensor_core_output[i][j]: 0;
                 end
             end
         end

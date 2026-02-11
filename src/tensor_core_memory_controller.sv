@@ -23,7 +23,7 @@ module tensor_core_memory_controller(
 );
 
     logic [63:0] machine_code [0:20000];
-    logic [`BUS_WIDTH:0] data [0:20000];
+    logic [15:0] data [0:20000];
     logic [15:0] current_machine_code_instruction_index_positive_edge;
     logic [15:0] current_machine_code_instruction_index_negative_edge;
     wire [15:0] current_machine_code_instruction_index;
@@ -64,10 +64,6 @@ module tensor_core_memory_controller(
 
     assign data_read_address1 = raw_current_instruction[31:16];
     assign data_read_address2 = raw_current_instruction[47:32];
-    
-    assign write_matrix_data1 = data[data_read_address1];
-    assign write_matrix_data2 = data[data_read_address2];
-
 
 
 
@@ -103,7 +99,7 @@ module tensor_core_memory_controller(
             current_tensor_core_instruction = 0;
         end
         else if (is_burst_write_active) begin
-            current_tensor_core_instruction = {data[data_read_address1], data[data_read_address2]};
+            current_tensor_core_instruction = {data[data_read_address1][`BUS_WIDTH:0], data[data_read_address2][`BUS_WIDTH:0]};
         end
 
         else if (is_burst_read_active) begin
@@ -121,13 +117,13 @@ module tensor_core_memory_controller(
     // handle writing data that is read from the tensor core
     always_ff @(posedge clock_in) begin
         if (data_write_enable) begin
-            data[data_write_address] <= data_write_data;
+            data[data_write_address][7:0] <= data_write_data;
         end
     end
 
     always_ff @(negedge clock_in) begin
         if (data_write_enable) begin
-            data[data_write_address] <= data_write_data;
+            data[data_write_address][15:8] <= data_write_data;
         end
     end
 

@@ -2,11 +2,8 @@
 import random
 import os
 
-def sat_add(a, b):
-    res = a + b
-    if res > 127: return 127
-    if res < -128: return -128
-    return res
+def wrap16(val):
+    return ((val + 32768) % 65536) - 32768
 
 def mat_mul(m1_flat, m2_flat):
     m1 = [m1_flat[i:i+3] for i in range(0, 9, 3)]
@@ -20,19 +17,22 @@ def mat_mul(m1_flat, m2_flat):
                 product = m1[i][k] * m2[k][j]
                 val += product
             
-            if val > 127: val = 127
-            if val < -128: val = -128
+            val = wrap16(val)
             res.append(val)
     return res
 
 def mat_add(m1_flat, m2_flat):
     res = []
     for i in range(9):
-        res.append(sat_add(m1_flat[i], m2_flat[i]))
+        res.append(m1_flat[i] + m2_flat[i])
     return res
 
 def mat_relu(m_flat):
     return [x if x > 0 else 0 for x in m_flat]
+
+def trunc8(m_flat):
+    """Truncate values to 8-bit signed, simulating hardware register load."""
+    return [((v + 128) % 256) - 128 for v in m_flat]
 
 def generate_stateless_fuzz_improved(test_name, num_ops=20):
     # Fixed seed for reproducibility
@@ -124,8 +124,8 @@ def generate_stateless_fuzz_improved(test_name, num_ops=20):
             if random.random() < 0.3: f.write("nop\n")
 
             # Perform the operation on (idxA, idxB)
-            m1 = matrices[idxA]
-            m2 = matrices[idxB]
+            m1 = trunc8(matrices[idxA])
+            m2 = trunc8(matrices[idxB])
             
             op = random.choice(ops)
             

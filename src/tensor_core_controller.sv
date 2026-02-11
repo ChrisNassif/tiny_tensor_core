@@ -13,9 +13,6 @@
 
 
 // TODO: OUTPUT IS ONLY 33 MHz
-// TODO: Potential optimization: make it so that we can read while doing a tensor core operation 
-//       and then have a write operation that only writes to matrix1
-//       so that 1 operation is approximately on average 1 half write + 1 tensor core operation
 module tensor_core_controller (
     input logic clock_in, 
     input logic reset_in,
@@ -30,7 +27,7 @@ module tensor_core_controller (
     logic signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_write_data [2] [3] [3];
     
     wire signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data [2] [3] [3];
-    wire signed [`BUS_WIDTH:0] tensor_core_output [3] [3];
+    wire signed [`BUS_WIDTH*2+1:0] tensor_core_output [3] [3];
     logic signed [`BUS_WIDTH:0] tensor_core_input1 [3] [3];
     logic signed [`BUS_WIDTH:0] tensor_core_input2 [3] [3];
 
@@ -40,7 +37,6 @@ module tensor_core_controller (
     logic is_burst_read_active;
     logic [3:0] burst_current_index; // stores the current index that the burst opcode is looking at either for reading or writing
     logic [`BUS_WIDTH:0] burst_write_negative_storage [2];
-    // logic should_restrict_quad_write_to_matrix1;
 
     wire [1:0] burst_read_write_select;
 
@@ -70,8 +66,8 @@ module tensor_core_controller (
     assign burst_current_quad_write_data[3] = current_instruction[7:0];
 
 
-    assign burst_current_dual_read_data[0] = tensor_core_output[(((burst_current_index<<1))%9)/3][((burst_current_index<<1))%3];
-    assign burst_current_dual_read_data[1] = tensor_core_output[(((burst_current_index<<1)+1)%9)/3][((burst_current_index<<1)+1)%3];
+    assign burst_current_dual_read_data[0] = tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][15:8];
+    assign burst_current_dual_read_data[1] = tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][7:0];
 
     assign tensor_core_controller_output = (is_burst_read_active ? burst_current_dual_read_data[~clock_in]: 8'b0);
 
@@ -79,64 +75,76 @@ module tensor_core_controller (
     // manage the state machine for the burst read and write
     // this state machine will manage the burst reads and writes and ensures that it happens for the correct amount of time
     always_ff @(posedge clock_in) begin
+        
+        // $display("burst_read_write_select: %b", burst_read_write_select);
+        // $display("burst_current_index: %b", burst_current_index);
+        // $display("opcode: %b", opcode);
 
         if (reset_in) begin
-            burst_current_index <= 5;
+            burst_current_index <= 9;
             is_burst_read_active <= 0;
             is_burst_write_active <= 0;
-            // should_restrict_quad_write_to_matrix1 <= 0;
         end
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_SELECT && (burst_current_index == 5 || burst_current_index == 4)) begin
+        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_SELECT && (burst_current_index == 9 || burst_current_index == 8)) begin
             burst_current_index <= 0;
             is_burst_write_active <= 0;
             is_burst_read_active <= 1;
         end
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_WRITE_SELECT && (burst_current_index == 5 || burst_current_index == 4)) begin
+        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_WRITE_SELECT && (burst_current_index == 9 || burst_current_index == 8)) begin
             burst_current_index <= 0;
             is_burst_write_active <= 1;
             is_burst_read_active <= 0;
-            // should_restrict_quad_write_to_matrix1 <= 0;
         end
 
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_AND_WRITE_SELECT && (burst_current_index == 5 || burst_current_index == 4)) begin
+        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_AND_WRITE_SELECT && (burst_current_index == 9 || burst_current_index == 8)) begin
             burst_current_index <= 0;
             is_burst_write_active <= 1;
             is_burst_read_active <= 1;
-            // should_restrict_quad_write_to_matrix1 <= 0;
         end
 
 
-        // else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_MATRIX1_SELECT && burst_current_index == 5) begin
-        //     burst_current_index <= 0;
-        //     is_burst_write_active <= 1;
-        //     is_burst_read_active <= 1;
-        //     should_restrict_quad_write_to_matrix1 <= 1;
-        // end
+        // handles burst read_write
+        else if (is_burst_read_active && is_burst_write_active && burst_current_index == 4) begin
+            burst_current_index <= burst_current_index + 1;
+            is_burst_write_active <= 0;
+        end
 
-        // else if ((is_burst_write_active && should_restrict_quad_write_to_matrix1) && burst_current_index < 4) begin
-        //     burst_current_index <= 5;
-        //     is_burst_read_active <= 0;
-        //     is_burst_write_active <= 0;
-        // end
-
-        // else if ((is_burst_write_active && should_restrict_quad_write_to_matrix1) && burst_current_index < 4) begin
-        //     burst_current_index <= 5;
-        //     is_burst_read_active <= 0;
-        //     is_burst_write_active <= 0;
-        // end
-
-        else if ((is_burst_read_active || is_burst_write_active) && burst_current_index < 4) begin
+        else if (is_burst_read_active && is_burst_write_active && burst_current_index < 8) begin
             burst_current_index <= burst_current_index + 1;
         end
 
-        else if ((is_burst_read_active || is_burst_write_active) && burst_current_index == 4) begin
+        else if (is_burst_read_active && is_burst_write_active && burst_current_index == 8) begin
             burst_current_index <= burst_current_index + 1;
             is_burst_read_active <= 0;
             is_burst_write_active <= 0;
         end
+
+
+        // handles burst read
+        else if (is_burst_read_active && burst_current_index < 8) begin
+            burst_current_index <= burst_current_index + 1;
+        end
+
+        else if (is_burst_read_active && burst_current_index == 8) begin
+            burst_current_index <= burst_current_index + 1;
+            is_burst_read_active <= 0;
+        end
+
+
+        // handles only burst write
+        else if (is_burst_write_active && burst_current_index < 4) begin
+            burst_current_index <= burst_current_index + 1;
+        end
+
+        else if (is_burst_write_active && burst_current_index == 4) begin
+            burst_current_index <= 9;
+            is_burst_write_active <= 0;
+        end
+
+        
     end
 
 
@@ -160,7 +168,7 @@ module tensor_core_controller (
     );
 
 
-    small_tensor_core main_tensor_core (
+    tensor_core main_tensor_core (
         .clock_in(clock_in),
         .reset_in(reset_in),
 
