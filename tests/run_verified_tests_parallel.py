@@ -95,8 +95,8 @@ def main():
     test_dirs = [d for d in os.listdir(test_root) if os.path.isdir(os.path.join(test_root, d)) and d != "__pycache__"]
     test_dirs.sort()
     
-    # Use half of available CPUs to avoid freezing the system
-    num_cpus = max(1, multiprocessing.cpu_count() // 2)
+    # Use quarter of available CPUs to avoid freezing the system
+    num_cpus = max(1, multiprocessing.cpu_count() // 4)
     print(f"Discovered {len(test_dirs)} tests. Running in parallel on {num_cpus} processes...")
     
     pool = multiprocessing.Pool(processes=num_cpus)

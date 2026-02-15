@@ -173,7 +173,6 @@ module tensor_core_controller (
         .reset_in(reset_in),
 
         .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && (!is_burst_write_active || burst_current_index == 4)),
-        .matrix_operation_select(current_instruction[3:2]),
 
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
         .tensor_core_output(tensor_core_output)

@@ -14,7 +14,6 @@
 module tensor_core (
     input logic clock_in,
     input logic should_start_tensor_core,
-    input logic [1:0] matrix_operation_select,
     input logic reset_in,
 
     input logic signed [`BUS_WIDTH:0] tensor_core_input1 [3][3], 
@@ -26,15 +25,10 @@ module tensor_core (
 
     logic [3:0] counter;
 
-    logic [1:0] matrix_operation;
 
     // these should get synthesized as a wire but is a logic rn for simplicity in generating a ton of them
     logic signed [`BUS_WIDTH*2 + 1:0] products_matrix_multiply [3];
     logic signed [`BUS_WIDTH*2 + 3:0] intermediate_sum_matrix_multiply;
-
-    logic signed [`BUS_WIDTH + 1:0] intermediate_sum_matrix_add;
-
-
 
 
     // The combinatorial logic to layout the multipliers and adders
@@ -46,22 +40,15 @@ module tensor_core (
         end
 
         intermediate_sum_matrix_multiply = products_matrix_multiply[0] + products_matrix_multiply[1] + products_matrix_multiply[2];
-
-
-        // Instantiate matrix addition adders
-        intermediate_sum_matrix_add = tensor_core_input1[counter/3][counter%3] + tensor_core_input2[counter/3][counter%3];
         
     end
 
 
 
-
-    assign is_tensor_core_done_with_calculation = (counter == 5'd8);
     // Two copies of the state machine that controls the state of the tensor core
     always_ff @(posedge clock_in) begin
 
         if (reset_in) begin
-            matrix_operation <= 0;
             counter <= 5'd9;
 
             for (int i = 0; i < 3; i = i + 1) begin
@@ -70,21 +57,10 @@ module tensor_core (
                 end
             end
         end
-
-        // if this is a relu, then this can be done in 1 clock cycle, so don't start the state machine
-        else if (matrix_operation_select == 2'b10 && should_start_tensor_core == 1 && (counter == 5'd9 || is_tensor_core_done_with_calculation)) begin
-            counter <= 5'd9;
-            matrix_operation <= matrix_operation_select;
-        end
-
-        else if (should_start_tensor_core == 1 && is_tensor_core_done_with_calculation) begin
-            counter <= 0;
-            matrix_operation <= matrix_operation_select;
-        end
+        
 
         else if (should_start_tensor_core == 1) begin
             counter <= 0;
-            matrix_operation <= matrix_operation_select;
         end
 
         else if (counter < 5'd9) begin
@@ -99,32 +75,10 @@ module tensor_core (
 
 
         // matrix multiply
-        if (matrix_operation == 2'b00 && counter < 5'd9) begin 
+        if (counter < 5'd9) begin 
             tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_multiply;
         end
-
-
-        // matrix addition
-        else if (matrix_operation == 2'b01 && counter < 5'd9) begin
-
-            tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_add;
-        end
-
-
-
-        // relu operation
-        // checks the sign bit and if its 1 then set the output to 0
-        else if (matrix_operation == 2'b10 && counter == 5'd9) begin
-
-            for (int i = 0; i < 3; i++) begin
-                for (int j = 0; j < 3; j++) begin
-                    tensor_core_output[i][j] <= (tensor_core_output[i][j][`BUS_WIDTH*2+1] == 1'b0) ? tensor_core_output[i][j]: 0;
-                end
-            end
-        end
     end
-
-
 
 
 
@@ -139,7 +93,6 @@ module tensor_core (
         end
 
         wire signed [7:0] intermediate_sum_matrix_multiply_ = intermediate_sum_matrix_multiply;
-        wire signed [7:0] intermediate_sum_matrix_add_ = intermediate_sum_matrix_add;
     endgenerate
 
 

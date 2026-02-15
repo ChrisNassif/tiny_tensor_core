@@ -2,8 +2,8 @@ reset
 nop
 burst write 0 1
 matrix_multiply
+burst read 2
+burst write 2 1
+matrix_multiply
 burst read 3
-burst write 3 2
-matrix_add
-burst read 4
 nop

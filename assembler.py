@@ -15,8 +15,6 @@ operation_name_to_opcode = {
 
 operate_opselects = {
     "matrix_multiply": "00",
-    "matrix_add": "01",
-    "relu": "10",
 }
 
 
@@ -92,14 +90,11 @@ def main():
             current_machine_code_line += operation_name_to_opcode[operation_name]
     
             
-        elif (operation_name in ["matrix_multiply", "matrix_add", "relu"]):
+        elif (operation_name in ["matrix_multiply"]):
             
             current_machine_code_line += "0"*12
             current_machine_code_line += operate_opselects[operation_name]
             current_machine_code_line += operation_name_to_opcode["operate"]
-            
-            if operation_name != "relu":
-                should_have_matrix_operation_nops_after = True
         
         
         elif (operation_name == "burst"):

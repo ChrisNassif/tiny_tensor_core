@@ -22,15 +22,6 @@ def mat_mul(m1_flat, m2_flat):
             res.append(val)
     return res
 
-def mat_add(m1_flat, m2_flat):
-    res = []
-    for i in range(9):
-        res.append(m1_flat[i] + m2_flat[i])
-    return res
-
-def mat_relu(m_flat):
-    return [x if x > 0 else 0 for x in m_flat]
-
 def trunc8(m_flat):
     """Truncate values to 8-bit signed, simulating hardware register load."""
     return [((v + 128) % 256) - 128 for v in m_flat]
@@ -102,13 +93,6 @@ def main():
                 # continue
             latched_result = mat_mul(current_input_1, current_input_2)
             
-        elif op == "matrix_add":
-            latched_result = mat_add(current_input_1, current_input_2)
-            
-        elif op == "relu":
-            # Relu operates on the latched result
-            latched_result = mat_relu(latched_result)
-        
         elif op in ["reset", "nop"]:
             pass
             
