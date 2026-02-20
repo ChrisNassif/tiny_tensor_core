@@ -3,15 +3,14 @@
 `define BURST_OPCODE 2'b10
 `define RESET_OPCODE 2'b11
 
-`define BURST_READ_SELECT 2'b00
-`define BURST_WRITE_SELECT 2'b01
-`define BURST_READ_AND_WRITE_SELECT 2'b10
+`define BURST_STORE_SELECT 2'b00
+`define BURST_LOAD_SELECT 2'b01
+`define BURST_STORE_AND_LOAD_SELECT 2'b10
 
 
 `define BUS_WIDTH 7
 
 
-// TODO: REWRITE TO NOT USE POSEDGE AND NEGEDGE AT THE SAME TIME
 module tensor_core_memory_controller(
     input logic clock_in,
     input logic reset_in,  // can be connected to ground
@@ -42,38 +41,38 @@ module tensor_core_memory_controller(
 
     logic [63:0] raw_current_instruction;
     wire [1:0] current_opcode;
-    wire [1:0] burst_read_write_select;
+    wire [1:0] burst_store_load_select;
 
     assign raw_current_instruction = machine_code[current_machine_code_instruction_index];
     assign current_opcode = raw_current_instruction[1:0];
-    assign burst_read_write_select = raw_current_instruction[3:2];
+    assign burst_store_load_select = raw_current_instruction[3:2];
 
 
 
-    wire is_burst_write_active;
-    wire is_burst_read_active;
+    wire is_burst_load_active;
+    wire is_burst_store_active;
     
-    assign is_burst_write_active = ((burst_read_write_select == `BURST_READ_AND_WRITE_SELECT || burst_read_write_select == `BURST_WRITE_SELECT) && current_opcode == `BURST_OPCODE && raw_current_instruction[15] == 1'b1);
-    assign is_burst_read_active = ((burst_read_write_select == `BURST_READ_AND_WRITE_SELECT || burst_read_write_select == `BURST_READ_SELECT) && current_opcode == `BURST_OPCODE && raw_current_instruction[14] == 1'b1);
+    assign is_burst_load_active = ((burst_store_load_select == `BURST_STORE_AND_LOAD_SELECT || burst_store_load_select == `BURST_LOAD_SELECT) && current_opcode == `BURST_OPCODE && raw_current_instruction[15] == 1'b1);
+    assign is_burst_store_active = ((burst_store_load_select == `BURST_STORE_AND_LOAD_SELECT || burst_store_load_select == `BURST_STORE_SELECT) && current_opcode == `BURST_OPCODE && raw_current_instruction[14] == 1'b1);
 
 
 
 
-    wire [15:0] data_read_address1;
-    wire [15:0] data_read_address2;
+    wire [15:0] data_store_address1;
+    wire [15:0] data_store_address2;
 
-    assign data_read_address1 = raw_current_instruction[31:16];
-    assign data_read_address2 = raw_current_instruction[47:32];
+    assign data_store_address1 = raw_current_instruction[31:16];
+    assign data_store_address2 = raw_current_instruction[47:32];
 
 
 
-    wire data_write_enable;
-    wire [15:0] data_write_address;
-    wire [`BUS_WIDTH:0] data_write_data;
+    wire data_load_enable;
+    wire [15:0] data_load_address;
+    wire [`BUS_WIDTH:0] data_load_data;
     
-    assign data_write_enable = is_burst_read_active;
-    assign data_write_address = machine_code[current_machine_code_instruction_index][63:48];
-    assign data_write_data = tensor_core_controller_output;
+    assign data_load_enable = is_burst_store_active;
+    assign data_load_address = machine_code[current_machine_code_instruction_index][63:48];
+    assign data_load_data = tensor_core_controller_output;
 
 
     initial begin
@@ -94,15 +93,15 @@ module tensor_core_memory_controller(
     
     always_comb begin
 
-        // Process the current instruction word if it is some kind of write or reset instructions
+        // Process the current instruction word if it is some kind of load or reset instructions
         if (reset_out) begin
             current_tensor_core_instruction = 0;
         end
-        else if (is_burst_write_active) begin
-            current_tensor_core_instruction = {data[data_read_address1][`BUS_WIDTH:0], data[data_read_address2][`BUS_WIDTH:0]};
+        else if (is_burst_load_active) begin
+            current_tensor_core_instruction = {data[data_store_address1][`BUS_WIDTH:0], data[data_store_address2][`BUS_WIDTH:0]};
         end
 
-        else if (is_burst_read_active) begin
+        else if (is_burst_store_active) begin
             current_tensor_core_instruction = 0;
         end
 
@@ -114,16 +113,16 @@ module tensor_core_memory_controller(
 
 
 
-    // handle writing data that is read from the tensor core
+    // handle writing data that is store from the tensor core
     always_ff @(posedge clock_in) begin
-        if (data_write_enable) begin
-            data[data_write_address][7:0] <= data_write_data;
+        if (data_load_enable) begin
+            data[data_load_address][7:0] <= data_load_data;
         end
     end
 
     always_ff @(negedge clock_in) begin
-        if (data_write_enable) begin
-            data[data_write_address][15:8] <= data_write_data;
+        if (data_load_enable) begin
+            data[data_load_address][15:8] <= data_load_data;
         end
     end
 

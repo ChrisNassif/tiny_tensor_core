@@ -8,3 +8,4 @@ __pycache__/
 /machine_code
 /data_out_plain_text.txt
 tests/test_fuzz_stateless
+models

@@ -9,12 +9,12 @@ module tensor_core_register_file (
     input logic reset_in,
 
     // writing elements 4 at a time
-    input logic quad_write_enable_in,
-    input logic [2:0] quad_write_register_address_in, // supports values 0 to 4
-    input logic signed [`BUS_WIDTH:0] quad_write_data_in [4],
-    // input logic should_restrict_quad_write_to_matrix1;
-    // bulk read
-    output logic signed [`BUS_WIDTH:0] bulk_read_data_out [2] [3] [3]
+    input logic quad_load_enable_in,
+    input logic [2:0] quad_load_register_address_in, // supports values 0 to 4
+    input logic signed [`BUS_WIDTH:0] quad_load_data_in [4],
+    // input logic should_restrict_quad_load_to_matrix1;
+    // bulk store
+    output logic signed [`BUS_WIDTH:0] bulk_store_data_out [2] [3] [3]
 );
 
 
@@ -24,11 +24,11 @@ module tensor_core_register_file (
 
     always_comb begin
 
-        // assign bulk read wires
+        // assign bulk store wires
         for (int n = 0; n < 2; n++) begin
             for (int i = 0; i < 3; i++) begin
                 for (int j = 0; j < 3; j++) begin
-                    bulk_read_data_out[n][i][j] = registers[n][i][j];
+                    bulk_store_data_out[n][i][j] = registers[n][i][j];
                 end
             end
         end
@@ -38,23 +38,23 @@ module tensor_core_register_file (
 
     always_ff @(posedge clock_in) begin
 
-        // // quad write with restriction
-        // if (quad_write_enable_in && reset_in == 0) begin
+        // // quad load with restriction
+        // if (quad_load_enable_in && reset_in == 0) begin
 
         //     for (int i = 0; i < 4; i++) begin
                 
-        //         if (!(should_restrict_quad_write_to_matrix1 && ((quad_write_register_address_in<<2)+i)/9 == 1)) begin
-        //             registers[((quad_write_register_address_in<<2)+i)/9][(((quad_write_register_address_in<<2)+i)%9)/3][((quad_write_register_address_in<<2)+i)%3] <= quad_write_data_in[i];
+        //         if (!(should_restrict_quad_load_to_matrix1 && ((quad_load_register_address_in<<2)+i)/9 == 1)) begin
+        //             registers[((quad_load_register_address_in<<2)+i)/9][(((quad_load_register_address_in<<2)+i)%9)/3][((quad_load_register_address_in<<2)+i)%3] <= quad_load_data_in[i];
         //         end
             
         //     end
         // end
 
-        // quad write with restriction
-        if (quad_write_enable_in && reset_in == 0) begin
+        // quad load with restriction
+        if (quad_load_enable_in && reset_in == 0) begin
 
             for (int i = 0; i < 4; i++) begin
-                registers[((quad_write_register_address_in<<2)+i)/9][(((quad_write_register_address_in<<2)+i)%9)/3][((quad_write_register_address_in<<2)+i)%3] <= quad_write_data_in[i];            
+                registers[((quad_load_register_address_in<<2)+i)/9][(((quad_load_register_address_in<<2)+i)%9)/3][((quad_load_register_address_in<<2)+i)%3] <= quad_load_data_in[i];            
             end
         end
 
@@ -79,8 +79,8 @@ module tensor_core_register_file (
     //         for (j = 0; j < 3; j++) begin : expose_regs2
     //             for (k = 0; k < 3; k++) begin : expose_regs3
     //                 wire [`BUS_WIDTH:0] reg_wire = registers[i][j][k];
-    //                 wire [`BUS_WIDTH:0] bulk_read_data_out_ = bulk_read_data_out[i][j][k];
-    //                 wire [`BUS_WIDTH:0] bulk_write_data_in_ = bulk_write_data_in[i][j][k];
+    //                 wire [`BUS_WIDTH:0] bulk_store_data_out_ = bulk_store_data_out[i][j][k];
+    //                 wire [`BUS_WIDTH:0] bulk_load_data_in_ = bulk_load_data_in[i][j][k];
     //             end
     //         end
     //     end

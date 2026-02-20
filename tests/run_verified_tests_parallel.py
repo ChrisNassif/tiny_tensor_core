@@ -78,7 +78,7 @@ def run_single_test(test_name):
             
             for i, exp_row in enumerate(expected_data):
                 if actual_data[i] != exp_row:
-                    return (test_name, False, f"Mismatch at row {i}")
+                    return (test_name, False, f"Mismatch at row {i}: expected {exp_row}, got {actual_data[i]}")
                     
             return (test_name, True, "Verified Pass")
                 

@@ -28,14 +28,14 @@ def generate_hazard_test():
         f.write("nop\n")
         
         # Load Mat 0 (10s) and Mat 1 (1s)
-        f.write("burst write 0 1\n")
+        f.write("burst store_and_load 19 0 1\n")
         
         # Op 1: 10 * 1 * 3 = 30.
         # Result is 30s.
         f.write("matrix_multiply\n")
         
-        # Hazard Op: Write Result (30s) to Mem 0. Read Mem 0 to Reg A. Read Mem 2 (2s) to Reg B.
-        f.write("burst read_and_write 0 0 2\n")
+        # Hazard Op: Load Result (30s) to Mem 0. Store Mem 0 to Reg A. Store Mem 2 (2s) to Reg B.
+        f.write("burst store_and_load 19 0 2\n")
         
         # Op 2: Reg A * Reg B.
         # If Reg A got Old Mem 0 (10s): 10 * 2 * 3 = 60.
@@ -43,7 +43,7 @@ def generate_hazard_test():
         f.write("matrix_multiply\n")
         
         # Store Result to Mem 3
-        f.write("burst read 3\n")
+        f.write("burst store_and_load 3 0 0\n")
 
     with open(data_file, "w") as f:
         for m in matrices:
@@ -79,9 +79,9 @@ def generate_hazard_test():
     print(f"Result in Mem 3: {res}")
     
     if res == 60:
-        print("CONCLUSION: READ-BEFORE-WRITE (Old Value). No Forwarding.")
+        print("CONCLUSION: STORE-BEFORE-LOAD (Old Value). No Forwarding.")
     elif res == 180:
-        print("CONCLUSION: READ-AFTER-WRITE (New Value). Forwarding.")
+        print("CONCLUSION: STORE-AFTER-LOAD (New Value). Forwarding.")
     else:
         print(f"CONCLUSION: UNKNOWN ({res}). Something else happened.")
 

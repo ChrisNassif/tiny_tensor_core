@@ -1,15 +1,5 @@
 `define BUS_WIDTH 7
 
-// `define BUS_MAX_SIGNED_INTEGER $signed({1'b0, {(`BUS_WIDTH){1'b1}}})
-// `define BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY $signed({{(`BUS_WIDTH+3){1'b0}}, `BUS_MAX_SIGNED_INTEGER})
-// `define BUS_MAX_SIGNED_INTEGER_EXTENDED_MATRIX_ADD $signed({{1'b0}, `BUS_MAX_SIGNED_INTEGER})
-
-// `define BUS_MIN_SIGNED_INTEGER $signed({1'b1, {(`BUS_WIDTH){1'b0}}})
-// `define BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_MULTIPLY $signed({{(`BUS_WIDTH+3){1'b1}}, `BUS_MIN_SIGNED_INTEGER})
-// `define BUS_MIN_SIGNED_INTEGER_EXTENDED_MATRIX_ADD $signed({{1'b1}, `BUS_MIN_SIGNED_INTEGER})
-
-
-
 
 module tensor_core (
     input logic clock_in,
@@ -28,7 +18,7 @@ module tensor_core (
 
     // these should get synthesized as a wire but is a logic rn for simplicity in generating a ton of them
     logic signed [`BUS_WIDTH*2 + 1:0] products_matrix_multiply [3];
-    logic signed [`BUS_WIDTH*2 + 3:0] intermediate_sum_matrix_multiply;
+    logic signed [`BUS_WIDTH*2 + 1:0] intermediate_sum_matrix_multiply;
 
 
     // The combinatorial logic to layout the multipliers and adders
@@ -89,10 +79,10 @@ module tensor_core (
     genvar k, l;
     generate
         for (k = 0; k < 3; k++) begin : expose_tensor_core2
-            wire signed [7:0] products_matrix_multiply_wire = products_matrix_multiply[k];
+            wire signed [16:0] products_matrix_multiply_wire = products_matrix_multiply[k];
         end
 
-        wire signed [7:0] intermediate_sum_matrix_multiply_ = intermediate_sum_matrix_multiply;
+        wire signed [16:0] intermediate_sum_matrix_multiply_ = intermediate_sum_matrix_multiply;
     endgenerate
 
 
@@ -106,7 +96,7 @@ module tensor_core (
         end
 
         for (a = 0; a < 9; a++) begin: expose_tensor_core5
-            wire [7:0] tensor_core_output_wire = tensor_core_output[a/3][a%3];
+            wire [16:0] tensor_core_output_wire = tensor_core_output[a/3][a%3];
         end
     endgenerate
 endmodule

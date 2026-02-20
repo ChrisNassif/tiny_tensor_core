@@ -67,7 +67,7 @@ def main():
         op = parts[0]
         
         if op == "burst":
-            # burst write/read
+
             sub_op = parts[1]
             if sub_op == "write":
                 idx1 = int(parts[2])
@@ -76,21 +76,11 @@ def main():
                 current_input_2 = trunc8(matrices[idx2])
             elif sub_op == "read":
                 idx_res = int(parts[2])
-                # In hardware, 'read' dumps the core output to memory.
-                # In our simulation, the op (add/mul) already updated 'core output'.
-                # But wait, in 'create_stateless_fuzz', the op updates the matrix directly.
-                # However, the ASM has instructions like:
-                # burst write -> matrix_op -> burst read
-                # So the op computes result, stores in internal latch.
-                # burst read writes internal latch to memory.
-                
-                # My simple model needs to track "latched result".
-                pass 
                 
         elif op == "matrix_multiply":
             if current_input_1 is None or current_input_2 is None:
                 print("Warning: Matrix op without initialization")
-                # continue
+
             latched_result = mat_mul(current_input_1, current_input_2)
             
         elif op in ["reset", "nop"]:
@@ -105,10 +95,7 @@ def main():
     with open(dest_data, "w") as f:
         for m in initial_matrices: 
             f.write(" ".join(map(str, m)) + "\n")
-        # Fill rest of memory (up to 20000 lines required? Fuzz test writes 20 + zeros)
-        # Fuzz test writes initial state + 20 lines of zeros?
-        # create_stateless_fuzz lines 103: for _ in range(20): f.write("0... \n")
-        # It writes 40 lines total.
+
         for _ in range(20): f.write("0 0 0 0 0 0 0 0 0\n")
 
     with open(dest_expected, "w") as f:

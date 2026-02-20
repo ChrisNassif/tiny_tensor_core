@@ -20,7 +20,7 @@ def mat_mul(m1_flat, m2_flat):
 def fmt(m):
     return ' '.join(map(str, m))
 
-# test_basic_ops: write 0 1, mul -> 2
+# test_basic_ops: load 0 1, mul -> 2
 m0 = [1,2,3,4,5,6,7,8,9]
 m1 = [9,8,7,6,5,4,3,2,1]
 mul_res = mat_mul(m0, m1)
@@ -28,7 +28,7 @@ print('=== test_basic_ops ===')
 for r in [m0, m1, mul_res]:
     print(fmt(r))
 
-# test_chained_ops: write 0 1, mul -> 2, write 2 1, mul -> 3
+# test_chained_ops: load 0 1, mul -> 2, load 2 1, mul -> 3
 m0 = [2]*9
 m1 = [3]*9
 mul1 = mat_mul(m0, m1)

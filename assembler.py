@@ -18,11 +18,8 @@ operate_opselects = {
 }
 
 
-burst_read_write_selects = {
-    "read": "00",
-    "write": "01",
-    "read_and_write": "10",
-    "matrix1_write": "11"
+burst_store_load_selects = {
+    "store_and_load": "10"
 }
 
 
@@ -74,11 +71,11 @@ def main():
 
         should_have_matrix_operation_nops_after = False
         
-        burst_write_matrix1_address = None
-        burst_write_matrix2_address = None
-        burst_read_address = None
+        burst_load_matrix1_address = None
+        burst_load_matrix2_address = None
+        burst_store_address = None
         
-        read_or_write = None
+        store_or_load = None
         
         current_machine_code_line = ""
         current_machine_code_line += "0" * 48
@@ -95,32 +92,28 @@ def main():
             current_machine_code_line += "0"*12
             current_machine_code_line += operate_opselects[operation_name]
             current_machine_code_line += operation_name_to_opcode["operate"]
+            
+            should_have_matrix_operation_nops_after = True
         
         
         elif (operation_name == "burst"):
             
-            read_or_write = assembly_code_tokens[1]
+            store_or_load = assembly_code_tokens[1]
+
+            if store_or_load != "store_and_load":
+                raise Exception(f"Only accepts store_and_load as an acceptable argument on line {line_index}")
 
             current_machine_code_line += "0"*12
             
-            current_machine_code_line += burst_read_write_selects[read_or_write]
+            current_machine_code_line += burst_store_load_selects[store_or_load]
             current_machine_code_line += operation_name_to_opcode["burst"]
             
-            if read_or_write == "write":
-                burst_write_matrix1_address = int(assembly_code_tokens[2])
-                burst_write_matrix2_address = int(assembly_code_tokens[3])
-                
-            elif read_or_write == "read":
-                burst_read_address = int(assembly_code_tokens[2])
-                should_have_burst_operation_nops_after = True
+            burst_store_address = int(assembly_code_tokens[2])
+            burst_load_matrix1_address = int(assembly_code_tokens[3])
+            burst_load_matrix2_address = int(assembly_code_tokens[4])
             
-            elif read_or_write == "read_and_write":
-                burst_read_address = int(assembly_code_tokens[2])
-                burst_write_matrix1_address = int(assembly_code_tokens[3])
-                burst_write_matrix2_address = int(assembly_code_tokens[4])
-                
-            else:
-                raise Exception(f"Only accepts read or write or read_and_write as acceptable arguments on line {line_index}")
+            if burst_store_address in [burst_load_matrix1_address, burst_load_matrix2_address]:
+                raise Exception(f"Pipeline Hazard on line {line_index}: Cannot store to and load from the same matrix address ({burst_store_address}) in the same instruction.")
             
         else:
             raise Exception(f"operation name {operation_name} on line {line_index} is not supported")
@@ -144,39 +137,39 @@ def main():
 
 
         
-        if burst_write_matrix1_address is not None and burst_write_matrix2_address is not None:
+        if burst_load_matrix1_address is not None and burst_load_matrix2_address is not None:
             
             for index in range(9):
                 current_machine_code_line = ""
                                 
-                if burst_read_address is not None:
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + int(index/2), k=16)
+                if burst_store_address is not None:
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_store_address + int(index/2), k=16)
                 else:
                     current_machine_code_line += "0"*16
 
 
                 if 2*index+1 < 9:
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix1_address + 2*index+1, k=16)
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_load_matrix1_address + 2*index+1, k=16)
                 else:
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix2_address + 2*index+1 - 9, k=16)
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_load_matrix2_address + 2*index+1 - 9, k=16)
                 
                 
                 if 2*index < 9:
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix1_address + 2*index,   k=16)
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_load_matrix1_address + 2*index,   k=16)
                 else:
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_write_matrix2_address + 2*index - 9, k=16)
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_load_matrix2_address + 2*index - 9, k=16)
                 
             
                 current_machine_code_line += "1"
                 
-                if burst_read_address is not None:
+                if burst_store_address is not None:
                     current_machine_code_line += "1"
                 else:
                     current_machine_code_line += "0"
                     
                 current_machine_code_line += "0"*10
             
-                current_machine_code_line += burst_read_write_selects[read_or_write]
+                current_machine_code_line += burst_store_load_selects[store_or_load]
                 current_machine_code_line += operation_name_to_opcode["burst"]
                 
                 
@@ -184,11 +177,11 @@ def main():
 
 
             
-            if burst_read_address is not None:
+            if burst_store_address is not None:
                 for index in range(9, 18):
                     current_machine_code_line = ""
 
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + int(index/2), k=16)     
+                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_store_address + int(index/2), k=16)     
                         
                     current_machine_code_line += "0"*32
                     
@@ -196,7 +189,7 @@ def main():
                     current_machine_code_line += "1"
                     current_machine_code_line += "0"*10
                 
-                    current_machine_code_line += burst_read_write_selects[read_or_write]
+                    current_machine_code_line += burst_store_load_selects[store_or_load]
                     current_machine_code_line += operation_name_to_opcode["burst"]
                     
                                     
@@ -210,28 +203,7 @@ def main():
             
             
     
-        elif burst_read_address is not None:
-            for index in range(18):
-                
-                current_machine_code_line = ""
 
-                current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_read_address + int(index/2), k=16)
-                    
-                    
-                current_machine_code_line += "0"*32
-                
-                current_machine_code_line += "0"
-                current_machine_code_line += "1"
-                current_machine_code_line += "0"*10
-            
-                current_machine_code_line += burst_read_write_selects[read_or_write]
-                current_machine_code_line += operation_name_to_opcode["burst"]
-                
-                                
-                machine_code.append(format(int(current_machine_code_line, 2), "016X") + '\n')
-                    
-            machine_code.append(format(int("0"*64, 2), "016X") + '\n')
-            # machine_code.append(format(int("0"*64, 2), "016X") + '\n')
 
 
 

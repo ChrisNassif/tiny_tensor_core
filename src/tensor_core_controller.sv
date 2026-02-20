@@ -2,10 +2,10 @@
 `define TENSOR_CORE_OPERATE_OPCODE 2'b01
 `define BURST_OPCODE 2'b10
 
-`define BURST_READ_SELECT 2'b00
-`define BURST_WRITE_SELECT 2'b01
-`define BURST_READ_AND_WRITE_SELECT 2'b10
-`define BURST_MATRIX1_WRITE_SELECT 2'b11
+`define BURST_STORE_SELECT 2'b00
+`define BURST_LOAD_SELECT 2'b01
+`define BURST_STORE_AND_LOAD_SELECT 2'b10
+`define BURST_MATRIX1_LOAD_SELECT 2'b11
 
 
 `define BUS_WIDTH 7
@@ -23,30 +23,30 @@ module tensor_core_controller (
 
 
     // DECLARATIONS
-    logic tensor_core_register_file_bulk_write_enable;
-    logic signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_write_data [2] [3] [3];
+    logic tensor_core_register_file_bulk_load_enable;
+    logic signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_load_data [2] [3] [3];
     
-    wire signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data [2] [3] [3];
+    wire signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_store_data [2] [3] [3];
     wire signed [`BUS_WIDTH*2+1:0] tensor_core_output [3] [3];
     logic signed [`BUS_WIDTH:0] tensor_core_input1 [3] [3];
     logic signed [`BUS_WIDTH:0] tensor_core_input2 [3] [3];
 
 
     // used for the burst instruction state machine
-    logic is_burst_write_active;
-    logic is_burst_read_active;
-    logic [3:0] burst_current_index; // stores the current index that the burst opcode is looking at either for reading or writing
-    logic [`BUS_WIDTH:0] burst_write_negative_storage [2];
+    logic is_burst_load_active;
+    logic is_burst_store_active;
+    logic [3:0] burst_current_index; // stores the current index that the burst opcode is looking at either for storing or loading
+    logic [`BUS_WIDTH:0] burst_load_negative_storage [2];
 
-    wire [1:0] burst_read_write_select;
+    wire [1:0] burst_store_load_select;
 
-    wire signed [`BUS_WIDTH:0] burst_current_dual_read_data [2];
-    wire signed [`BUS_WIDTH:0] burst_current_quad_write_data [4];
+    wire signed [`BUS_WIDTH:0] burst_current_dual_store_data [2];
+    wire signed [`BUS_WIDTH:0] burst_current_quad_load_data [4];
     
-    wire [2:0] burst_quad_write_address;
-    wire [`BUS_WIDTH:0] burst_quad_write_data [4];
+    wire [2:0] burst_quad_load_address;
+    wire [`BUS_WIDTH:0] burst_quad_load_data [4];
 
-    wire [3:0] burst_dual_read_address; 
+    wire [3:0] burst_dual_store_address; 
 
 
 
@@ -58,100 +58,59 @@ module tensor_core_controller (
     assign opcode = current_instruction[1:0];
     assign generic_opselect = current_instruction[3:2];
     assign operate_opselect = current_instruction[4:2];
-    assign burst_read_write_select = current_instruction[3:2];
+    assign burst_store_load_select = current_instruction[3:2];
 
-    assign burst_current_quad_write_data[0] = burst_write_negative_storage[0];
-    assign burst_current_quad_write_data[1] = burst_write_negative_storage[1];
-    assign burst_current_quad_write_data[2] = current_instruction[15:8];
-    assign burst_current_quad_write_data[3] = current_instruction[7:0];
-
-
-    assign burst_current_dual_read_data[0] = tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][15:8];
-    assign burst_current_dual_read_data[1] = tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][7:0];
-
-    assign tensor_core_controller_output = (is_burst_read_active ? burst_current_dual_read_data[~clock_in]: 8'b0);
+    assign burst_current_quad_load_data[0] = burst_load_negative_storage[0];
+    assign burst_current_quad_load_data[1] = burst_load_negative_storage[1];
+    assign burst_current_quad_load_data[2] = current_instruction[15:8];
+    assign burst_current_quad_load_data[3] = current_instruction[7:0];
 
 
-    // manage the state machine for the burst read and write
-    // this state machine will manage the burst reads and writes and ensures that it happens for the correct amount of time
+    assign burst_current_dual_store_data[0] = tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][15:8];
+    assign burst_current_dual_store_data[1] = tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][7:0];
+
+    assign tensor_core_controller_output = (is_burst_store_active ? burst_current_dual_store_data[~clock_in]: 8'b0);
+
+
+    // manage the state machine for the burst store and load
+    // this state machine will manage the burst stores and loads and ensures that it happens for the correct amount of time
     always_ff @(posedge clock_in) begin
         
-        // $display("burst_read_write_select: %b", burst_read_write_select);
-        // $display("burst_current_index: %b", burst_current_index);
-        // $display("opcode: %b", opcode);
-
         if (reset_in) begin
             burst_current_index <= 9;
-            is_burst_read_active <= 0;
-            is_burst_write_active <= 0;
+            is_burst_store_active <= 0;
+            is_burst_load_active <= 0;
         end
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_SELECT && (burst_current_index == 9 || burst_current_index == 8)) begin
+        else if (opcode == `BURST_OPCODE && burst_store_load_select == `BURST_STORE_AND_LOAD_SELECT && (burst_current_index == 9 || burst_current_index == 8)) begin
             burst_current_index <= 0;
-            is_burst_write_active <= 0;
-            is_burst_read_active <= 1;
+            is_burst_load_active <= 1;
+            is_burst_store_active <= 1;
         end
 
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_WRITE_SELECT && (burst_current_index == 9 || burst_current_index == 8)) begin
-            burst_current_index <= 0;
-            is_burst_write_active <= 1;
-            is_burst_read_active <= 0;
-        end
-
-
-        else if (opcode == `BURST_OPCODE && burst_read_write_select == `BURST_READ_AND_WRITE_SELECT && (burst_current_index == 9 || burst_current_index == 8)) begin
-            burst_current_index <= 0;
-            is_burst_write_active <= 1;
-            is_burst_read_active <= 1;
-        end
-
-
-        // handles burst read_write
-        else if (is_burst_read_active && is_burst_write_active && burst_current_index == 4) begin
+        // handles burst store_load
+        else if (burst_current_index == 4) begin
             burst_current_index <= burst_current_index + 1;
-            is_burst_write_active <= 0;
+            is_burst_load_active <= 0;
         end
 
-        else if (is_burst_read_active && is_burst_write_active && burst_current_index < 8) begin
+        else if (burst_current_index < 8) begin
             burst_current_index <= burst_current_index + 1;
         end
 
-        else if (is_burst_read_active && is_burst_write_active && burst_current_index == 8) begin
+        else if (burst_current_index == 8) begin
             burst_current_index <= burst_current_index + 1;
-            is_burst_read_active <= 0;
-            is_burst_write_active <= 0;
+            is_burst_store_active <= 0;
+            is_burst_load_active <= 0;
         end
 
-
-        // handles burst read
-        else if (is_burst_read_active && burst_current_index < 8) begin
-            burst_current_index <= burst_current_index + 1;
-        end
-
-        else if (is_burst_read_active && burst_current_index == 8) begin
-            burst_current_index <= burst_current_index + 1;
-            is_burst_read_active <= 0;
-        end
-
-
-        // handles only burst write
-        else if (is_burst_write_active && burst_current_index < 4) begin
-            burst_current_index <= burst_current_index + 1;
-        end
-
-        else if (is_burst_write_active && burst_current_index == 4) begin
-            burst_current_index <= 9;
-            is_burst_write_active <= 0;
-        end
-
-        
     end
 
 
 
     always_ff @(negedge clock_in) begin
-        burst_write_negative_storage[0] <= current_instruction[15:8];
-        burst_write_negative_storage[1] <= current_instruction[7:0];
+        burst_load_negative_storage[0] <= current_instruction[15:8];
+        burst_load_negative_storage[1] <= current_instruction[7:0];
     end
  
 
@@ -159,12 +118,11 @@ module tensor_core_controller (
     tensor_core_register_file main_tensor_core_register_file (
         .clock_in(clock_in), .reset_in(reset_in),
 
-        .quad_write_enable_in(is_burst_write_active),
-        .quad_write_register_address_in(burst_current_index[2:0]),
-        .quad_write_data_in(burst_current_quad_write_data),
-        // .should_restrict_quad_write_to_matrix1(should_restrict_quad_write_to_matrix1),
+        .quad_load_enable_in(is_burst_load_active),
+        .quad_load_register_address_in(burst_current_index[2:0]),
+        .quad_load_data_in(burst_current_quad_load_data),
 
-        .bulk_read_data_out(tensor_core_register_file_bulk_read_data)
+        .bulk_store_data_out(tensor_core_register_file_bulk_store_data)
     );
 
 
@@ -172,7 +130,7 @@ module tensor_core_controller (
         .clock_in(clock_in),
         .reset_in(reset_in),
 
-        .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && (!is_burst_write_active || burst_current_index == 4)),
+        .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && (!is_burst_load_active || burst_current_index == 4)),
 
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
         .tensor_core_output(tensor_core_output)
@@ -182,8 +140,8 @@ module tensor_core_controller (
     always_comb begin
         for (int i = 0; i < 3; i++) begin
             for (int j = 0; j < 3; j++) begin
-                tensor_core_input1[i][j] = tensor_core_register_file_bulk_read_data[0][i][j];
-                tensor_core_input2[i][j] = tensor_core_register_file_bulk_read_data[1][i][j];
+                tensor_core_input1[i][j] = tensor_core_register_file_bulk_store_data[0][i][j];
+                tensor_core_input2[i][j] = tensor_core_register_file_bulk_store_data[1][i][j];
             end
         end
     end
@@ -208,18 +166,18 @@ module tensor_core_controller (
         for (n = 0; n < 2; n++) begin: expose_matrix_index
             for (i = 0; i < 3; i++) begin : expose_tensor_core
                 for (j = 0; j < 3; j++) begin: expose_tensor_core2
-                    wire [`BUS_WIDTH:0] tensor_core_register_file_bulk_read_data_ = tensor_core_register_file_bulk_read_data[n][i][j];
+                    wire [`BUS_WIDTH:0] tensor_core_register_file_bulk_store_data_ = tensor_core_register_file_bulk_store_data[n][i][j];
                     // wire [`BUS_WIDTH:0] tensor_core_output_ = tensor_core_output[i][j];
                 end
             end
         end
 
         for (a = 0; a < 2; a++) begin: hi
-            wire signed [`BUS_WIDTH:0] burst_current_dual_read_data_ = burst_current_dual_read_data[a];
+            wire signed [`BUS_WIDTH:0] burst_current_dual_store_data_ = burst_current_dual_store_data[a];
         end
 
         for (b = 0; b < 4; b++) begin: h2
-            wire signed [`BUS_WIDTH:0] burst_current_quad_write_data_ = burst_current_quad_write_data[b];
+            wire signed [`BUS_WIDTH:0] burst_current_quad_load_data_ = burst_current_quad_load_data[b];
         end
     endgenerate
 

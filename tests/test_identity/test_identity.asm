@@ -1,6 +1,6 @@
 reset
 nop
-burst write 0 1
+burst store_and_load 19 0 1
 matrix_multiply
-burst read 2
+burst store_and_load 2 0 0
 nop

@@ -1,143 +1,171 @@
 reset
 nop
-burst write 15 2
+burst store_and_load 19 15 2
 matrix_multiply
-burst read_and_write 4 15 17
-matrix_multiply
-burst read 6
-burst write 17 6
-matrix_multiply
-burst read 14
-burst write 16 14
+burst store_and_load 4 19 19
+burst store_and_load 19 15 17
 nop
 matrix_multiply
-burst read_and_write 0 18 17
+burst store_and_load 6 19 19
+burst store_and_load 19 17 6
+matrix_multiply
+burst store_and_load 11 19 19
+burst store_and_load 19 14 16
+matrix_multiply
+burst store_and_load 7 19 19
+burst store_and_load 19 2 10
 nop
 matrix_multiply
-burst read 1
-burst write 7 2
-matrix_multiply
-burst read 16
-burst write 7 8
+burst store_and_load 18 19 19
+burst store_and_load 19 7 0
 nop
 matrix_multiply
-burst read 18
-burst write 18 15
+burst store_and_load 7 19 19
+burst store_and_load 19 2 1
 matrix_multiply
-burst read 6
-burst write 3 3
+burst store_and_load 16 19 19
+burst store_and_load 19 7 8
 matrix_multiply
-burst read_and_write 14 1 3
+burst store_and_load 17 19 19
+burst store_and_load 19 4 18
 matrix_multiply
-burst read 7
-burst write 6 6
+burst store_and_load 15 19 19
+burst store_and_load 19 13 6
 nop
 matrix_multiply
-burst read 8
-burst write 14 7
+burst store_and_load 11 19 19
+burst store_and_load 19 13 13
+matrix_multiply
+burst store_and_load 3 19 19
+burst store_and_load 19 1 12
+matrix_multiply
+burst store_and_load 7 19 19
+burst store_and_load 19 6 6
+matrix_multiply
+burst store_and_load 13 19 19
+burst store_and_load 19 5 8
+matrix_multiply
+burst store_and_load 14 19 19
+burst store_and_load 19 17 3
 nop
 matrix_multiply
-burst read 1
-burst write 17 0
+burst store_and_load 2 19 19
+burst store_and_load 19 7 5
 matrix_multiply
-burst read_and_write 5 13 15
-matrix_multiply
-burst read 5
-burst write 12 0
+burst store_and_load 6 19 19
+burst store_and_load 19 12 1
 nop
 matrix_multiply
-burst read 9
-burst write 13 17
-matrix_multiply
-burst read 9
-burst write 6 1
-matrix_multiply
-burst read 1
-burst write 1 18
-matrix_multiply
-burst read 1
-burst write 16 2
+burst store_and_load 12 19 19
+burst store_and_load 19 8 14
 nop
 matrix_multiply
-burst read 7
-burst write 12 3
-matrix_multiply
-burst read 19
-burst write 2 13
-matrix_multiply
-burst read_and_write 8 6 10
-matrix_multiply
-burst read_and_write 14 10 2
-matrix_multiply
-burst read 2
-burst write 17 6
+burst store_and_load 4 19 19
+burst store_and_load 19 6 9
 nop
 matrix_multiply
-burst read_and_write 2 7 11
+burst store_and_load 18 19 19
+burst store_and_load 19 17 1
 matrix_multiply
-burst read 19
-burst write 16 0
+burst store_and_load 1 19 19
+burst store_and_load 19 18 15
 matrix_multiply
-burst read 4
-burst write 8 3
+burst store_and_load 1 19 19
+burst store_and_load 19 16 2
 matrix_multiply
-burst read_and_write 8 9 19
-matrix_multiply
-burst read 16
-burst write 15 8
-matrix_multiply
-burst read_and_write 13 8 1
-matrix_multiply
-burst read 5
-burst write 14 17
-matrix_multiply
-burst read_and_write 2 4 17
-matrix_multiply
-burst read_and_write 13 4 1
-matrix_multiply
-burst read 11
-burst write 6 7
-matrix_multiply
-burst read 19
-burst write 4 7
-matrix_multiply
-burst read 13
-burst write 0 5
-matrix_multiply
-burst read 7
-burst write 8 5
+burst store_and_load 2 19 19
+burst store_and_load 19 7 12
 nop
 matrix_multiply
-burst read 15
-burst write 7 6
+burst store_and_load 18 19 19
+burst store_and_load 19 1 2
 matrix_multiply
-burst read 7
-burst write 7 0
+burst store_and_load 8 19 19
+burst store_and_load 19 6 10
+nop
 matrix_multiply
-burst read 2
-burst write 8 11
+burst store_and_load 4 19 19
+burst store_and_load 19 9 14
 matrix_multiply
-burst read_and_write 0 3 8
+burst store_and_load 0 19 19
+burst store_and_load 19 14 18
 matrix_multiply
-burst read_and_write 1 3 19
+burst store_and_load 17 19 19
+burst store_and_load 19 6 16
+nop
 matrix_multiply
-burst read_and_write 13 19 16
+burst store_and_load 2 19 19
+burst store_and_load 19 7 11
+nop
 matrix_multiply
-burst read_and_write 8 1 13
+burst store_and_load 17 19 19
+burst store_and_load 19 9 16
+nop
 matrix_multiply
-burst read 11
-burst write 13 2
+burst store_and_load 3 19 19
+burst store_and_load 19 4 8
+nop
 matrix_multiply
-burst read_and_write 3 9 16
+burst store_and_load 17 19 19
+burst store_and_load 19 4 8
+nop
 matrix_multiply
-burst read_and_write 9 17 4
+burst store_and_load 10 19 19
+burst store_and_load 19 6 8
 matrix_multiply
-burst read_and_write 5 19 18
+burst store_and_load 1 19 19
+burst store_and_load 19 2 13
 matrix_multiply
-burst read 9
-burst write 9 6
+burst store_and_load 0 19 19
+burst store_and_load 19 10 4
 matrix_multiply
-burst read 14
-burst write 14 14
+burst store_and_load 5 19 19
+burst store_and_load 19 14 17
 matrix_multiply
-burst read 2
+burst store_and_load 3 19 19
+burst store_and_load 19 2 4
+matrix_multiply
+burst store_and_load 18 19 19
+burst store_and_load 19 17 4
+matrix_multiply
+burst store_and_load 9 19 19
+burst store_and_load 19 11 1
+matrix_multiply
+burst store_and_load 7 19 19
+burst store_and_load 19 3 11
+matrix_multiply
+burst store_and_load 4 19 19
+burst store_and_load 19 7 5
+matrix_multiply
+burst store_and_load 13 19 19
+burst store_and_load 19 0 5
+matrix_multiply
+burst store_and_load 13 19 19
+burst store_and_load 19 7 8
+nop
+matrix_multiply
+burst store_and_load 12 19 19
+burst store_and_load 19 1 15
+nop
+matrix_multiply
+burst store_and_load 11 19 19
+burst store_and_load 19 9 7
+nop
+matrix_multiply
+burst store_and_load 12 19 19
+burst store_and_load 19 10 8
+matrix_multiply
+burst store_and_load 11 19 19
+burst store_and_load 19 16 12
+matrix_multiply
+burst store_and_load 0 19 19
+burst store_and_load 19 3 8
+nop
+matrix_multiply
+burst store_and_load 1 19 19
+burst store_and_load 19 3 13
+matrix_multiply
+burst store_and_load 13 19 19
+burst store_and_load 19 16 3
+matrix_multiply
+burst store_and_load 8 19 19

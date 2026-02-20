@@ -34,7 +34,7 @@ The system is split into two physical components designed for different hardware
 ║  │             │                                │                     │  ║
 ║  │             ▼                                ▼                     │  ║
 ║  │    ┌──────────────────┐          ┌────────────────────────┐        │  ║
-║  │    │   Instruction    │          │  Burst Read/Write      │        │  ║
+║  │    │   Instruction    │          │  Burst Store/Load      │        │  ║
 ║  │    │      Fetch       │─────────▶│  Control Logic         │        │  ║
 ║  │    └──────────────────┘          └────────────────────────┘        │  ║
 ║  └────────────────────────────────────────────────────────────────────┘  ║
@@ -57,7 +57,7 @@ The system is split into two physical components designed for different hardware
 ║  │         ▼                    ▼                   ▼                 │  ║
 ║  │    ┌────────────────┐   ┌─────────────┐   ┌────────────────────┐   │  ║
 ║  │    │ Burst          │   │  Register   │   │   Tensor Core      │   │  ║
-║  │    │ Read/Write     │   │    File     │   │      (ALU)         │   │  ║
+║  │    │ Store/Load     │   │    File     │   │      (ALU)         │   │  ║
 ║  │    │ State Machine  │   │             │   │                    │   │  ║
 ║  │    └───────┬────────┘   │ ┌─────────┐ │   │ • Matrix Multiply  │   │  ║
 ║  │            │            │ │ M1 │ M2 │─┼──▶│ • Matrix Add       │   │  ║
@@ -72,9 +72,9 @@ The system is split into two physical components designed for different hardware
 **Module Descriptions:**
 | Module | File | Target | Description |
 |--------|------|--------|-------------|
-| Memory Controller | `tensor_core_memory_controller.sv` | FPGA | Instruction fetch, matrix data I/O, burst read/write |
+| Memory Controller | `tensor_core_memory_controller.sv` | FPGA | Instruction fetch, matrix data I/O, burst store/load |
 | Tensor Core Controller | `tensor_core_controller.sv` | ASIC | Instruction decode, register file & tensor core orchestration |
-| Register File | `tensor_core_register_file.sv` | ASIC | Two 3×3 matrices (18 × 8-bit signed), quad-write burst loading |
+| Register File | `tensor_core_register_file.sv` | ASIC | Two 3×3 matrices (18 × 8-bit signed), quad-load burst loading |
 | Tensor Core | `tensor_core.sv` | ASIC | Matrix multiply, add, ReLU with saturation arithmetic |
 
 
@@ -144,11 +144,7 @@ The tensor core uses a custom instruction set for matrix operations:
 | `nop`                  | `nop`                                                                      | No operation                             |
 | `reset`                | `reset`                                                                    | Reset all registers and state            |
 | `matrix_multiply`      | `matrix_multiply`                                                          | Multiply matrices in input registers     |
-| `matrix_add`           | `matrix_add`                                                               | Add loaded matrices element-wise         |
-| `relu`                 | `relu`                                                                     | Apply ReLU activation to output          |
-| `burst read`           | `burst read <address>`                                                     | Burst read from memory address           |
-| `burst write`          | `burst write <address1> <address2>`                                        | Burst write to two matrix addresses      |
-| `burst read_and_write` | `burst read_and_write <read_address> <write_address1> <write_address2>`    | Combined read and write for better speed |
+| `burst store_and_load` | `burst store_and_load <store_address> <load_address1> <load_address2>`    | Combined store and load for better speed |
 
 
 ## Input/Output Data Format

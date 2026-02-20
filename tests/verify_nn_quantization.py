@@ -2,7 +2,7 @@
 import random
 import os
 import subprocess
-import shutil
+
 
 TEST_NAME = "test_nn_quantization"
 NUM_OPS = 100
@@ -72,12 +72,8 @@ def generate_nn_stress_test():
     total_wraps = 0
     overall_max = 0
     overall_min = 0
-    
-    # Simulator State (Hardware Memory)
-    # Simulator truncates to 8-bit on Load? Or Controller truncates on Read?
-    # Python model must track the memory state as 16-bit (what is written).
-    # But USE trunc8 when reading as Input.
-    
+
+
     with open(asm_file, "w") as f:
         f.write("reset\n")
         f.write("nop\n")
@@ -86,7 +82,7 @@ def generate_nn_stress_test():
         # Load initial inputs
         idxA = 6 # Max Pos (63)
         idxB = 6 # Max Pos (63)
-        f.write(f"burst write {idxA} {idxB}\n")
+        f.write(f"burst store_and_load 19 {idxA} {idxB}\n")
         
         for i in range(NUM_OPS):
             if random.random() < 0.1: f.write("nop\n")
@@ -121,15 +117,16 @@ def generate_nn_stress_test():
                 next_idxB = random.randint(0, 9)
 
                 
-            f.write(f"burst read {idxRes}\n")
             if i < NUM_OPS - 1:
                 idxA = next_idxA
                 idxB = next_idxB
-                f.write(f"burst write {idxA} {idxB}\n")
+                f.write(f"burst store_and_load {idxRes} {idxA} {idxB}\n")
+            else:
+                f.write(f"burst store_and_load {idxRes} 0 0\n")
 
 
 
-    # Write data
+    # Load data
     with open(data_file, "w") as f:
         for m in input_matrices_snapshot:
             f.write(" ".join(map(str, m)) + "\n")
@@ -139,7 +136,7 @@ def generate_nn_stress_test():
         for _ in range(40 - len(matrices)):
              f.write("0 0 0 0 0 0 0 0 0\n")
              
-    # Write EXPECTED output (for make test verification)
+    # Load EXPECTED output (for make test verification)
     expected_file = f"tests/{TEST_NAME}/expected_output.txt"
     with open(expected_file, "w") as f:
         for m in matrices:
@@ -175,7 +172,7 @@ def generate_nn_stress_test():
         print("Error: Sim did not produce output.")
         return
         
-    # Read Sim Output
+    # Store Sim Output
     # compare with `matrices` final state?
     # `matrices` holds the python-calculated final state (wrapped).
     # We should match exactly.
