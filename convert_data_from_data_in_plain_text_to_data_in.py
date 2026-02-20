@@ -7,7 +7,7 @@ def convert_to_uppercase_hex_lines(input_file, output_file):
                 for val in numbers:
                     try:
                         num = int(val)
-                        hex_str = f"{num & 0xFFFF:04X}"
+                        hex_str = f"{num & 0xFFFFFFFF:08X}"
                         
                         f_out.write(hex_str + "\n")
                     except ValueError:

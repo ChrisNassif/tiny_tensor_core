@@ -1,12 +1,7 @@
-`define NOP_OPCODE 2'b00
-`define TENSOR_CORE_OPERATE_OPCODE 2'b01
-`define BURST_OPCODE 2'b10
-`define RESET_OPCODE 2'b11
-
-`define BURST_STORE_SELECT 2'b00
-`define BURST_LOAD_SELECT 2'b01
-`define BURST_STORE_AND_LOAD_SELECT 2'b10
-
+`define NOP_OPCODE 3'b000
+`define TENSOR_CORE_OPERATE_OPCODE 3'b001
+`define BURST_OPCODE 3'b010
+`define RESET_OPCODE 3'b011
 
 `define BUS_WIDTH 7
 
@@ -22,57 +17,53 @@ module tensor_core_memory_controller(
 );
 
     logic [63:0] machine_code [0:20000];
-    logic [15:0] data [0:20000];
+    logic [31:0] data [0:20000];
     logic [15:0] current_machine_code_instruction_index_positive_edge;
     logic [15:0] current_machine_code_instruction_index_negative_edge;
     wire [15:0] current_machine_code_instruction_index;
-
-
-
-    assign clock_out = clock_in;
 
 
     logic power_on_reset_signal = 1;
     logic positive_edge_reset_called;
 
     assign reset_out = (current_opcode == `RESET_OPCODE) || reset_in || power_on_reset_signal;
+    assign clock_out = clock_in;
+
 
 
 
     logic [63:0] raw_current_instruction;
-    wire [1:0] current_opcode;
-    wire [1:0] burst_store_load_select;
+    wire [2:0] current_opcode;
 
     assign raw_current_instruction = machine_code[current_machine_code_instruction_index];
-    assign current_opcode = raw_current_instruction[1:0];
-    assign burst_store_load_select = raw_current_instruction[3:2];
+    assign current_opcode = raw_current_instruction[2:0];
 
 
 
     wire is_burst_load_active;
     wire is_burst_store_active;
     
-    assign is_burst_load_active = ((burst_store_load_select == `BURST_STORE_AND_LOAD_SELECT || burst_store_load_select == `BURST_LOAD_SELECT) && current_opcode == `BURST_OPCODE && raw_current_instruction[15] == 1'b1);
-    assign is_burst_store_active = ((burst_store_load_select == `BURST_STORE_AND_LOAD_SELECT || burst_store_load_select == `BURST_STORE_SELECT) && current_opcode == `BURST_OPCODE && raw_current_instruction[14] == 1'b1);
+    assign is_burst_load_active = (current_opcode == `BURST_OPCODE && raw_current_instruction[15] == 1'b1);
+    assign is_burst_store_active = (current_opcode == `BURST_OPCODE && raw_current_instruction[14] == 1'b1);
 
 
 
 
-    wire [15:0] data_store_address1;
-    wire [15:0] data_store_address2;
+    wire [15:0] data_load_address1;
+    wire [15:0] data_load_address2;
 
-    assign data_store_address1 = raw_current_instruction[31:16];
-    assign data_store_address2 = raw_current_instruction[47:32];
+    assign data_load_address1 = raw_current_instruction[31:16];
+    assign data_load_address2 = raw_current_instruction[47:32];
 
 
 
-    wire data_load_enable;
-    wire [15:0] data_load_address;
-    wire [`BUS_WIDTH:0] data_load_data;
+    wire data_store_enable;
+    wire [15:0] data_store_address;
+    wire [`BUS_WIDTH:0] data_store_data;
     
-    assign data_load_enable = is_burst_store_active;
-    assign data_load_address = machine_code[current_machine_code_instruction_index][63:48];
-    assign data_load_data = tensor_core_controller_output;
+    assign data_store_enable = is_burst_store_active;
+    assign data_store_address = machine_code[current_machine_code_instruction_index][63:48];
+    assign data_store_data = tensor_core_controller_output;
 
 
     initial begin
@@ -98,7 +89,8 @@ module tensor_core_memory_controller(
             current_tensor_core_instruction = 0;
         end
         else if (is_burst_load_active) begin
-            current_tensor_core_instruction = {data[data_store_address1][`BUS_WIDTH:0], data[data_store_address2][`BUS_WIDTH:0]};
+            current_tensor_core_instruction = {data[data_load_address1][`BUS_WIDTH:0], data[data_load_address2][`BUS_WIDTH:0]};
+            
         end
 
         else if (is_burst_store_active) begin
@@ -113,16 +105,22 @@ module tensor_core_memory_controller(
 
 
 
-    // handle writing data that is store from the tensor core
+    // handle writing data that is being stored into main memory from the tensor core
     always_ff @(posedge clock_in) begin
-        if (data_load_enable) begin
-            data[data_load_address][7:0] <= data_load_data;
+        if (data_store_enable) begin
+            data[data_store_address][7:0] <= data_store_data;
         end
     end
 
     always_ff @(negedge clock_in) begin
-        if (data_load_enable) begin
-            data[data_load_address][15:8] <= data_load_data;
+        if (data_store_enable) begin
+            data[data_store_address][15:8] <= data_store_data;
+
+            if (data_store_data[7] == 1) begin
+                data[data_store_address][31:16] <= 16'hFFFF;
+            end else begin
+                data[data_store_address][31:16] <= 16'h0000;
+            end
         end
     end
 

@@ -144,7 +144,7 @@ The tensor core uses a custom instruction set for matrix operations:
 | `nop`                  | `nop`                                                                      | No operation                             |
 | `reset`                | `reset`                                                                    | Reset all registers and state            |
 | `matrix_multiply`      | `matrix_multiply`                                                          | Multiply matrices in input registers     |
-| `burst store_and_load` | `burst store_and_load <store_address> <load_address1> <load_address2>`    | Combined store and load for better speed |
+| `burst store_and_load` | `burst store_and_load <store_address> <load_address1> <load_address2> <scale factor (defaults to 1)>`    | Combined store and load for better speed |
 
 
 ## Input/Output Data Format

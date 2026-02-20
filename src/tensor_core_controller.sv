@@ -1,12 +1,6 @@
-`define NOP_OPCODE 2'b00
-`define TENSOR_CORE_OPERATE_OPCODE 2'b01
-`define BURST_OPCODE 2'b10
-
-`define BURST_STORE_SELECT 2'b00
-`define BURST_LOAD_SELECT 2'b01
-`define BURST_STORE_AND_LOAD_SELECT 2'b10
-`define BURST_MATRIX1_LOAD_SELECT 2'b11
-
+`define NOP_OPCODE 3'b000
+`define TENSOR_CORE_OPCODE 3'b001
+`define BURST_OPCODE 3'b010
 
 `define BUS_WIDTH 7
 
@@ -38,10 +32,9 @@ module tensor_core_controller (
     logic [3:0] burst_current_index; // stores the current index that the burst opcode is looking at either for storing or loading
     logic [`BUS_WIDTH:0] burst_load_negative_storage [2];
 
-    wire [1:0] burst_store_load_select;
-
     wire signed [`BUS_WIDTH:0] burst_current_dual_store_data [2];
     wire signed [`BUS_WIDTH:0] burst_current_quad_load_data [4];
+    
     
     wire [2:0] burst_quad_load_address;
     wire [`BUS_WIDTH:0] burst_quad_load_data [4];
@@ -52,13 +45,8 @@ module tensor_core_controller (
 
 
     wire [1:0] opcode;
-    wire [1:0] generic_opselect;
-    wire [2:0] operate_opselect;
 
-    assign opcode = current_instruction[1:0];
-    assign generic_opselect = current_instruction[3:2];
-    assign operate_opselect = current_instruction[4:2];
-    assign burst_store_load_select = current_instruction[3:2];
+    assign opcode = current_instruction[2:0];
 
     assign burst_current_quad_load_data[0] = burst_load_negative_storage[0];
     assign burst_current_quad_load_data[1] = burst_load_negative_storage[1];
@@ -82,7 +70,7 @@ module tensor_core_controller (
             is_burst_load_active <= 0;
         end
 
-        else if (opcode == `BURST_OPCODE && burst_store_load_select == `BURST_STORE_AND_LOAD_SELECT && (burst_current_index == 9 || burst_current_index == 8)) begin
+        else if (opcode == `BURST_OPCODE && (burst_current_index == 9 || burst_current_index == 8)) begin
             burst_current_index <= 0;
             is_burst_load_active <= 1;
             is_burst_store_active <= 1;
@@ -130,7 +118,7 @@ module tensor_core_controller (
         .clock_in(clock_in),
         .reset_in(reset_in),
 
-        .should_start_tensor_core(opcode == `TENSOR_CORE_OPERATE_OPCODE && (!is_burst_load_active || burst_current_index == 4)),
+        .should_start_tensor_core(opcode == `TENSOR_CORE_OPCODE && (!is_burst_load_active || burst_current_index == 8)),
 
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
         .tensor_core_output(tensor_core_output)
