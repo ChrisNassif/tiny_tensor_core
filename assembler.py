@@ -112,9 +112,9 @@ def main():
 
         
         elif (operation_name == "matrix_add"):
-            matrix_input1_address = int(assembly_code_tokens[2])
-            matrix_input2_address = int(assembly_code_tokens[3])
-            matrix_output_address = int(assembly_code_tokens[4])
+            matrix_output_address = 9 * int(assembly_code_tokens[1])
+            matrix_input1_address = 9 * int(assembly_code_tokens[2])
+            matrix_input2_address = 9 * int(assembly_code_tokens[3])
             
             current_machine_code_line += number_into_unsigned_kbit_binary(matrix_output_address, k=16)
             current_machine_code_line += number_into_unsigned_kbit_binary(matrix_input2_address, k=16)
@@ -127,10 +127,10 @@ def main():
         elif (operation_name == "matrix_scale"):
             current_machine_code_line += "0" * 32
             
-            matrix_address = int(assembly_code_tokens[2])
+            matrix_address = 9 * int(assembly_code_tokens[1])
             
-            scale_factor = int(round(math.log2(assembly_code_tokens[3])))
-            
+            scale_factor = int(round(math.log2(float(assembly_code_tokens[2]))))
+
             current_machine_code_line += number_into_unsigned_kbit_binary(matrix_address, k=16)
             
             current_machine_code_line += "0"*5
@@ -141,7 +141,7 @@ def main():
         elif (operation_name == "matrix_relu"):
             current_machine_code_line += "0" * 32
             
-            matrix_address = int(assembly_code_tokens[2])
+            matrix_address = 9 * int(assembly_code_tokens[1])
             
             current_machine_code_line += number_into_unsigned_kbit_binary(matrix_address, k=16)
             current_machine_code_line += "0"*13

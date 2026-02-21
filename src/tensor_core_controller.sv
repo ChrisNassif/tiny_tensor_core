@@ -44,7 +44,7 @@ module tensor_core_controller (
 
 
 
-    wire [1:0] opcode;
+    wire [2:0] opcode;
 
     assign opcode = current_instruction[2:0];
 

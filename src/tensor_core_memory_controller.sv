@@ -2,8 +2,12 @@
 `define TENSOR_CORE_OPERATE_OPCODE 3'b001
 `define BURST_OPCODE 3'b010
 `define RESET_OPCODE 3'b011
+`define MATRIX_ADD_OPCODE 3'b100
+`define MATRIX_SCALE_OPCODE 3'b101
+`define MATRIX_RELU_OPCODE 3'b110
 
 `define BUS_WIDTH 7
+
 
 
 module tensor_core_memory_controller(
@@ -34,10 +38,18 @@ module tensor_core_memory_controller(
 
     logic [63:0] raw_current_instruction;
     wire [2:0] current_opcode;
+    wire [7:0] scale_factor; 
+    wire [7:0] negative_scale_factor;
+    wire [7:0] scale_factor2;
+    wire [31:0] temp1;
+    wire [31:0] temp2;
+    wire [31:0] temp3;
+    wire [31:0] temp4;
 
     assign raw_current_instruction = machine_code[current_machine_code_instruction_index];
     assign current_opcode = raw_current_instruction[2:0];
-
+    assign scale_factor = raw_current_instruction[10:3];
+    assign negative_scale_factor = ~scale_factor+1;
 
 
     wire is_burst_load_active;
@@ -66,6 +78,8 @@ module tensor_core_memory_controller(
     assign data_store_data = tensor_core_controller_output;
 
 
+
+
     initial begin
         
         for (int i = 0; i < 20000; i++) begin
@@ -84,12 +98,12 @@ module tensor_core_memory_controller(
     
     always_comb begin
 
-        // Process the current instruction word if it is some kind of load or reset instructions
         if (reset_out) begin
             current_tensor_core_instruction = 0;
         end
         else if (is_burst_load_active) begin
-            current_tensor_core_instruction = {data[data_load_address1][`BUS_WIDTH:0], data[data_load_address2][`BUS_WIDTH:0]};
+            // Cast down to 8 bits explicitly to satisfy the 16-bit output bus size and avoid dynamic slice synthesis bugs
+            current_tensor_core_instruction = {8'(data[data_load_address1]), 8'(data[data_load_address2])};
             
         end
 
@@ -106,9 +120,37 @@ module tensor_core_memory_controller(
 
 
     // handle writing data that is being stored into main memory from the tensor core
+    // also handle any relevant memory controller opcodes
     always_ff @(posedge clock_in) begin
         if (data_store_enable) begin
             data[data_store_address][7:0] <= data_store_data;
+        end
+
+        else if (current_opcode == `MATRIX_ADD_OPCODE) begin
+            for (int i = 0; i < 9; i++) begin
+                data[data_store_address + i] <= data[data_load_address1 + i] + data[data_load_address2 + i];
+            end
+        end
+
+        else if (current_opcode == `MATRIX_SCALE_OPCODE) begin
+            for (int i = 0; i < 9; i++) begin
+                if (scale_factor[7] == 1) begin
+                    data[data_load_address1 + i] <= $signed(data[data_load_address1 + i]) >>> negative_scale_factor;
+                end
+                
+                else begin
+                    data[data_load_address1 + i] <= data[data_load_address1 + i] << scale_factor; 
+                end
+
+            end
+        end
+
+        else if (current_opcode == `MATRIX_RELU_OPCODE) begin
+            for (int i = 0; i < 9; i++) begin
+                if (data[data_load_address1 + i][31] == 1) begin
+                    data[data_load_address1 + i] <= 0;
+                end
+            end
         end
     end
 

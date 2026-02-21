@@ -22,6 +22,22 @@ def mat_mul(m1_flat, m2_flat):
             res.append(val)
     return res
 
+def mat_add(m1_flat, m2_flat):
+    return [wrap16(a + b) for a, b in zip(m1_flat, m2_flat)]
+
+def mat_scale(m_flat, scale_val):
+    scale_factor = int(round(math.log2(float(scale_val))))
+    res = []
+    for v in m_flat:
+        if scale_factor < 0:
+            res.append(wrap16(v >> abs(scale_factor)))
+        else:
+            res.append(wrap16(v << scale_factor))
+    return res
+
+def mat_relu(m_flat):
+    return [0 if v < 0 else v for v in m_flat]
+
 def trunc8(m_flat):
     """Truncate values to 8-bit signed, simulating hardware register load."""
     return [((v + 128) % 256) - 128 for v in m_flat]
@@ -67,29 +83,41 @@ def main():
         op = parts[0]
         
         if op == "burst":
-
             sub_op = parts[1]
-            if sub_op == "write":
-                idx1 = int(parts[2])
-                idx2 = int(parts[3])
-                current_input_1 = trunc8(matrices[idx1])
-                current_input_2 = trunc8(matrices[idx2])
-            elif sub_op == "read":
+            if sub_op == "store_and_load":
                 idx_res = int(parts[2])
+                idx1 = int(parts[3])
+                idx2 = int(parts[4])
+                
+                # Store latched result from previous operations first
+                matrices[idx_res] = latched_result
+                
+                # Load next inputs
+                current_input_1 = matrices[idx1]
+                current_input_2 = matrices[idx2]
                 
         elif op == "matrix_multiply":
             if current_input_1 is None or current_input_2 is None:
                 print("Warning: Matrix op without initialization")
-
             latched_result = mat_mul(current_input_1, current_input_2)
+            
+        elif op == "matrix_add":
+            idx1 = int(parts[2])
+            idx2 = int(parts[3])
+            idx_res = int(parts[4])
+            matrices[idx_res] = mat_add(matrices[idx1], matrices[idx2])
+            
+        elif op == "matrix_scale":
+            idx_res = int(parts[1])
+            scale_val = float(parts[2])
+            matrices[idx_res] = mat_scale(matrices[idx_res], scale_val)
+            
+        elif op == "matrix_relu":
+            idx_res = int(parts[1])
+            matrices[idx_res] = mat_relu(matrices[idx_res])
             
         elif op in ["reset", "nop"]:
             pass
-            
-        # Re-check burst read to assign latched result
-        if op == "burst" and parts[1] == "read":
-             idx_res = int(parts[2])
-             matrices[idx_res] = latched_result
 
     # Write Data Files
     with open(dest_data, "w") as f:
