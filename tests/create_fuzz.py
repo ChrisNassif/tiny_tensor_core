@@ -10,7 +10,7 @@ def generate_stateless_fuzz_improved(test_name, num_ops=50):
     data_file = f"tests/{test_name}/data_in_plain_text.txt"
     expected_file = f"tests/{test_name}/expected_output.txt"
     
-    ops = ["matrix_multiply"]
+    ops = ["matrix_multiply", "matrix_add", "matrix_scale", "matrix_relu"]
     matrices = [[random.randint(-10, 10) for _ in range(9)] for _ in range(20)]
     
     with open(asm_file, "w") as f:
@@ -24,8 +24,27 @@ def generate_stateless_fuzz_improved(test_name, num_ops=50):
         for i in range(num_ops):
             if random.random() < 0.3: f.write("nop\n")
             op = random.choice(ops)
-            f.write(f"{op}\n")
             
+            if op == "matrix_multiply":
+                f.write("matrix_multiply\n")
+                
+            elif op == "matrix_add":
+                res = random.randint(0, 18)
+                op1 = random.randint(0, 18)
+                op2 = random.randint(0, 18)
+                f.write(f"matrix_add {res} {op1} {op2}\n")
+                
+            elif op == "matrix_scale":
+                res = random.randint(0, 18)
+                scale_vals = [0.125, 0.25, 0.5, 2, 4, 8]
+                f.write(f"matrix_scale {res} {random.choice(scale_vals)}\n")
+                
+            elif op == "matrix_relu":
+                res = random.randint(0, 18)
+                f.write(f"matrix_relu {res}\n")
+            
+            
+            # Continue the old tensor core `burst` hazard resolution workaround
             idxRes = random.randint(0, 18)
             next_idxA = random.randint(0, 18)
             next_idxB = random.randint(0, 18)
@@ -45,5 +64,9 @@ def generate_stateless_fuzz_improved(test_name, num_ops=50):
              f.write("0 0 0 0 0 0 0 0 0\n")
 
     print(f"Generated ASM and Data for {test_name}.")
+    
+    # Automatically execute the trace simulator pipeline
+    subprocess.run(["python3", "tests/create_test_from_asm.py", asm_file, test_name], check=True)
 
-generate_stateless_fuzz_improved("test_fuzz", 50)
+if __name__ == "__main__":
+    generate_stateless_fuzz_improved("test_fuzz", 50)

@@ -2,6 +2,7 @@ import sys
 import os
 import random
 import shutil
+import math
 
 def wrap16(val):
     return ((val + 32768) % 65536) - 32768
@@ -38,6 +39,8 @@ def mat_scale(m_flat, scale_val):
 def mat_relu(m_flat):
     return [0 if v < 0 else v for v in m_flat]
 
+
+
 def trunc8(m_flat):
     """Truncate values to 8-bit signed, simulating hardware register load."""
     return [((v + 128) % 256) - 128 for v in m_flat]
@@ -59,7 +62,10 @@ def main():
     dest_expected = f"{test_dir}/expected_output.txt"
     
     # Copy ASM to destination
-    shutil.copy(asm_file_path, dest_asm)
+    try:
+        shutil.copy(asm_file_path, dest_asm)
+    except shutil.SameFileError:
+        pass
     
     # Initialize State
     random.seed(42)
@@ -89,12 +95,10 @@ def main():
                 idx1 = int(parts[3])
                 idx2 = int(parts[4])
                 
-                # Store latched result from previous operations first
                 matrices[idx_res] = latched_result
                 
-                # Load next inputs
-                current_input_1 = matrices[idx1]
-                current_input_2 = matrices[idx2]
+                current_input_1 = trunc8(matrices[idx1])
+                current_input_2 = trunc8(matrices[idx2])
                 
         elif op == "matrix_multiply":
             if current_input_1 is None or current_input_2 is None:
@@ -102,9 +106,9 @@ def main():
             latched_result = mat_mul(current_input_1, current_input_2)
             
         elif op == "matrix_add":
+            idx_res = int(parts[1])
             idx1 = int(parts[2])
             idx2 = int(parts[3])
-            idx_res = int(parts[4])
             matrices[idx_res] = mat_add(matrices[idx1], matrices[idx2])
             
         elif op == "matrix_scale":
@@ -131,4 +135,7 @@ def main():
             f.write(" ".join(map(str, m)) + "\n")
             
     print(f"Test case '{test_name}' generated in {test_dir}")
+
+if __name__ == "__main__":
+    main()
 
