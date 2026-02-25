@@ -41,7 +41,7 @@ mnist:
 
 # 5. End-to-End MNIST Verification (Compile + Simulate + Compare to PyTorch)
 mnist-verify:
-	@python3 model_compiler/verify_verilog.py
+	@python3 model_compiler/verify_mnist.py
 
 # 6. Clean Artifacts
 clean:
