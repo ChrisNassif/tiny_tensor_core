@@ -17,7 +17,7 @@ def run_single_test(test_name):
         for f in os.listdir(PROJECT_ROOT):
             src = os.path.join(PROJECT_ROOT, f)
             # Skip build dir, git, hidden files, and artifacts
-            if f in ['build', '.git', 'brain', '__pycache__', '.gemini', '.agent']: continue
+            if f in ['build', 'obj_dir', '.git', 'brain', '__pycache__', '.gemini', '.agent']: continue
             
             dst = os.path.join(tmpdir, f)
             try:

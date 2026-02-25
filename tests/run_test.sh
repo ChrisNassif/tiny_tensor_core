@@ -38,6 +38,8 @@ echo "Converting input data..."
 python3 convert_data_from_data_in_plain_text_to_data_in.py
 
 # Compile and run simulation
+mkdir -p build
+
 echo "Compiling SystemVerilog..."
 iverilog -g2012 -o build/tensor_core_test_bench.out \
     src/tensor_core_test_bench.sv \
@@ -61,3 +63,4 @@ echo "============================================"
 echo ""
 echo "Output preview (first 10 lines):"
 head -10 data_out_plain_text.txt
+

@@ -1,16 +1,17 @@
 # Tiny Tensor Core Makefile
 
-.PHONY: run verify test fuzz clean help
+.PHONY: run verify test fuzz mnist mnist-verify clean help
 
 # Default target
 help:
 	@echo "Tiny Tensor Core Build System"
 	@echo "-----------------------------"
-	@echo "make run      : Run simulation with current assembly_code.asm (Opens GTKWave)"
-	@echo "make verify   : Run full parallel verification suite"
-	@echo "make test     : Alias for verify"
-	@echo "make fuzz     : Regenerate fuzz test cases"
-	@echo "make clean    : Remove generated files"
+	@echo "make run           : Run simulation with current assembly_code.asm (Opens GTKWave)"
+	@echo "make test          : Run full parallel verification suite (11 tests)"
+	@echo "make fuzz          : Regenerate fuzz test cases"
+	@echo "make mnist         : Compile quantized MNIST model to assembly + data"
+	@echo "make mnist-verify  : End-to-end verify: compile model, simulate 5 MNIST digits, compare to PyTorch"
+	@echo "make clean         : Remove generated files"
 
 # 1. Run Single Simulation (Current Workspace)
 # This uses the root-level assembly_code.asm and data_in_plain_text.txt
@@ -34,9 +35,18 @@ fuzz:
 	@python3 tests/create_fuzz.py
 	@echo "Fuzz tests regenerated."
 
-# 4. Clean Artifacts
+# 4. Compile MNIST Model
+mnist:
+	@python3 model_compiler/compiler.py models/quantized_tensor_core_mnist_969_64_hidden_layer.pt
+
+# 5. End-to-End MNIST Verification (Compile + Simulate + Compare to PyTorch)
+mnist-verify:
+	@python3 model_compiler/verify_verilog.py
+
+# 6. Clean Artifacts
 clean:
-	@rm -rf build/
-	@rm -f data_in data_out machine_code
-	@rm -f data_out_plain_text.txt
+	@rm -rf build/ obj_dir/
+	@rm -f data_in data_out machine_code a.out
+	@rm -f data_out_plain_text.txt test_input.npy
 	@echo "Cleaned."
+

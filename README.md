@@ -6,11 +6,16 @@ A SystemVerilog implementation of a tensor core for GPU-accelerated matrix opera
 
 This project implements a small-scale tensor core capable of performing fundamental neural network operations:
 
-- **Matrix Multiplication** - 3x3 matrix multiply with saturation arithmetic
-- **Matrix Addition** - Element-wise matrix addition with overflow clamping  
-- **ReLU Activation** - Rectified Linear Unit activation function
+- **Matrix Multiplication** — 3×3 matrix multiply with saturation arithmetic
+- **Matrix Addition** — Element-wise matrix addition with overflow clamping  
+- **Matrix Scale** — Multiply all elements by a power-of-2 scalar
+- **ReLU Activation** — Rectified Linear Unit activation function
 
 The tensor core uses 8-bit signed integers with automatic overflow handling to prevent arithmetic wraparound.
+
+### MNIST Model Compilation
+
+The project includes a **model compiler** that tiles a quantized PyTorch MNIST model into 3×3 matrix operations, generating assembly and data files that the tensor core can execute directly. Hardware output matches PyTorch inference **exactly** — bit-for-bit identical logits across all test images.
 
 ## Architecture
 
@@ -29,7 +34,7 @@ The system is split into two physical components designed for different hardware
 ║  │                                                                    │  ║
 ║  │    ┌──────────────────┐          ┌────────────────────────┐        │  ║
 ║  │    │   Machine Code   │          │      Data Memory       │        │  ║
-║  │    │     [20000]      │          │       (Matrices)       │        │  ║
+║  │    │    [500000]      │          │       (Matrices)       │        │  ║
 ║  │    └────────┬─────────┘          └───────────┬────────────┘        │  ║
 ║  │             │                                │                     │  ║
 ║  │             ▼                                ▼                     │  ║
@@ -87,7 +92,7 @@ sudo apt update
 sudo apt install python3 python3-pip iverilog gtkwave
 
 # Install Python dependencies
-pip3 install numpy
+pip3 install numpy torch torchvision
 ```
 
 ### Verify Installation
@@ -115,11 +120,10 @@ To run your own assembly program interactively:
     This will compile the code, run the simulation, and open GTKWave to view waveforms. Results will be saved to `data_out_plain_text.txt`.
 
 ### 2. Run Verification Suite
-To run the full regression suite (Unit Tests + Fuzz Tests) in parallel:
+To run the full regression suite (11 tests including unit, fuzz, and pipeline hazard tests) in parallel:
 ```bash
-make verify
+make test
 ```
-This validates the RTL against the reference model.
 
 ### 3. Fuzz Testing
 To regenerate the randomized fuzz test cases:
@@ -127,7 +131,19 @@ To regenerate the randomized fuzz test cases:
 make fuzz
 ```
 
-### 4. Cleanup
+### 4. MNIST Model Compilation
+To compile the quantized MNIST model into tensor core assembly and data:
+```bash
+make mnist
+```
+This generates `assembly_code.asm` and `data_in_plain_text.txt` from the 64-hidden-layer quantized model.
+
+To run end-to-end hardware verification against PyTorch (compiles model, simulates 5 MNIST digits, compares logits):
+```bash
+make mnist-verify
+```
+
+### 5. Cleanup
 To remove generated artifacts:
 ```bash
 make clean
@@ -144,7 +160,10 @@ The tensor core uses a custom instruction set for matrix operations:
 | `nop`                  | `nop`                                                                      | No operation                             |
 | `reset`                | `reset`                                                                    | Reset all registers and state            |
 | `matrix_multiply`      | `matrix_multiply`                                                          | Multiply matrices in input registers     |
-| `burst store_and_load` | `burst store_and_load <store_address> <load_address1> <load_address2> <scale factor (defaults to 1)>`    | Combined store and load for better speed |
+| `matrix_add`           | `matrix_add <dest_addr> <src_a_addr> <src_b_addr>`                         | Element-wise add two matrices from memory, store to dest |
+| `matrix_scale`         | `matrix_scale <addr> <scale_factor>`                                       | Multiply all elements of matrix at addr by power-of-2 scale |
+| `matrix_relu`          | `matrix_relu <addr>`                                                       | Apply ReLU (clamp negatives to 0) on matrix at addr |
+| `burst store_and_load` | `burst store_and_load <store_addr> <load_a_addr> <load_b_addr>`            | Store current result, load two matrices into registers |
 
 
 ## Input/Output Data Format

@@ -20,11 +20,11 @@ module tensor_core_memory_controller(
     output logic [15:0] current_tensor_core_instruction
 );
 
-    logic [63:0] machine_code [0:20000];
-    logic [31:0] data [0:20000];
-    logic [15:0] current_machine_code_instruction_index_positive_edge;
-    logic [15:0] current_machine_code_instruction_index_negative_edge;
-    wire [15:0] current_machine_code_instruction_index;
+    logic [63:0] machine_code [0:400000];
+    logic [31:0] data [0:65535];
+    logic [19:0] current_machine_code_instruction_index_positive_edge;
+    logic [19:0] current_machine_code_instruction_index_negative_edge;
+    wire [19:0] current_machine_code_instruction_index;
 
 
     logic power_on_reset_signal = 1;
@@ -82,8 +82,10 @@ module tensor_core_memory_controller(
 
     initial begin
         
-        for (int i = 0; i < 20000; i++) begin
+        for (int i = 0; i < 400000; i++) begin
             machine_code[i] = 0;
+        end
+        for (int i = 0; i < 65535; i++) begin
             data[i] = 0;
         end
         

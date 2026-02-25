@@ -12,10 +12,14 @@ module tensor_core_test_bench();
     logic reset;
 
     
-    logic [15:0] machine_code [0:20000];
+    logic [63:0] machine_code [0:400000];
     logic [15:0] current_instruction;
     logic signed [`BUS_WIDTH:0] out;
     logic [1024:0] tensor_core_output;
+
+    integer i;
+    integer empty_instruction_count;
+    integer done;
     
     // Test tracking
     integer test_count = 0;
@@ -96,12 +100,22 @@ module tensor_core_test_bench();
 
         // Execute original program from machine_code file
         $display("\n================================================");
-        $display("    EXECUTING PROGRAM FROM MACHINE CODE FILE   ");
-        $display("================================================");
+        empty_instruction_count = 0;
+        done = 0;
         
-        for (integer i = 0; i < 10000; i = i + 1) begin
-            // wait to execute all of the instructions
-            #20;
+        for (i = 0; i < 500000; i = i + 1) begin
+            if (done == 0) begin
+                if (machine_code[i] == 0) begin
+                    empty_instruction_count = empty_instruction_count + 1;
+                    if (empty_instruction_count > 100) begin
+                        done = 1;
+                    end
+                end else begin
+                    empty_instruction_count = 0;
+                end
+                // wait to execute all of the instructions
+                #20;
+            end
         end
 
 
