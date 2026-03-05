@@ -49,7 +49,7 @@ iverilog -g2012 -o build/tensor_core_test_bench.out \
     src/tensor_core_register_file.sv
 
 echo "Running simulation..."
-vvp build/tensor_core_test_bench.out
+timeout 120 vvp build/tensor_core_test_bench.out
 
 # Convert output
 echo "Converting output data..."

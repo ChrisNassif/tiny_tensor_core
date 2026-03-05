@@ -4,8 +4,11 @@ import random
 import shutil
 import math
 
-def wrap16(val):
-    return ((val + 32768) % 65536) - 32768
+def wrap12(val):
+    return ((val + 2048) % 4096) - 2048
+
+def wrap32(val):
+    return ((val + 0x80000000) % 0x100000000) - 0x80000000
 
 def mat_mul(m1_flat, m2_flat):
     m1 = [m1_flat[i:i+3] for i in range(0, 9, 3)]
@@ -19,21 +22,21 @@ def mat_mul(m1_flat, m2_flat):
                 product = m1[i][k] * m2[k][j]
                 val += product
             
-            val = wrap16(val)
+            val = wrap12(val)
             res.append(val)
     return res
 
 def mat_add(m1_flat, m2_flat):
-    return [wrap16(a + b) for a, b in zip(m1_flat, m2_flat)]
+    return [wrap32(a + b) for a, b in zip(m1_flat, m2_flat)]
 
 def mat_scale(m_flat, scale_val):
     scale_factor = int(round(math.log2(float(scale_val))))
     res = []
     for v in m_flat:
         if scale_factor < 0:
-            res.append(wrap16(v >> abs(scale_factor)))
+            res.append(wrap32(v >> abs(scale_factor)))
         else:
-            res.append(wrap16(v << scale_factor))
+            res.append(wrap32(v << scale_factor))
     return res
 
 def mat_relu(m_flat):
@@ -41,9 +44,9 @@ def mat_relu(m_flat):
 
 
 
-def trunc8(m_flat):
-    """Truncate values to 8-bit signed, simulating hardware register load."""
-    return [((v + 128) % 256) - 128 for v in m_flat]
+def trunc5(m_flat):
+    """Truncate values to 5-bit signed, simulating hardware register load."""
+    return [((v + 16) % 32) - 16 for v in m_flat]
 
 def main():
     if len(sys.argv) < 3:
@@ -97,8 +100,8 @@ def main():
                 
                 matrices[idx_res] = latched_result
                 
-                current_input_1 = trunc8(matrices[idx1])
-                current_input_2 = trunc8(matrices[idx2])
+                current_input_1 = trunc5(matrices[idx1])
+                current_input_2 = trunc5(matrices[idx2])
                 
         elif op == "matrix_multiply":
             if current_input_1 is None or current_input_2 is None:

@@ -101,7 +101,7 @@ module tensor_core_test_bench();
         done = 0;
         
         for (i = 0; i < 500000 && done == 0; i = i + 1) begin
-            if (machine_code[i] == 0) begin
+            if (main_tensor_core_memory_controller.machine_code[main_tensor_core_memory_controller.current_machine_code_instruction_index] === 64'b0 || main_tensor_core_memory_controller.machine_code[main_tensor_core_memory_controller.current_machine_code_instruction_index] === 64'bx) begin
                 empty_instruction_count = empty_instruction_count + 1;
                 if (empty_instruction_count > 100) begin
                     done = 1;

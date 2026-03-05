@@ -14,7 +14,6 @@ module tensor_core_memory_controller(
     input logic clock_in,
     input logic reset_in,  // can be connected to ground
     input logic signed [7:0] tensor_core_controller_output,
-
     output logic clock_out,
     output logic reset_out,
     output logic [15:0] current_tensor_core_instruction

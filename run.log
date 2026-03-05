@@ -1,0 +1,100 @@
+============================================
+Running test: test_fuzz
+============================================
+Assembling...
+Converting input data...
+Success! Uppercase hex values written to 'data_in'
+Compiling SystemVerilog...
+src/tensor_core_test_bench.sv:136: syntax error
+src/tensor_core_memory_controller.sv:21: error: Malformed statement
+src/tensor_core_memory_controller.sv:23: syntax error
+src/tensor_core_memory_controller.sv:23: error: Malformed statement
+src/tensor_core_memory_controller.sv:24: syntax error
+src/tensor_core_memory_controller.sv:24: error: Malformed statement
+src/tensor_core_memory_controller.sv:25: syntax error
+src/tensor_core_memory_controller.sv:25: error: Malformed statement
+src/tensor_core_memory_controller.sv:26: syntax error
+src/tensor_core_memory_controller.sv:26: error: Malformed statement
+src/tensor_core_memory_controller.sv:27: syntax error
+src/tensor_core_memory_controller.sv:27: error: Malformed statement
+src/tensor_core_memory_controller.sv:30: syntax error
+src/tensor_core_memory_controller.sv:30: Syntax in assignment statement l-value.
+src/tensor_core_memory_controller.sv:31: syntax error
+src/tensor_core_memory_controller.sv:31: error: Malformed statement
+src/tensor_core_memory_controller.sv:39: syntax error
+src/tensor_core_memory_controller.sv:39: error: Malformed statement
+src/tensor_core_memory_controller.sv:40: syntax error
+src/tensor_core_memory_controller.sv:40: error: Malformed statement
+src/tensor_core_memory_controller.sv:41: syntax error
+src/tensor_core_memory_controller.sv:41: error: Malformed statement
+src/tensor_core_memory_controller.sv:42: syntax error
+src/tensor_core_memory_controller.sv:42: error: Malformed statement
+src/tensor_core_memory_controller.sv:43: syntax error
+src/tensor_core_memory_controller.sv:43: error: Malformed statement
+src/tensor_core_memory_controller.sv:44: syntax error
+src/tensor_core_memory_controller.sv:44: error: Malformed statement
+src/tensor_core_memory_controller.sv:45: syntax error
+src/tensor_core_memory_controller.sv:45: error: Malformed statement
+src/tensor_core_memory_controller.sv:46: syntax error
+src/tensor_core_memory_controller.sv:46: error: Malformed statement
+src/tensor_core_memory_controller.sv:47: syntax error
+src/tensor_core_memory_controller.sv:47: error: Malformed statement
+src/tensor_core_memory_controller.sv:55: syntax error
+src/tensor_core_memory_controller.sv:55: error: Malformed statement
+src/tensor_core_memory_controller.sv:56: syntax error
+src/tensor_core_memory_controller.sv:56: error: Malformed statement
+src/tensor_core_memory_controller.sv:64: syntax error
+src/tensor_core_memory_controller.sv:64: error: Malformed statement
+src/tensor_core_memory_controller.sv:65: syntax error
+src/tensor_core_memory_controller.sv:65: error: Malformed statement
+src/tensor_core_memory_controller.sv:72: syntax error
+src/tensor_core_memory_controller.sv:72: error: Malformed statement
+src/tensor_core_memory_controller.sv:73: syntax error
+src/tensor_core_memory_controller.sv:73: error: Malformed statement
+src/tensor_core_memory_controller.sv:74: syntax error
+src/tensor_core_memory_controller.sv:74: error: Malformed statement
+src/tensor_core_memory_controller.sv:83: syntax error
+src/tensor_core_memory_controller.sv:85: Syntax in assignment statement l-value.
+src/tensor_core_memory_controller.sv:85: syntax error
+src/tensor_core_memory_controller.sv:85: error: Malformed statement
+src/tensor_core_memory_controller.sv:85: syntax error
+src/tensor_core_memory_controller.sv:86: Syntax in assignment statement l-value.
+src/tensor_core_memory_controller.sv:88: syntax error
+src/tensor_core_memory_controller.sv:88: error: Invalid module item.
+src/tensor_core_memory_controller.sv:88: syntax error
+src/tensor_core_memory_controller.sv:88: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:88: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:92: error: Invalid module item.
+src/tensor_core_memory_controller.sv:94: syntax error
+src/tensor_core_memory_controller.sv:98: error: Invalid module item.
+src/tensor_core_memory_controller.sv:99: syntax error
+src/tensor_core_memory_controller.sv:104: error: Invalid module item.
+src/tensor_core_memory_controller.sv:105: syntax error
+src/tensor_core_memory_controller.sv:107: error: Invalid module item.
+src/tensor_core_memory_controller.sv:109: syntax error
+src/tensor_core_memory_controller.sv:112: error: Invalid module item.
+src/tensor_core_memory_controller.sv:113: syntax error
+src/tensor_core_memory_controller.sv:116: error: Invalid module item.
+src/tensor_core_memory_controller.sv:117: syntax error
+src/tensor_core_memory_controller.sv:127: error: Invalid module item.
+src/tensor_core_memory_controller.sv:128: syntax error
+src/tensor_core_memory_controller.sv:131: error: Invalid module item.
+src/tensor_core_memory_controller.sv:131: syntax error
+src/tensor_core_memory_controller.sv:131: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:131: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:137: error: Invalid module item.
+src/tensor_core_memory_controller.sv:137: syntax error
+src/tensor_core_memory_controller.sv:137: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:137: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:143: error: Invalid module item.
+src/tensor_core_memory_controller.sv:144: syntax error
+src/tensor_core_memory_controller.sv:150: error: Invalid module item.
+src/tensor_core_memory_controller.sv:150: syntax error
+src/tensor_core_memory_controller.sv:150: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:150: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:160: error: Invalid module item.
+src/tensor_core_memory_controller.sv:163: syntax error
+src/tensor_core_memory_controller.sv:163: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:165: syntax error
+src/tensor_core_memory_controller.sv:165: error: Invalid module instantiation
+src/tensor_core_memory_controller.sv:172: error: Invalid module item.
