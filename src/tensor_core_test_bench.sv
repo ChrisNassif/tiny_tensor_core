@@ -21,10 +21,6 @@ module tensor_core_test_bench();
     integer empty_instruction_count;
     integer done;
     
-    // Test tracking
-    integer test_count = 0;
-    integer pass_count = 0;
-    integer fail_count = 0;
     integer instruction_count = 0;
 
     
@@ -130,24 +126,6 @@ module tensor_core_test_bench();
         $display("  T12-T14: %3d %3d %3d", T12, T13, T14);
         $display("  T15-T17: %3d %3d %3d", T15, T16, T17);
 
-
-        
-        // Display test summary
-        $display("\n================================================");
-        $display("              TEST SUMMARY                     ");
-        $display("================================================");
-        $display("Total Tests Run:    %0d", test_count);
-        $display("Tests Passed:       %0d", pass_count);
-        $display("Tests Failed:       %0d", fail_count);
-
-        if (fail_count == 0) begin
-            $display("STATUS: ALL TESTS PASSED!");
-        end 
-        else begin
-            $display("STATUS: SOME TESTS FAILED - Review output above");
-        end
-        $display("================================================");
-        
         #50;
         $finish;
     

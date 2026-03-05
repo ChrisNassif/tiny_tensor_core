@@ -135,38 +135,5 @@ module tensor_core_controller (
         end
     end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Expose the internals of this module to gtkwave
-    genvar i, j, n, a, b;
-    generate
-        for (n = 0; n < 2; n++) begin: expose_matrix_index
-            for (i = 0; i < 3; i++) begin : expose_tensor_core
-                for (j = 0; j < 3; j++) begin: expose_tensor_core2
-                    wire [`BUS_WIDTH:0] tensor_core_register_file_bulk_store_data_ = tensor_core_register_file_bulk_store_data[n][i][j];
-                    // wire [`BUS_WIDTH:0] tensor_core_output_ = tensor_core_output[i][j];
-                end
-            end
-        end
-
-        for (b = 0; b < 4; b++) begin: h2
-            wire signed [`BUS_WIDTH:0] burst_current_quad_load_data_ = burst_current_quad_load_data[b];
-        end
-    endgenerate
-
-
-
 endmodule
 

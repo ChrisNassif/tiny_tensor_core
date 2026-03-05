@@ -35,7 +35,6 @@ module tensor_core (
 
 
 
-    // Two copies of the state machine that controls the state of the tensor core
     always_ff @(posedge clock_in) begin
 
         if (reset_in) begin
@@ -76,27 +75,27 @@ module tensor_core (
 
 
     // Expose the internals of this module to gtkwave
-    genvar k, l;
-    generate
-        for (k = 0; k < 3; k++) begin : expose_tensor_core2
-            wire signed [16:0] products_matrix_multiply_wire = products_matrix_multiply[k];
-        end
+    // genvar k, l;
+    // generate
+    //     for (k = 0; k < 3; k++) begin : expose_tensor_core2
+    //         wire signed [16:0] products_matrix_multiply_wire = products_matrix_multiply[k];
+    //     end
 
-        wire signed [16:0] intermediate_sum_matrix_multiply_ = intermediate_sum_matrix_multiply;
-    endgenerate
+    //     wire signed [16:0] intermediate_sum_matrix_multiply_ = intermediate_sum_matrix_multiply;
+    // endgenerate
 
 
-    genvar i, j, a;
-    generate
-        for (i = 0; i < 3; i++) begin : expose_tensor_core3
-            for (j = 0; j < 3; j++) begin: expose_tensor_core4
-                wire [7:0] tensor_core_input1_wire = tensor_core_input1[i][j];
-                wire [7:0] tensor_core_input2_wire = tensor_core_input2[i][j];
-            end
-        end
+    // genvar i, j, a;
+    // generate
+    //     for (i = 0; i < 3; i++) begin : expose_tensor_core3
+    //         for (j = 0; j < 3; j++) begin: expose_tensor_core4
+    //             wire [7:0] tensor_core_input1_wire = tensor_core_input1[i][j];
+    //             wire [7:0] tensor_core_input2_wire = tensor_core_input2[i][j];
+    //         end
+    //     end
 
-        for (a = 0; a < 9; a++) begin: expose_tensor_core5
-            wire [16:0] tensor_core_output_wire = tensor_core_output[a/3][a%3];
-        end
-    endgenerate
+    //     for (a = 0; a < 9; a++) begin: expose_tensor_core5
+    //         wire [16:0] tensor_core_output_wire = tensor_core_output[a/3][a%3];
+    //     end
+    // endgenerate
 endmodule
