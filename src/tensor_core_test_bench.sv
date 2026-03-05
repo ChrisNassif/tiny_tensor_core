@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 `default_nettype wire
 
-`define BUS_WIDTH 7
+`define BUS_WIDTH 4
 
 
 module tensor_core_test_bench();
@@ -14,7 +14,7 @@ module tensor_core_test_bench();
     
     logic [63:0] machine_code [0:400000];
     logic [15:0] current_instruction;
-    logic signed [`BUS_WIDTH:0] out;
+    logic signed [7:0] out;
     logic [1024:0] tensor_core_output;
 
     integer i;
@@ -80,12 +80,13 @@ module tensor_core_test_bench();
 
     
     initial begin
-        $dumpfile("build/tensor_core_test_bench.vcd");
-        $dumpvars(0, tensor_core_test_bench);
+        // VCD dumping disabled for speed during verification
+        // $dumpfile("build/tensor_core_test_bench.vcd");
+        // $dumpvars(0, tensor_core_test_bench);
         
-        $dumpvars(0, T0, T1, T2, T3, T4, T5, T6, T7);
-        $dumpvars(0, T8, T9, T10, T11, T12, T13, T14, T15);
-        $dumpvars(0, T16, T17);
+        // $dumpvars(0, T0, T1, T2, T3, T4, T5, T6, T7);
+        // $dumpvars(0, T8, T9, T10, T11, T12, T13, T14, T15);
+        // $dumpvars(0, T16, T17);
         
 
         generated_clock = 0;
@@ -103,19 +104,17 @@ module tensor_core_test_bench();
         empty_instruction_count = 0;
         done = 0;
         
-        for (i = 0; i < 500000; i = i + 1) begin
-            if (done == 0) begin
-                if (machine_code[i] == 0) begin
-                    empty_instruction_count = empty_instruction_count + 1;
-                    if (empty_instruction_count > 100) begin
-                        done = 1;
-                    end
-                end else begin
-                    empty_instruction_count = 0;
+        for (i = 0; i < 500000 && done == 0; i = i + 1) begin
+            if (machine_code[i] == 0) begin
+                empty_instruction_count = empty_instruction_count + 1;
+                if (empty_instruction_count > 100) begin
+                    done = 1;
                 end
-                // wait to execute all of the instructions
-                #20;
+            end else begin
+                empty_instruction_count = 0;
             end
+            // wait to execute all of the instructions
+            #20;
         end
 
 

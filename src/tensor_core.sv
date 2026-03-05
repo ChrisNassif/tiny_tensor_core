@@ -1,4 +1,4 @@
-`define BUS_WIDTH 7
+`define BUS_WIDTH 4
 
 
 module tensor_core (
@@ -9,7 +9,7 @@ module tensor_core (
     input logic signed [`BUS_WIDTH:0] tensor_core_input1 [3][3], 
     input logic signed [`BUS_WIDTH:0] tensor_core_input2 [3][3],
 
-    output logic signed [`BUS_WIDTH*2+1:0] tensor_core_output [3][3]
+    output logic signed [`BUS_WIDTH*2+3:0] tensor_core_output [3][3]
 );
 
 
@@ -18,7 +18,7 @@ module tensor_core (
 
     // these should get synthesized as a wire but is a logic rn for simplicity in generating a ton of them
     logic signed [`BUS_WIDTH*2 + 1:0] products_matrix_multiply [3];
-    logic signed [`BUS_WIDTH*2 + 1:0] intermediate_sum_matrix_multiply;
+    logic signed [`BUS_WIDTH*2 + 3:0] intermediate_sum_matrix_multiply;
 
 
     // The combinatorial logic to layout the multipliers and adders

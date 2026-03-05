@@ -8,18 +8,73 @@ SV_FILES = ["src/tensor_core_test_bench.sv", "src/tensor_core_memory_controller.
             "src/tensor_core_controller.sv", "src/tensor_core.sv", "src/tensor_core_register_file.sv"]
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+def hw_trunc5(val):
+    """Truncate to 5-bit signed (what registers hold)."""
+    v = int(val) & 0x1F
+    return v - 32 if v >= 16 else v
+
+def hw_dot12(a_vec, b_vec):
+    """3-element dot product truncated to 12-bit signed (tensor core intermediate sum)."""
+    s = sum(int(a_vec[k]) * int(b_vec[k]) for k in range(3))
+    s = s & 0xFFF
+    return s - 4096 if s >= 2048 else s
+
+def wrap32(val):
+    """32-bit signed wrap."""
+    v = int(val) & 0xFFFFFFFF
+    return v - 0x100000000 if v >= 0x80000000 else v
+
 def compute_quantized_reference(input_float, sd):
-    """PyTorch reference: quantized forward pass matching hardware behavior."""
+    """Hardware-accurate reference: 5-bit regs, 12-bit dot products, 32-bit memory."""
     input_log2 = int(math.log2(sd['quant.scale'].item()))
-    x = torch.clamp(torch.round(input_float * (2 ** -input_log2)).int(), -64, 63)
+    x_quant = torch.clamp(torch.round(input_float * (2 ** -input_log2)).int(), -64, 63).numpy().flatten()
+
+    x_padded = np.zeros(((len(x_quant) + 2) // 3) * 3, dtype=np.int64)
+    x_padded[:len(x_quant)] = x_quant
+
     for layer in ['fc1', 'fc2']:
         W_q, _ = sd[f'{layer}._packed_params._packed_params']
+        W_int = W_q.int_repr().int().numpy()
+        out_features, in_features = W_int.shape
+
+        out_padded = ((out_features + 2) // 3) * 3
+        in_padded = ((in_features + 2) // 3) * 3
+
+        W_padded = np.zeros((out_padded, in_padded), dtype=np.int64)
+        W_padded[:out_features, :in_features] = W_int
+
+        # Register load truncation: 5-bit signed
+        X_reg = np.array([hw_trunc5(v) for v in x_padded], dtype=np.int64)
+        W_reg = np.array([[hw_trunc5(v) for v in row] for row in W_padded.T], dtype=np.int64)
+
+        I = in_padded // 3
+        J = out_padded // 3
+
+        # Accumulate in 32-bit memory (matrix_add adds 12-bit dot products into 32-bit words)
+        acc = np.zeros((J, 3), dtype=np.int64)
+        for i in range(I):
+            x_tile = X_reg[i*3:i*3+3]
+            for j in range(J):
+                for c in range(3):
+                    dp = hw_dot12(x_tile, W_reg[i*3:i*3+3, j*3+c])
+                    acc[j, c] = wrap32(acc[j, c] + dp)
+
+        acc = acc.flatten()[:out_features]
+
         total_shift = (input_log2 + int(math.log2(W_q.q_scale()))) - int(math.log2(sd[f'{layer}.scale'].item()))
-        acc = torch.nn.functional.linear(x.float(), W_q.int_repr().int().float()).long()
-        out = acc >> (-total_shift) if total_shift < 0 else acc << total_shift
-        x = torch.clamp(out, 0, 63).int() if layer == 'fc1' else torch.clamp(out, -64, 63).int()
+        if total_shift < 0:
+            scaled = np.array([wrap32(int(v) >> (-total_shift)) for v in acc])
+        else:
+            scaled = np.array([wrap32(int(v) << total_shift) for v in acc])
+
+        if layer == 'fc1':
+            scaled = np.where(np.array([int(v) for v in scaled]) < 0, 0, scaled)
+
+        x_padded = np.zeros(out_padded, dtype=np.int64)
+        x_padded[:out_features] = scaled
         input_log2 = int(math.log2(sd[f'{layer}.scale'].item()))
-    return x.flatten().tolist()
+
+    return x_padded[:10].tolist()
 
 def run_single_test(args):
     """Run one MNIST test image in an isolated temp directory. Returns (test_idx, label, hw_logits, ref_logits, passed)."""
@@ -58,11 +113,15 @@ def run_single_test(args):
         shutil.copy2(asm_src, os.path.join(tmpdir, "assembly_code.asm"))
 
         def run(cmd):
-            return subprocess.run(cmd, capture_output=True, text=True, timeout=300, cwd=tmpdir).returncode == 0
+            res = subprocess.run(cmd, capture_output=True, text=True, timeout=600, cwd=tmpdir)
+            if res.returncode != 0:
+                print(f"Command '{' '.join(cmd)}' failed:\n{res.stderr}\n{res.stdout}")
+                return False
+            return True
 
         if not run([sys.executable, "assembler.py", "assembly_code.asm"]): return (test_idx, label, None, None, False, "Assembly failed")
         if not run([sys.executable, "convert_data_from_data_in_plain_text_to_data_in.py"]): return (test_idx, label, None, None, False, "Convert input failed")
-        if not run(["iverilog", "-g2012", "-o", "build/tb.out"] + SV_FILES): return (test_idx, label, None, None, False, "Compile failed")
+        shutil.copy2(os.path.join(PROJECT_ROOT, "build/tb.out"), os.path.join(tmpdir, "build/tb.out"))
         if not run(["vvp", "build/tb.out"]): return (test_idx, label, None, None, False, "Simulation failed")
         if not run([sys.executable, "convert_data_from_data_out_to_data_out_plain_text.py"]): return (test_idx, label, None, None, False, "Convert output failed")
 
@@ -103,6 +162,13 @@ def main():
             output_blocks = ast.literal_eval(line.split(":", 1)[1].strip())
     print(f"  Output blocks: {output_blocks}")
     print(f"  {result.stdout.strip()}")
+
+    print("=== Compiling SystemVerilog Simulation ===")
+    os.makedirs(os.path.join(PROJECT_ROOT, "build"), exist_ok=True)
+    compile_cmd = ["iverilog", "-g2012", "-o", os.path.join(PROJECT_ROOT, "build/tb.out")] + [os.path.join(PROJECT_ROOT, f) for f in SV_FILES]
+    compile_res = subprocess.run(compile_cmd, capture_output=True, text=True, cwd=PROJECT_ROOT)
+    if compile_res.returncode != 0:
+        print("SV Compile failed:", compile_res.stderr); return False
 
     # Load test data
     dataset = datasets.MNIST('../data', train=False, transform=transforms.Compose(

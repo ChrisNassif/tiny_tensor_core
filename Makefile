@@ -37,7 +37,7 @@ fuzz:
 
 # 4. Compile MNIST Model
 mnist:
-	@python3 model_compiler/compiler.py models/quantized_tensor_core_mnist_969_64_hidden_layer.pt
+	@python3 model_compiler/compiler.py models/quantized_tensor_core_mnist_961_5bit.pt
 
 # 5. End-to-End MNIST Verification (Compile + Simulate + Compare to PyTorch)
 mnist-verify:

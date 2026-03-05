@@ -1,4 +1,4 @@
-`define BUS_WIDTH 7
+`define BUS_WIDTH 4
 
 
 
@@ -18,7 +18,7 @@ module tensor_core_register_file (
 );
 
 
-    reg signed [7:0] registers [2] [3] [3];
+    reg signed [`BUS_WIDTH:0] registers [2] [3] [3];
 
 
 

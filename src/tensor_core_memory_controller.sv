@@ -6,7 +6,7 @@
 `define MATRIX_SCALE_OPCODE 3'b101
 `define MATRIX_RELU_OPCODE 3'b110
 
-`define BUS_WIDTH 7
+`define BUS_WIDTH 4
 
 
 
@@ -71,7 +71,7 @@ module tensor_core_memory_controller(
 
     wire data_store_enable;
     wire [15:0] data_store_address;
-    wire [`BUS_WIDTH:0] data_store_data;
+    wire signed [7:0] data_store_data;
     
     assign data_store_enable = is_burst_store_active;
     assign data_store_address = machine_code[current_machine_code_instruction_index][63:48];
@@ -104,8 +104,7 @@ module tensor_core_memory_controller(
             current_tensor_core_instruction = 0;
         end
         else if (is_burst_load_active) begin
-            // Cast down to 8 bits explicitly to satisfy the 16-bit output bus size and avoid dynamic slice synthesis bugs
-            current_tensor_core_instruction = {8'(data[data_load_address1]), 8'(data[data_load_address2])};
+            current_tensor_core_instruction = {8'(data[data_load_address1][7:0]), 8'(data[data_load_address2][7:0])};
             
         end
 
@@ -158,12 +157,12 @@ module tensor_core_memory_controller(
 
     always_ff @(negedge clock_in) begin
         if (data_store_enable) begin
-            data[data_store_address][15:8] <= data_store_data;
+            data[data_store_address][11:8] <= data_store_data[3:0];
 
-            if (data_store_data[7] == 1) begin
-                data[data_store_address][31:16] <= 16'hFFFF;
+            if (data_store_data[3] == 1) begin
+                data[data_store_address][31:12] <= 20'hFFFFF;
             end else begin
-                data[data_store_address][31:16] <= 16'h0000;
+                data[data_store_address][31:12] <= 20'h00000;
             end
         end
     end

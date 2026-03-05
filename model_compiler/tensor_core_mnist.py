@@ -82,7 +82,7 @@ def compute_quantized(input_float, q_model):
     """
     input_scale = q_model.quant.scale.item() if hasattr(q_model, 'quant') else 1.0
     input_log2 = int(math.log2(input_scale))
-    x = torch.clamp(torch.round(input_float * (2 ** -input_log2)).int(), -64, 63)
+    x = torch.clamp(torch.round(input_float * (2 ** -input_log2)).int(), -16, 15)
 
     for name, module in q_model.named_modules():
         if not isinstance(module, (torch.nn.quantized.Linear, torch.nn.intrinsic.quantized.LinearReLU)):
@@ -93,9 +93,9 @@ def compute_quantized(input_float, q_model):
         out = acc >> (-total_shift) if total_shift < 0 else acc << total_shift
 
         if isinstance(module, torch.nn.intrinsic.quantized.LinearReLU):
-            x = torch.clamp(out, 0, 63).int()
+            x = torch.clamp(out, 0, 15).int()
         else:
-            x = torch.clamp(out, -64, 63).int()
+            x = torch.clamp(out, -16, 15).int()
         input_log2 = int(math.log2(module.scale))
 
     return torch.sigmoid(x * (2.0 ** input_log2))
@@ -130,8 +130,8 @@ if __name__ == "__main__":
 
     torch.quantization.fuse_modules(model, [['fc1', 'relu1']], inplace=True)
     model.qconfig = torch.quantization.QConfig(
-        activation=PowerOfTwoObserver.with_args(dtype=torch.qint8, quant_min=-64, quant_max=63, qscheme=torch.per_tensor_symmetric),
-        weight=PowerOfTwoObserver.with_args(dtype=torch.qint8, quant_min=-64, quant_max=63, qscheme=torch.per_tensor_symmetric),
+        activation=PowerOfTwoObserver.with_args(dtype=torch.qint8, quant_min=-16, quant_max=15, qscheme=torch.per_tensor_symmetric),
+        weight=PowerOfTwoObserver.with_args(dtype=torch.qint8, quant_min=-16, quant_max=15, qscheme=torch.per_tensor_symmetric),
     )
     torch.quantization.prepare(model, inplace=True)
 

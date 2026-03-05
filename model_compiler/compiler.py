@@ -24,7 +24,7 @@ def tile_matrix(W):
     return tiles
 
 def main():
-    model_path = sys.argv[1] if len(sys.argv) > 1 else 'models/quantized_tensor_core_mnist.pt'
+    model_path = sys.argv[1] if len(sys.argv) > 1 else 'models/quantized_tensor_core_mnist_961_5bit.pt'
     sd = torch.load(model_path, map_location='cpu')
     
     layer_names = ['fc1', 'fc2']
