@@ -1,6 +1,6 @@
 # Tensor Core GPU
 
-A SystemVerilog implementation of a tensor core for GPU-accelerated matrix operations, featuring a custom assembler, memory controller, and comprehensive testbench.
+A SystemVerilog implementation of a 5 bit input tensor core for GPU-accelerated matrix operations, featuring a custom assembler, memory controller, and comprehensive testbench.
 
 ## Overview
 
