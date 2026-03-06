@@ -193,15 +193,4 @@ module tensor_core_memory_controller(
         positive_edge_reset_called <= 0;
     end
 
-
-
-
-    // genvar i, j;
-    // generate
-    //     for (i = 0; i < 20; i++) begin : i_
-    //         for (j = 0; j < 9; j++) begin : j_
-    //             wire [`BUS_WIDTH:0] data_ = data[i*9+j];
-    //         end
-    //     end
-    // endgenerate
 endmodule
