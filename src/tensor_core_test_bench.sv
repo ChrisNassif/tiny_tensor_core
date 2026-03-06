@@ -54,24 +54,24 @@ module tensor_core_test_bench();
     // ============================================
     // TENSOR REGISTER WIRES FOR WAVEFORM DISPLAY
     // ============================================
-    wire signed [`BUS_WIDTH:0] T0  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][0][0];
-    wire signed [`BUS_WIDTH:0] T1  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][0][1];
-    wire signed [`BUS_WIDTH:0] T2  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][0][2];
-    wire signed [`BUS_WIDTH:0] T3  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][1][0];
-    wire signed [`BUS_WIDTH:0] T4  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][1][1];
-    wire signed [`BUS_WIDTH:0] T5  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][1][2];
-    wire signed [`BUS_WIDTH:0] T6  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][2][0];
-    wire signed [`BUS_WIDTH:0] T7  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][2][1];
-    wire signed [`BUS_WIDTH:0] T8  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][2][2];
-    wire signed [`BUS_WIDTH:0] T9  = main_tensor_core_controller.main_tensor_core_register_file.registers[1][0][0];
-    wire signed [`BUS_WIDTH:0] T10 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][0][1];
-    wire signed [`BUS_WIDTH:0] T11 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][0][2];
-    wire signed [`BUS_WIDTH:0] T12 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][1][0];
-    wire signed [`BUS_WIDTH:0] T13 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][1][1];
-    wire signed [`BUS_WIDTH:0] T14 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][1][2];
-    wire signed [`BUS_WIDTH:0] T15 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][2][0];
-    wire signed [`BUS_WIDTH:0] T16 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][2][1];
-    wire signed [`BUS_WIDTH:0] T17 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][2][2];
+    // wire signed [`BUS_WIDTH:0] T0  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][0][0];
+    // wire signed [`BUS_WIDTH:0] T1  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][0][1];
+    // wire signed [`BUS_WIDTH:0] T2  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][0][2];
+    // wire signed [`BUS_WIDTH:0] T3  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][1][0];
+    // wire signed [`BUS_WIDTH:0] T4  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][1][1];
+    // wire signed [`BUS_WIDTH:0] T5  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][1][2];
+    // wire signed [`BUS_WIDTH:0] T6  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][2][0];
+    // wire signed [`BUS_WIDTH:0] T7  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][2][1];
+    // wire signed [`BUS_WIDTH:0] T8  = main_tensor_core_controller.main_tensor_core_register_file.registers[0][2][2];
+    // wire signed [`BUS_WIDTH:0] T9  = main_tensor_core_controller.main_tensor_core_register_file.registers[1][0][0];
+    // wire signed [`BUS_WIDTH:0] T10 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][0][1];
+    // wire signed [`BUS_WIDTH:0] T11 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][0][2];
+    // wire signed [`BUS_WIDTH:0] T12 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][1][0];
+    // wire signed [`BUS_WIDTH:0] T13 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][1][1];
+    // wire signed [`BUS_WIDTH:0] T14 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][1][2];
+    // wire signed [`BUS_WIDTH:0] T15 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][2][0];
+    // wire signed [`BUS_WIDTH:0] T16 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][2][1];
+    // wire signed [`BUS_WIDTH:0] T17 = main_tensor_core_controller.main_tensor_core_register_file.registers[1][2][2];
 
 
     
@@ -115,16 +115,16 @@ module tensor_core_test_bench();
 
 
         
-        // Display final tensor state
-        $display("\n=== FINAL TENSOR STATE ===");
-        $display("First Matrix (T0-T8):");
-        $display("  T0-T2:   %3d %3d %3d", T0, T1, T2);
-        $display("  T3-T5:   %3d %3d %3d", T3, T4, T5);
-        $display("  T6-T8:   %3d %3d %3d", T6, T7, T8);
-        $display("Second Matrix (T9-T17):");
-        $display("  T9-T11:  %3d %3d %3d", T9, T10, T11);
-        $display("  T12-T14: %3d %3d %3d", T12, T13, T14);
-        $display("  T15-T17: %3d %3d %3d", T15, T16, T17);
+        // // Display final tensor state
+        // $display("\n=== FINAL TENSOR STATE ===");
+        // $display("First Matrix (T0-T8):");
+        // $display("  T0-T2:   %3d %3d %3d", T0, T1, T2);
+        // $display("  T3-T5:   %3d %3d %3d", T3, T4, T5);
+        // $display("  T6-T8:   %3d %3d %3d", T6, T7, T8);
+        // $display("Second Matrix (T9-T17):");
+        // $display("  T9-T11:  %3d %3d %3d", T9, T10, T11);
+        // $display("  T12-T14: %3d %3d %3d", T12, T13, T14);
+        // $display("  T15-T17: %3d %3d %3d", T15, T16, T17);
 
         #50;
         $finish;

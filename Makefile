@@ -13,7 +13,7 @@ help:
 	@echo "make mnist-verify  : End-to-end verify: compile model, simulate 5 MNIST digits, compare to PyTorch"
 	@echo "make clean         : Remove generated files"
 
-# 1. Run Single Simulation (Current Workspace)
+# 1.a Run Single Simulation (Current Workspace)
 # This uses the root-level assembly_code.asm and data_in_plain_text.txt
 run:
 	@python3 assembler.py assembly_code.asm
@@ -23,6 +23,17 @@ run:
 	@vvp build/tensor_core_test_bench.out
 	@python3 convert_data_from_data_out_to_data_out_plain_text.py
 	@if [ -f build/tensor_core_test_bench.vcd ]; then gtkwave build/tensor_core_test_bench.vcd; fi
+
+# 1.b Run Synthesized Simulation (Current Workspace)
+run_synthesized:
+	@python3 assembler.py assembly_code.asm
+	@python3 convert_data_from_data_in_plain_text_to_data_in.py
+	@mkdir -p build
+	@iverilog -g2012 -o build/tensor_core_test_bench.out src/tensor_core_test_bench.sv src/tensor_core_memory_controller.sv src/synthesized_tensor_core.v src/sky130_scl_9T.v
+	@vvp build/tensor_core_test_bench.out
+	@python3 convert_data_from_data_out_to_data_out_plain_text.py
+	@if [ -f build/tensor_core_test_bench.vcd ]; then gtkwave build/tensor_core_test_bench.vcd; fi
+
 
 # 2. Run Verification Suite (Parallel)
 verify:
