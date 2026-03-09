@@ -12,8 +12,6 @@ module tensor_core_controller (
     output logic signed [7:0] tensor_core_controller_output
 );
 
-
-    // DECLARATIONS
     logic tensor_core_register_file_bulk_load_enable;
     
     wire signed [`BUS_WIDTH:0] tensor_core_register_file_bulk_store_data [2] [3] [3];
@@ -54,8 +52,12 @@ module tensor_core_controller (
     logic signed [7:0] tensor_core_controller_output_pos;
     logic signed [7:0] tensor_core_controller_output_neg;
 
-    assign burst_current_dual_store_data[0] = {{4{tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][11]}}, tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][11:8]};
+    assign burst_current_dual_store_data[0] = {
+        {4{tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][11]}}, 
+        tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][11:8]
+    };
     assign burst_current_dual_store_data[1] = tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][7:0];
+
 
     assign tensor_core_controller_output = (is_burst_store_active ? burst_current_dual_store_data[~clock_in]: 8'b0);
 
