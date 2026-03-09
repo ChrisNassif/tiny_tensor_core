@@ -19,31 +19,28 @@ module tensor_core_memory_controller(
     output logic [15:0] current_tensor_core_instruction
 );
 
-    logic [63:0] machine_code [0:400000];
-    logic [31:0] data [0:65535];
+    logic [63:0] machine_code [0:4000];
+    logic [31:0] data [0:4000];
     logic [19:0] current_machine_code_instruction_index_positive_edge;
     logic [19:0] current_machine_code_instruction_index_negative_edge;
     wire [19:0] current_machine_code_instruction_index;
 
 
-    logic power_on_reset_signal = 1;
-    logic positive_edge_reset_called;
+    // logic power_on_reset_signal = 1;
+    logic has_positive_clock_edge_been_called;
+    wire [2:0] current_opcode;
 
-    assign reset_out = (current_opcode == `RESET_OPCODE) || reset_in || power_on_reset_signal;
+    assign reset_out = (current_opcode == `RESET_OPCODE) || reset_in;
+    // assign reset_out = (current_opcode == `RESET_OPCODE) || reset_in || power_on_reset_signal;
     assign clock_out = clock_in;
 
 
 
 
     logic [63:0] raw_current_instruction;
-    wire [2:0] current_opcode;
     wire [7:0] scale_factor; 
     wire [7:0] negative_scale_factor;
-    wire [7:0] scale_factor2;
-    wire [31:0] temp1;
-    wire [31:0] temp2;
-    wire [31:0] temp3;
-    wire [31:0] temp4;
+
 
     assign raw_current_instruction = machine_code[current_machine_code_instruction_index];
     assign current_opcode = raw_current_instruction[2:0];
@@ -167,30 +164,32 @@ module tensor_core_memory_controller(
     end
 
 
-    
-    assign current_machine_code_instruction_index = current_machine_code_instruction_index_positive_edge + current_machine_code_instruction_index_negative_edge;
 
-    always_ff @(posedge clock_in) begin
-
-        if (power_on_reset_signal || reset_in) begin
+    // Hardware for managing the instruction counter
+    always_ff @(posedge clock_in or posedge reset_in) begin
+        if (reset_in) begin
             current_machine_code_instruction_index_positive_edge <= 0;
-            current_machine_code_instruction_index_negative_edge <= 0;
-            power_on_reset_signal <= 0;
-            positive_edge_reset_called <= 1;
-        end
-
+            has_positive_clock_edge_been_called <= 0;
+        end 
         else begin
+            has_positive_clock_edge_been_called <= 1;
             current_machine_code_instruction_index_positive_edge <= current_machine_code_instruction_index_positive_edge + 1;
         end
     end
 
-
-    always_ff @(negedge clock_in) begin
-        if (positive_edge_reset_called == 0) begin
-            current_machine_code_instruction_index_negative_edge <= current_machine_code_instruction_index_negative_edge + 1;
+    always_ff @(negedge clock_in or posedge reset_in) begin
+        if (reset_in) begin
+            current_machine_code_instruction_index_negative_edge <= 0;
+        end 
+        else begin
+            if (has_positive_clock_edge_been_called == 1) begin
+                current_machine_code_instruction_index_negative_edge <= current_machine_code_instruction_index_negative_edge + 1;
+            end
         end
-
-        positive_edge_reset_called <= 0;
     end
+
+    assign current_machine_code_instruction_index = current_machine_code_instruction_index_positive_edge + current_machine_code_instruction_index_negative_edge;
+
+    
 
 endmodule

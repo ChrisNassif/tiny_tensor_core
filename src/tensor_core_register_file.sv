@@ -36,20 +36,20 @@ module tensor_core_register_file (
 
     always_ff @(posedge clock_in) begin
         // quad load with restriction
-        if (quad_load_enable_in && reset_in == 0) begin
-
-            for (int i = 0; i < 4; i++) begin
-                registers[((quad_load_register_address_in<<2)+i)/9][(((quad_load_register_address_in<<2)+i)%9)/3][((quad_load_register_address_in<<2)+i)%3] <= quad_load_data_in[i];            
-            end
-        end
-
-        // reset logic
-        else if (reset_in == 1) begin
+        if (reset_in) begin
             for (int i = 0; i < 2; i++) begin
                 for (int j = 0; j < 3; j++) begin
                     for (int k = 0; k < 3; k++) begin
-                        registers[i][j][k] <= 0;
+                        registers[i][j][k] <= 5'b0;
                     end
+                end
+            end
+        end
+        else if (quad_load_enable_in) begin
+
+            for (int i = 0; i < 4; i++) begin
+                if (((quad_load_register_address_in<<2)+i) < 18) begin
+                    registers[((quad_load_register_address_in<<2)+i)/9][(((quad_load_register_address_in<<2)+i)%9)/3][((quad_load_register_address_in<<2)+i)%3] <= quad_load_data_in[i];            
                 end
             end
         end
@@ -57,19 +57,18 @@ module tensor_core_register_file (
 
 
 
-    // // make the registers visible to gtkwave
-    // genvar i, j, k;
-    // generate
-    //     for (i = 0; i < 2; i++) begin : expose_regs1
-    //         for (j = 0; j < 3; j++) begin : expose_regs2
-    //             for (k = 0; k < 3; k++) begin : expose_regs3
-    //                 wire [`BUS_WIDTH:0] reg_wire = registers[i][j][k];
-    //                 wire [`BUS_WIDTH:0] bulk_store_data_out_ = bulk_store_data_out[i][j][k];
-    //                 wire [`BUS_WIDTH:0] bulk_load_data_in_ = bulk_load_data_in[i][j][k];
-    //             end
-    //         end
-    //     end
-    // endgenerate
+    // make the registers visible to gtkwave
+    genvar i, j, k;
+    generate
+        for (i = 0; i < 2; i++) begin : expose_regs1
+            for (j = 0; j < 3; j++) begin : expose_regs2
+                for (k = 0; k < 3; k++) begin : expose_regs3
+                    wire [`BUS_WIDTH:0] reg_wire = registers[i][j][k];
+                    wire [`BUS_WIDTH:0] bulk_store_data_out_ = bulk_store_data_out[i][j][k];
+                end
+            end
+        end
+    endgenerate
 
 
 endmodule

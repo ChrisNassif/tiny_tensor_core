@@ -26,10 +26,10 @@ module tensor_core (
 
         // Instantiate matrix multiplication multipliers and adders
         for (int k = 0; k < 3; k++) begin
-            products_matrix_multiply[k] = tensor_core_input1[counter/3][k] * tensor_core_input2[k][counter%3];
+            products_matrix_multiply[k] = 10'(tensor_core_input1[counter/3][k]) * 10'(tensor_core_input2[k][counter%3]);
         end
 
-        intermediate_sum_matrix_multiply = products_matrix_multiply[0] + products_matrix_multiply[1] + products_matrix_multiply[2];
+        intermediate_sum_matrix_multiply = 12'(products_matrix_multiply[0]) + 12'(products_matrix_multiply[1]) + 12'(products_matrix_multiply[2]);
         
     end
 
@@ -38,22 +38,20 @@ module tensor_core (
     always_ff @(posedge clock_in) begin
 
         if (reset_in) begin
-            counter <= 5'd9;
+            counter <= 4'd9;
 
             for (int i = 0; i < 3; i = i + 1) begin
                 for (int j = 0; j < 3; j = j + 1) begin
-                    tensor_core_output[i][j] <= 0;
+                    tensor_core_output[i][j] <= 12'b0;
                 end
             end
         end
-        
-
         else if (should_start_tensor_core == 1) begin
-            counter <= 0;
+            counter <= 4'b0;
         end
 
-        else if (counter < 5'd9) begin
-            counter <= counter + 1;
+        else if (counter < 4'd9) begin
+            counter <= counter + 4'b1;
         end
 
 
@@ -64,7 +62,7 @@ module tensor_core (
 
 
         // matrix multiply
-        if (counter < 5'd9) begin 
+        if (counter < 4'd9) begin 
             tensor_core_output[counter/3][counter%3] <= intermediate_sum_matrix_multiply;
         end
     end
