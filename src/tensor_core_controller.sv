@@ -59,6 +59,7 @@ module tensor_core_controller (
     assign burst_current_dual_store_data[1] = tensor_core_output[(burst_current_index%9)/3][(burst_current_index)%3][7:0];
 
 
+    // TODO: TALK WITH DR WALLING TO ENSURE THIS ISN'T A TERRIBLE IDEA
     assign tensor_core_controller_output = (is_burst_store_active ? burst_current_dual_store_data[~clock_in]: 8'b0);
 
 

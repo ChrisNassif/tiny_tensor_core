@@ -132,11 +132,11 @@ module tensor_core_memory_controller(
         else if (current_opcode == `MATRIX_SCALE_OPCODE) begin
             for (int i = 0; i < 9; i++) begin
                 if (scale_factor[7] == 1) begin
-                    data[data_load_address1 + i] <= $signed(data[data_load_address1 + i]) >>> negative_scale_factor;
+                    data[data_load_address1 + i] <= ($signed(data[data_load_address1 + i]) >>> negative_scale_factor);
                 end
                 
                 else begin
-                    data[data_load_address1 + i] <= data[data_load_address1 + i] << scale_factor; 
+                    data[data_load_address1 + i] <= (data[data_load_address1 + i] << scale_factor); 
                 end
 
             end
@@ -155,6 +155,7 @@ module tensor_core_memory_controller(
         if (data_store_enable) begin
             data[data_store_address][11:8] <= data_store_data[3:0];
 
+            // sign extend
             if (data_store_data[3] == 1) begin
                 data[data_store_address][31:12] <= 20'hFFFFF;
             end else begin
