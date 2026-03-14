@@ -14,8 +14,8 @@ module tensor_core_test_bench();
 
     
     logic [63:0] machine_code [0:4000];
-    logic [15:0] current_instruction;
-    logic signed [7:0] out;
+    logic [9:0] current_instruction;
+    logic signed [11:0] out;
     logic [1024:0] tensor_core_output;
 
     integer i;

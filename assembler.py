@@ -11,7 +11,8 @@ operation_name_to_opcode = {
     "reset": "011",
     "matrix_add": "100",
     "matrix_scale": "101",
-    "matrix_relu": "110"
+    "matrix_relu": "110",
+    "currently_bursting": "111"
 }
 
 def number_into_signed_kbit_binary(number: str, k):
@@ -66,18 +67,15 @@ def main():
 
             if store_or_load != "store_and_load":
                 raise Exception(f"Only accepts store_and_load as an acceptable argument on line {line_index}")
-
-            current_machine_code_line += "0"*13
+            
+            current_machine_code_line += "0"*2
+            current_machine_code_line += "0"*11
             current_machine_code_line += operation_name_to_opcode["burst"]
             
             burst_store_address = int(assembly_code_tokens[2])
             burst_load_matrix1_address = int(assembly_code_tokens[3])
             burst_load_matrix2_address = int(assembly_code_tokens[4])
-            
-            # This is commented out for custom overlapping
-            # if burst_store_address in [burst_load_matrix1_address, burst_load_matrix2_address]:
-            #     raise Exception(f"Pipeline Hazard on line {line_index}: Cannot store to and load from the same matrix address ({burst_store_address}) in the same instruction.")
-                    
+
         elif (operation_name in ["matrix_multiply"]):
             current_machine_code_line += "0" * 48
             current_machine_code_line += "0"*13
@@ -102,8 +100,8 @@ def main():
             scale_factor = int(round(math.log2(float(assembly_code_tokens[2]))))
 
             current_machine_code_line += number_into_unsigned_kbit_binary(matrix_address, k=16)
-            current_machine_code_line += "0"*5
-            current_machine_code_line += number_into_signed_kbit_binary(scale_factor, k=8)
+            current_machine_code_line += "0"*6
+            current_machine_code_line += number_into_signed_kbit_binary(scale_factor, k=7)
             current_machine_code_line += operation_name_to_opcode["matrix_scale"]
             
         elif (operation_name == "matrix_relu"):
@@ -117,21 +115,22 @@ def main():
         else:
             raise Exception(f"operation name {operation_name} on line {line_index} is not supported")
                 
+
+
         machine_code.append(format(int(current_machine_code_line, 2), "016X") +'\n')
-        if operation_name != "burst":
-            machine_code.append(format(int(current_machine_code_line, 2), "016X") +'\n')
         
+
         if should_have_matrix_operation_nops_after:
             for i in range(NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION):
                 machine_code.append(format(int("0"*64, 2), "016X") + '\n')
 
+
+
         if burst_load_matrix1_address is not None and burst_load_matrix2_address is not None:
             for index in range(9):
                 current_machine_code_line = ""
-                if burst_store_address is not None:
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_store_address + int(index/2), k=16)
-                else:
-                    current_machine_code_line += "0"*16
+                
+                current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_store_address + index, k=16)
 
                 if 2*index+1 < 9:
                     current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_load_matrix1_address + 2*index+1, k=16)
@@ -145,24 +144,14 @@ def main():
 
                 current_machine_code_line += "1"*2
                 current_machine_code_line += "0"*11
-                current_machine_code_line += operation_name_to_opcode["burst"]
+                current_machine_code_line += operation_name_to_opcode["currently_bursting"]
+                
                 machine_code.append(format(int(current_machine_code_line, 2), "016X") + '\n')
-            
-            if burst_store_address is not None:
-                for index in range(9, 18):
-                    current_machine_code_line = ""
-                    current_machine_code_line += number_into_unsigned_kbit_binary(9*burst_store_address + int(index/2), k=16)     
-                    current_machine_code_line += "0"*32
-                    current_machine_code_line += "0"
-                    current_machine_code_line += "1"
-                    current_machine_code_line += "0"*11
-                    current_machine_code_line += operation_name_to_opcode["burst"]
-                    machine_code.append(format(int(current_machine_code_line, 2), "016X") + '\n')
 
-                machine_code.append(format(int("0"*64, 2), "016X") + '\n')
             
     with open("machine_code", 'w+') as f:
         f.writelines(machine_code)
+
 
 if __name__ == "__main__": 
     main()
