@@ -68,7 +68,7 @@ module tensor_core_controller (
         .clock_in(clock_in), .reset_in(reset_in),
 
         .dual_load_enable_in(is_burst_state_machine_active),
-        .dual_load_register_address_in(burst_current_index[3:0]-1),
+        .dual_load_register_address_in((burst_current_index >= 4'd1) ? (burst_current_index - 4'd1) : 4'd0),
         .dual_load_data_in(burst_current_dual_load_data),
 
         .bulk_store_data_out(tensor_core_register_file_bulk_store_data)
