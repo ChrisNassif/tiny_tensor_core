@@ -117,14 +117,17 @@ module tensor_core_memory_controller(
                 else begin
                     memory[memory_load_address1 + i] <= (memory[memory_load_address1 + i] << scale_factor); 
                 end
-
             end
         end
 
         else if (current_opcode == `MATRIX_RELU_OPCODE) begin
             for (int i = 0; i < 9; i++) begin
-                if (memory[memory_load_address1 + i][31] == 1) begin
+                if (memory[memory_load_address1 + i] < 0) begin
                     memory[memory_load_address1 + i] <= 0;
+                end
+
+                else if (memory[memory_load_address1 + i] > 15) begin
+                    memory[memory_load_address1 + i] <= 15;
                 end
             end
         end
