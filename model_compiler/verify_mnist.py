@@ -3,7 +3,7 @@ import torch, numpy as np, subprocess, sys, os, math, shutil, tempfile, argparse
 from multiprocessing import Pool, cpu_count
 from torchvision import datasets, transforms
 
-MODEL_PATH = "models/quantized_tensor_core_mnist_969_64_hidden_layer.pt"
+MODEL_PATH = "models/quantized_tensor_core_mnist_961_5bit.pt"
 SV_FILES = ["src/tensor_core_test_bench.sv", "src/tensor_core_memory_controller.sv",
             "src/tensor_core_controller.sv", "src/tensor_core.sv", "src/tensor_core_register_file.sv"]
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

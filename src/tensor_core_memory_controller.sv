@@ -122,11 +122,11 @@ module tensor_core_memory_controller(
 
         else if (current_opcode == `MATRIX_RELU_OPCODE) begin
             for (int i = 0; i < 9; i++) begin
-                if (memory[memory_load_address1 + i] < 0) begin
+                if ($signed(memory[memory_load_address1 + i]) < 0) begin
                     memory[memory_load_address1 + i] <= 0;
                 end
 
-                else if (memory[memory_load_address1 + i] > 15) begin
+                else if ($signed(memory[memory_load_address1 + i]) > 15) begin
                     memory[memory_load_address1 + i] <= 15;
                 end
             end
