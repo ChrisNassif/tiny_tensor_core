@@ -2,7 +2,7 @@ import numpy as np
 import sys
 import math
 
-NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 16
+NUMBER_OF_NOPS_AFTER_MATRIX_OPERATION = 9
 
 operation_name_to_opcode = {
     "nop": "000",
@@ -26,6 +26,8 @@ def number_into_unsigned_kbit_binary(number: str, k):
     if number < 0 or number > (2**k)-1:
         raise Exception("code has out of bounds number")
     return np.binary_repr(number, k)
+
+
 
 def main():
     if len(sys.argv) > 1:
@@ -100,8 +102,8 @@ def main():
             scale_factor = int(round(math.log2(float(assembly_code_tokens[2]))))
 
             current_machine_code_line += number_into_unsigned_kbit_binary(matrix_address, k=16)
-            current_machine_code_line += "0"*6
-            current_machine_code_line += number_into_signed_kbit_binary(scale_factor, k=7)
+            current_machine_code_line += "0"*5
+            current_machine_code_line += number_into_signed_kbit_binary(scale_factor, k=8)
             current_machine_code_line += operation_name_to_opcode["matrix_scale"]
             
         elif (operation_name == "matrix_relu"):

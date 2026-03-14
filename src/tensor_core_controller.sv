@@ -24,7 +24,8 @@ module tensor_core_controller (
 
     
     // used for the burst instruction state machine
-    logic is_burst_load_store_active;
+    wire is_burst_load_store_active = (is_burst_state_machine_active || opcode == `BURST_OPCODE);
+    logic is_burst_state_machine_active;
     logic [3:0] burst_current_index; // stores the current index that the burst opcode is looking at either for storing or loading
     wire signed [11:0] burst_current_store_data = (burst_current_index < 4'd9) ? tensor_core_output[burst_current_index] : 12'b0;
 
@@ -37,24 +38,23 @@ module tensor_core_controller (
     // manage the state machine for the burst store and load
     // this state machine will manage the burst stores and loads and ensures that it happens for the correct amount of time
     always_ff @(posedge clock_in) begin
-        // TODO FIX THIS STATE MACHINE
         if (reset_in == 1'b1) begin
             burst_current_index <= 4'd0;
-            is_burst_load_store_active <= 1'b0;
+            is_burst_state_machine_active <= 1'b0;
         end
 
-        else if (opcode == `BURST_OPCODE && (burst_current_index == 4'd0 || burst_current_index == 4'd8)) begin
+        else if (opcode == `BURST_OPCODE && (burst_current_index == 4'd0 || burst_current_index == 4'd9)) begin
             burst_current_index <= 4'd1;
-            is_burst_load_store_active <= 1'b1;
+            is_burst_state_machine_active <= 1'b1;
         end
 
-        else if (burst_current_index < 4'd8 && burst_current_index != 4'd0) begin
+        else if (burst_current_index < 4'd9 && burst_current_index != 4'd0) begin
             burst_current_index <= burst_current_index + 1'b1;
         end
 
-        else if (burst_current_index == 4'd8) begin
+        else if (burst_current_index == 4'd9) begin
             burst_current_index <= 4'd0;
-            is_burst_load_store_active <= 1'b0;
+            is_burst_state_machine_active <= 1'b0;
         end
 
         else begin
@@ -67,8 +67,8 @@ module tensor_core_controller (
     tensor_core_register_file main_tensor_core_register_file (
         .clock_in(clock_in), .reset_in(reset_in),
 
-        .dual_load_enable_in(is_burst_load_store_active),
-        .dual_load_register_address_in(burst_current_index[3:0]),
+        .dual_load_enable_in(is_burst_state_machine_active),
+        .dual_load_register_address_in(burst_current_index[3:0]-1),
         .dual_load_data_in(burst_current_dual_load_data),
 
         .bulk_store_data_out(tensor_core_register_file_bulk_store_data)
@@ -79,7 +79,7 @@ module tensor_core_controller (
         .clock_in(clock_in),
         .reset_in(reset_in),
 
-        .should_start_tensor_core(opcode == `TENSOR_CORE_OPCODE && (!is_burst_load_store_active || burst_current_index == 4'd8)),
+        .should_start_tensor_core(opcode == `TENSOR_CORE_OPCODE && (!is_burst_load_store_active || burst_current_index == 4'd9)),
 
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
         .tensor_core_output(tensor_core_output)

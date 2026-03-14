@@ -52,7 +52,6 @@ module tensor_core_memory_controller(
 
 
 
-
     initial begin
         
         for (int i = 0; i < 400000; i++) begin
@@ -70,10 +69,12 @@ module tensor_core_memory_controller(
     final begin
         $writememh("data_out", memory);
     end
-    
+
+
+
     always_comb begin
 
-        if (reset_out) begin
+        if (reset_out || current_opcode == `MATRIX_ADD_OPCODE || current_opcode == `MATRIX_SCALE_OPCODE || current_opcode == `MATRIX_RELU_OPCODE) begin
             current_tensor_core_instruction = 0;
         end
         else if (is_burst_load_active) begin
@@ -91,7 +92,7 @@ module tensor_core_memory_controller(
     // handle writing data that is being stored into main memory from the tensor core
     // also handle any relevant memory controller opcodes
     always_ff @(posedge clock_in) begin
-
+        
         if (is_burst_store_active) begin
             memory[memory_store_address][11:0] <= memory_store_data;
 
@@ -112,7 +113,7 @@ module tensor_core_memory_controller(
 
         else if (current_opcode == `MATRIX_SCALE_OPCODE) begin
             for (int i = 0; i < 9; i++) begin
-                if (scale_factor[6] == 1) begin
+                if (scale_factor[7] == 1) begin
                     memory[memory_load_address1 + i] <= ($signed(memory[memory_load_address1 + i]) >>> negative_scale_factor);
                 end
                 
@@ -131,6 +132,7 @@ module tensor_core_memory_controller(
             end
         end
     end
+
 
 
     // Hardware for managing the instruction counter
