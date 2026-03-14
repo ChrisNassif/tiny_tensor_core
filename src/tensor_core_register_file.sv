@@ -31,7 +31,7 @@ module tensor_core_register_file (
         end
 
         else if (dual_load_enable_in) begin
-            if (dual_load_register_address_in < 9) begin
+            if (dual_load_register_address_in < 4'd9) begin
                 for (int i = 0; i < 2; i++) begin
                     registers[(dual_load_register_address_in << 1) + i] <= dual_load_data_in[i];
                 end

@@ -47,6 +47,8 @@ iverilog -g2012 -o build/tensor_core_test_bench.out \
     src/tensor_core_controller.sv \
     src/tensor_core.sv \
     src/tensor_core_register_file.sv
+    # src/synthesized_tensor_core.v" \
+    # "src/sky130_scl_9T.v
 
 echo "Running simulation..."
 timeout 120 vvp build/tensor_core_test_bench.out

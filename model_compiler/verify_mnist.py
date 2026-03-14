@@ -5,6 +5,7 @@ from torchvision import datasets, transforms
 
 MODEL_PATH = "models/quantized_tensor_core_mnist_961_5bit.pt"
 SV_FILES = ["src/tensor_core_test_bench.sv", "src/tensor_core_memory_controller.sv",
+            # "src/synthesized_tensor_core.v", "src/sky130_scl_9T.v"]
             "src/tensor_core_controller.sv", "src/tensor_core.sv", "src/tensor_core_register_file.sv"]
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -38,6 +39,9 @@ def run_single_test(args):
 
         # Write data and assembly
         with open(os.path.join(tmpdir, "data_in_plain_text.txt"), "w") as f:
+            f.writelines(" ".join(str(v) for v in b) + "\n" for b in blocks)
+        
+        with open("tmp.txt", "w") as f:
             f.writelines(" ".join(str(v) for v in b) + "\n" for b in blocks)
 
         shutil.copy2(os.path.join(PROJECT_ROOT, "assembly_code.asm"), os.path.join(tmpdir, "assembly_code.asm"))

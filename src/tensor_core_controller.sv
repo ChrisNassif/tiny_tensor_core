@@ -24,8 +24,8 @@ module tensor_core_controller (
 
     
     // used for the burst instruction state machine
-    wire is_burst_load_store_active = (is_burst_state_machine_active || opcode == `BURST_OPCODE);
     logic is_burst_state_machine_active;
+    wire is_burst_load_store_active = (is_burst_state_machine_active || opcode == `BURST_OPCODE);
     logic [3:0] burst_current_index; // stores the current index that the burst opcode is looking at either for storing or loading
     wire signed [11:0] burst_current_store_data = (burst_current_index < 4'd9) ? tensor_core_output[burst_current_index] : 12'b0;
 

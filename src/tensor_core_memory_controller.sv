@@ -24,17 +24,14 @@ module tensor_core_memory_controller(
 
     // logic power_on_reset_signal = 1;
 
-    assign reset_out = (current_opcode == `RESET_OPCODE) || reset_in;
-    // assign reset_out = (current_opcode == `RESET_OPCODE) || reset_in || power_on_reset_signal;
-    assign clock_out = clock_in;
-
-
-
-
     wire [63:0] raw_current_instruction = machine_code[current_machine_code_instruction_index];
     wire [2:0] current_opcode = raw_current_instruction[2:0];
     wire [7:0] scale_factor = raw_current_instruction[10:3];
     wire [7:0] negative_scale_factor = ~scale_factor+1;
+
+    assign reset_out = (current_opcode == `RESET_OPCODE) || reset_in;
+    // assign reset_out = (current_opcode == `RESET_OPCODE) || reset_in || power_on_reset_signal;
+    assign clock_out = clock_in;
 
 
     wire is_burst_load_active = (current_opcode == `CURRENTLY_BURSTING_OPCODE && raw_current_instruction[15] == 1'b1);
