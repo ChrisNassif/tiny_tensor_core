@@ -3,7 +3,7 @@ import os
 import subprocess
 import shutil
 
-def generate_stateless_fuzz_improved(test_name, num_ops=50):
+def generate_stateless_fuzz_improved(test_name, num_ops=5):
     random.seed(42)
     os.makedirs(f"tests/{test_name}", exist_ok=True)
     asm_file = f"tests/{test_name}/{test_name}.asm"
@@ -44,7 +44,6 @@ def generate_stateless_fuzz_improved(test_name, num_ops=50):
                 f.write(f"matrix_relu {res}\n")
             
             
-            # Continue the old tensor core `burst` hazard resolution workaround
             idxRes = random.randint(0, 18)
             next_idxA = random.randint(0, 18)
             next_idxB = random.randint(0, 18)
@@ -69,4 +68,4 @@ def generate_stateless_fuzz_improved(test_name, num_ops=50):
     subprocess.run(["python3", "tests/create_test_from_asm.py", asm_file, test_name], check=True)
 
 if __name__ == "__main__":
-    generate_stateless_fuzz_improved("test_fuzz", 50)
+    generate_stateless_fuzz_improved("test_fuzz", 5000)

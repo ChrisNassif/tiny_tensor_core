@@ -1,5 +1,5 @@
 """End-to-end MNIST verification: compile model → inject test images → simulate in parallel → compare to PyTorch."""
-import torch, numpy as np, subprocess, sys, os, math, shutil, tempfile
+import torch, numpy as np, subprocess, sys, os, math, shutil, tempfile, argparse
 from multiprocessing import Pool, cpu_count
 from torchvision import datasets, transforms
 
@@ -93,7 +93,7 @@ def run_single_test(args):
             else:
                 shutil.copy2(src, dst)
 
-        # Copy only what we need from model_compiler and models
+        # Create build directory in temp folder
         os.makedirs(os.path.join(tmpdir, "build"), exist_ok=True)
 
         # Inject quantized input into memory blocks
@@ -115,15 +115,27 @@ def run_single_test(args):
         def run(cmd):
             res = subprocess.run(cmd, capture_output=True, text=True, timeout=600, cwd=tmpdir)
             if res.returncode != 0:
-                print(f"Command '{' '.join(cmd)}' failed:\n{res.stderr}\n{res.stdout}")
-                return False
-            return True
+                return False, f"Command '{' '.join(cmd)}' failed:\n{res.stderr}\n{res.stdout}"
+            return True, "OK"
 
-        if not run([sys.executable, "assembler.py", "assembly_code.asm"]): return (test_idx, label, None, None, False, "Assembly failed")
-        if not run([sys.executable, "convert_data_from_data_in_plain_text_to_data_in.py"]): return (test_idx, label, None, None, False, "Convert input failed")
-        shutil.copy2(os.path.join(PROJECT_ROOT, "build/tb.out"), os.path.join(tmpdir, "build/tb.out"))
-        if not run(["vvp", "build/tb.out"]): return (test_idx, label, None, None, False, "Simulation failed")
-        if not run([sys.executable, "convert_data_from_data_out_to_data_out_plain_text.py"]): return (test_idx, label, None, None, False, "Convert output failed")
+        success, msg = run([sys.executable, "assembler.py", "assembly_code.asm"])
+        if not success: return (test_idx, label, None, None, False, msg)
+        
+        success, msg = run([sys.executable, "convert_data_from_data_in_plain_text_to_data_in.py"])
+        if not success: return (test_idx, label, None, None, False, msg)
+        
+        # Copy the Verilator executable binary to the temp workspace
+        bin_name = "Vtensor_core_test_bench"
+        src_bin = os.path.join(PROJECT_ROOT, "build", "verilator_obj", bin_name)
+        dst_bin = os.path.join(tmpdir, "build", bin_name)
+        shutil.copy2(src_bin, dst_bin)
+        
+        # Run Verilator binary natively
+        success, msg = run([dst_bin])
+        if not success: return (test_idx, label, None, None, False, msg)
+        
+        success, msg = run([sys.executable, "convert_data_from_data_out_to_data_out_plain_text.py"])
+        if not success: return (test_idx, label, None, None, False, msg)
 
         # Read hardware output
         with open(os.path.join(tmpdir, "data_out_plain_text.txt")) as f:
@@ -131,18 +143,18 @@ def run_single_test(args):
 
         hw_logits = [v for bid in output_blocks for v in hw_blocks[bid][:3]][:10]
 
-        # Compute reference
-        sd = torch.load(sd_path, map_location='cpu')
-        input_float = torch.tensor(x_quant, dtype=torch.float).unsqueeze(0)
-        # Re-derive input_float from x_quant is lossy; compute ref from original data instead
-        # We pass ref_logits from the parent process to avoid this
-        ref_logits = None  # computed by parent
-
-        return (test_idx, label, hw_logits, ref_logits, True, "OK")
+        return (test_idx, label, hw_logits, None, True, "OK")
+    except Exception as e:
+        return (test_idx, label, None, None, False, str(e))
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 def main():
+    parser = argparse.ArgumentParser(description="End-to-end MNIST verification with Verilator")
+    parser.add_argument("-n", "--num-tests", type=int, default=100, 
+                        help="Number of MNIST images to test. Use 0 to run the entire dataset. (default: 100)")
+    args = parser.parse_args()
+
     sd = torch.load(os.path.join(PROJECT_ROOT, MODEL_PATH), map_location='cpu')
 
     # Compile model once to get weight layout and assembly
@@ -163,12 +175,20 @@ def main():
     print(f"  Output blocks: {output_blocks}")
     print(f"  {result.stdout.strip()}")
 
-    print("=== Compiling SystemVerilog Simulation ===")
-    os.makedirs(os.path.join(PROJECT_ROOT, "build"), exist_ok=True)
-    compile_cmd = ["iverilog", "-g2012", "-o", os.path.join(PROJECT_ROOT, "build/tb.out")] + [os.path.join(PROJECT_ROOT, f) for f in SV_FILES]
+    print("=== Compiling SystemVerilog Simulation with Verilator ===")
+    verilator_build_dir = os.path.join(PROJECT_ROOT, "build", "verilator_obj")
+    os.makedirs(verilator_build_dir, exist_ok=True)
+    
+    compile_cmd = [
+        "verilator", "--binary", "-Wno-fatal", 
+        "--top-module", "tensor_core_test_bench",
+        "-Mdir", verilator_build_dir
+    ] + [os.path.join(PROJECT_ROOT, f) for f in SV_FILES]
+    
     compile_res = subprocess.run(compile_cmd, capture_output=True, text=True, cwd=PROJECT_ROOT)
     if compile_res.returncode != 0:
-        print("SV Compile failed:", compile_res.stderr); return False
+        print("Verilator Compile failed:\n", compile_res.stderr, "\n", compile_res.stdout) 
+        return False
 
     # Load test data
     dataset = datasets.MNIST('../data', train=False, transform=transforms.Compose(
@@ -181,9 +201,15 @@ def main():
     with open(os.path.join(PROJECT_ROOT, "data_in_plain_text.txt")) as f:
         base_blocks = [[int(x) for x in line.split()] for line in f]
 
-    num_tests = 5
-    num_workers = min(num_tests, cpu_count())
-    print(f"\nRunning {num_tests} tests in parallel on {num_workers} processes...")
+    # Determine number of tests to run based on arguments
+    total_dataset_len = len(dataset)
+    if args.num_tests <= 0:
+        num_tests = total_dataset_len
+    else:
+        num_tests = min(args.num_tests, total_dataset_len)
+
+    num_workers = cpu_count()
+    print(f"\nPreparing {num_tests} tasks...")
 
     # Prepare test data
     tasks = []
@@ -196,30 +222,54 @@ def main():
         tasks.append((i, label, x_quant, base_blocks, output_blocks, input_tiles,
                       os.path.join(PROJECT_ROOT, MODEL_PATH)))
 
-    # Run in parallel
+    print(f"Running {num_tests} tests in parallel on {num_workers} processes...")
+    
+    # Run in parallel with progress tracking
+    results = []
     with Pool(num_workers) as pool:
-        results = pool.map(run_single_test, tasks)
+        for i, res in enumerate(pool.imap_unordered(run_single_test, tasks), 1):
+            results.append(res)
+            if num_tests >= 500:
+                if i % 500 == 0 or i == num_tests:
+                    print(f"  Completed {i}/{num_tests} simulations...")
+            else:
+                if i % max(1, num_tests // 10) == 0 or i == num_tests:
+                    print(f"  Completed {i}/{num_tests} simulations...")
 
-    # Print results
+    # Process and print aggregated results
+    print("\n=== Final Results ===")
+    correct_count = 0
+    failed_tests = []
     all_pass = True
-    print()
-    for test_idx, label, hw_logits, _, success, msg in sorted(results):
+
+    for test_idx, label, hw_logits, _, success, msg in sorted(results, key=lambda x: x[0]):
         ref_logits = ref_logits_map[test_idx]
         if not success:
-            print(f"Test {test_idx+1}/5 (digit={label}): FAILED — {msg}")
+            failed_tests.append(f"Test {test_idx} (digit={label}): FAILED — {msg}")
             all_pass = False
             continue
 
         match = hw_logits == ref_logits
-        hw_pred, ref_pred = np.argmax(hw_logits), np.argmax(ref_logits)
-        print(f"Test {test_idx+1}/5 (digit={label}): HW={hw_pred} Ref={ref_pred} {'✓' if match else '✗'}")
-        if not match:
-            print(f"  HW:  {hw_logits}")
-            print(f"  Ref: {ref_logits}")
+        if match:
+            correct_count += 1
+        else:
+            hw_pred, ref_pred = np.argmax(hw_logits), np.argmax(ref_logits)
+            failed_tests.append(f"Test {test_idx} (digit={label}): HW={hw_pred} Ref={ref_pred} ✗\n  HW:  {hw_logits}\n  Ref: {ref_logits}")
             all_pass = False
 
-    print(f"\n{'=' * 50}")
-    print("ALL TESTS PASSED ✓" if all_pass else "SOME TESTS HAD DIFFERENCES")
+    match_percentage = (correct_count / num_tests) * 100
+    print(f"Hardware outputs matching PyTorch reference: {correct_count}/{num_tests} ({match_percentage:.2f}%)")
+
+    if not all_pass:
+        print("\nSOME TESTS HAD DIFFERENCES OR FAILED.")
+        print("Showing up to the first 15 failures:")
+        for fail_msg in failed_tests[:15]:
+            print(fail_msg)
+        if len(failed_tests) > 15:
+            print(f"... and {len(failed_tests) - 15} more failures.")
+    else:
+        print("ALL TESTS PASSED ✓")
+
     print("=" * 50)
     return all_pass
 

@@ -7,9 +7,6 @@
 `define MATRIX_RELU_OPCODE 3'b110
 `define CURRENTLY_BURSTING_OPCODE 3'b111
 
-`define BUS_WIDTH 4
-
-
 
 module tensor_core_memory_controller(
     input logic clock_in,
@@ -20,8 +17,8 @@ module tensor_core_memory_controller(
     output logic [9:0] current_tensor_core_instruction
 );
 
-    logic [63:0] machine_code [0:4000];
-    logic [31:0] memory [0:4000];
+    logic [63:0] machine_code [0:400000];
+    logic [31:0] memory [0:65535];
     logic [19:0] current_machine_code_instruction_index;
 
 

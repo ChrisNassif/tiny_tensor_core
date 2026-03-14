@@ -71,7 +71,6 @@ def main():
         pass
     
     # Initialize State
-    random.seed(42)
     # 20 matrices (0-19)
     matrices = [[random.randint(-10, 10) for _ in range(9)] for _ in range(20)]
     initial_matrices = [m[:] for m in matrices]

@@ -43,7 +43,7 @@ module tensor_core_controller (
             is_burst_state_machine_active <= 1'b0;
         end
 
-        else if (opcode == `BURST_OPCODE && (burst_current_index == 4'd0 || burst_current_index == 4'd9)) begin
+        else if (opcode == `BURST_OPCODE && burst_current_index == 4'd0) begin
             burst_current_index <= 4'd1;
             is_burst_state_machine_active <= 1'b1;
         end
@@ -79,7 +79,7 @@ module tensor_core_controller (
         .clock_in(clock_in),
         .reset_in(reset_in),
 
-        .should_start_tensor_core(opcode == `TENSOR_CORE_OPCODE && (!is_burst_load_store_active || burst_current_index == 4'd9)),
+        .should_start_tensor_core(opcode == `TENSOR_CORE_OPCODE && !is_burst_load_store_active),
 
         .tensor_core_input1(tensor_core_input1), .tensor_core_input2(tensor_core_input2),
         .tensor_core_output(tensor_core_output)
